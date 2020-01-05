@@ -211,6 +211,21 @@ int main(void)
 	SPI1_Init();
   TLC5620_Init();
 	
+	
+	//设定默认参数
+	IgkAgvOs.OsTime.Hour = 0;
+	IgkAgvOs.OsTime.Minute = 0;
+	IgkAgvOs.OsTime.Second = 0;
+	IgkAgvOs.OsTime.Millisecond = 0;
+	
+	IgkAgvOs.WorkMode = Enum_LocalAuto;//自动模式
+	IgkAgvOs.Dir = Enum_QianJin;//前进方向
+	IgkAgvOs.RFID = 5;
+	IgkAgvOs.RunOrStop = Enum_Stop;//停止状态
+	IgkAgvOs.Speed = 50;//速度50%;
+
+	
+	
 	IGK_SysTimePrintln("正在初始化...");
 	//初始化Flash
 	W25QXX_Init();			//W25QXX初始化
@@ -226,20 +241,11 @@ int main(void)
 		osdelay_ms(60);
 	}
 	IGK_SysTimePrintln("Flash Ok!");	
-	IGK_SysTimePrintln("系统初始化完成 !");
-	
-	//设定默认参数
-	IgkAgvOs.WorkMode = Enum_LocalAuto;//自动模式
-	IgkAgvOs.Dir = Enum_QianJin;//前进方向
-	IgkAgvOs.RFID = 5;
-	IgkAgvOs.RunOrStop = Enum_Stop;//停止状态
-	IgkAgvOs.Speed = 50;//速度50%;
-	
-	
-	
 	//初始化内存池[采用原子内存管理]
 	my_mem_init(SRAMIN);
+	IGK_SysTimePrintln("开启动态内存：%dKByte!",MEM1_MAX_SIZE/1024);	
 	OSInit(&err);		//初始化UCOSIII
+	IGK_SysTimePrintln("UCOSIII初始化完成,系统进入时间轮片!");
 	OS_CRITICAL_ENTER();//进入临界区
 	//创建开始任务
 	OSTaskCreate((OS_TCB * )&StartTaskTCB,		//任务控制块
@@ -281,7 +287,7 @@ void start_task(void *p_arg)
 #endif
 
 	OS_CRITICAL_ENTER();	//进入临界区
-	//创建Transducer任务
+	//创建Task1
 	OSTaskCreate((OS_TCB * )&Task1TCB,
 	             (CPU_CHAR * )"Transducer task",
 	             (OS_TASK_PTR )task1,
@@ -295,7 +301,7 @@ void start_task(void *p_arg)
 	             (void * )0,
 	             (OS_OPT      )OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR,
 	             (OS_ERR * )&err);
-
+//	IGK_SysTimePrintln("Task1创建完成!");
 	//创建自动任务
 	OSTaskCreate((OS_TCB * )&AutoTaskTCB,
 	             (CPU_CHAR * )"Auto task",
@@ -311,6 +317,7 @@ void start_task(void *p_arg)
 	             (OS_OPT      )OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR,
 	             (OS_ERR * )&err);
 
+//	IGK_SysTimePrintln("AutoTask创建完成!");
 	//创建浮点测试任务
 	OSTaskCreate((OS_TCB * )&FloatTaskTCB,
 	             (CPU_CHAR * )"float test task",
@@ -326,6 +333,7 @@ void start_task(void *p_arg)
 	             (OS_OPT      )OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR,
 	             (OS_ERR * )&err);
 
+//	IGK_SysTimePrintln("FloatTask创建完成!");
 	//创建触摸屏任务
 	OSTaskCreate((OS_TCB * )&ScreenTaskTCB,
 	             (CPU_CHAR * )"Screen task",
@@ -341,6 +349,7 @@ void start_task(void *p_arg)
 	             (OS_OPT      )OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR,
 	             (OS_ERR * )&err);
 
+//	IGK_SysTimePrintln("ScreenTask创建完成!");
 	//PID
 	OSTaskCreate((OS_TCB * )&PIDTaskTCB,
 	             (CPU_CHAR * )"PID task",
@@ -355,6 +364,7 @@ void start_task(void *p_arg)
 	             (void * )0,
 	             (OS_OPT      )OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR,
 	             (OS_ERR * )&err);
+//	IGK_SysTimePrintln("PIDTask创建完成!");
 	//Control
 	OSTaskCreate((OS_TCB * )&ControlTaskTCB,
 	             (CPU_CHAR * )"Control task",
@@ -369,6 +379,7 @@ void start_task(void *p_arg)
 	             (void * )0,
 	             (OS_OPT      )OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR,
 	             (OS_ERR * )&err);
+//	IGK_SysTimePrintln("ControlTask创建完成!");
 	//DEMO
 	OSTaskCreate((OS_TCB * )&DEMOTaskTCB,
 	             (CPU_CHAR * )"DEMO task",
@@ -383,6 +394,7 @@ void start_task(void *p_arg)
 	             (void * )0,
 	             (OS_OPT      )OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR,
 	             (OS_ERR * )&err);
+//	IGK_SysTimePrintln("DEMOTask创建完成!");
 	//DEMO1
 	OSTaskCreate((OS_TCB * )&DEMO1TaskTCB,
 	             (CPU_CHAR * )"DEMO1 task",
@@ -397,6 +409,7 @@ void start_task(void *p_arg)
 	             (void * )0,
 	             (OS_OPT      )OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR,
 	             (OS_ERR * )&err);
+//	IGK_SysTimePrintln("DEMO1Task创建完成!");
 	//DEMO2
 	OSTaskCreate((OS_TCB * )&DEMO2TaskTCB,
 	             (CPU_CHAR * )"DEMO2 task",
@@ -412,6 +425,7 @@ void start_task(void *p_arg)
 	             (OS_OPT      )OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR,
 	             (OS_ERR * )&err);
 
+//	IGK_SysTimePrintln("DEMO2Task创建完成!");
 	//创建手动任务
 	OSTaskCreate((OS_TCB * )&ManualTaskTCB,
 	             (CPU_CHAR * )"Manual task",
@@ -427,6 +441,7 @@ void start_task(void *p_arg)
 	             (OS_OPT      )OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR,
 	             (OS_ERR * )&err);
 
+//	IGK_SysTimePrintln("ManualTask创建完成!");
 	OSTaskCreate((OS_TCB * )&WIFITaskTCB,
 	             (CPU_CHAR * )"WIFI task",
 	             (OS_TASK_PTR )WIFI_task,
@@ -441,6 +456,7 @@ void start_task(void *p_arg)
 	             (OS_OPT      )OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR,
 	             (OS_ERR * )&err);
 
+//	IGK_SysTimePrintln("WIFITask创建完成!");
 	OSTaskCreate((OS_TCB * )&Task5_TaskTCB,
 	             (CPU_CHAR * )"Task5 task",
 	             (OS_TASK_PTR )Task5_task,
@@ -455,8 +471,10 @@ void start_task(void *p_arg)
 	             (OS_OPT      )OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR,
 	             (OS_ERR * )&err);
 
+//	IGK_SysTimePrintln("Task5创建完成!");
 	OS_TaskSuspend((OS_TCB *)&StartTaskTCB, &err);		//挂起开始任务
 	OS_CRITICAL_EXIT();	//进入临界区
+	IGK_SysTimePrintln("任务创建完成!");
 }
 
 //模式
@@ -635,9 +653,8 @@ u8 percentMem=0;//内存使用率
 void Manual_task(void *p_arg)
 {
 	p_arg = p_arg;
-	u16 nowTarget = 0;
-	osdelay_s(5);
-	yinling(2);
+	osdelay_s(1);
+	yinling(1);
 	IGK_Speek("系统自检完成");
 	while(1)
 	{
@@ -649,9 +666,13 @@ void Manual_task(void *p_arg)
 		//满足以上条件后清除执行信号
 		PLC_Data[43] = 0;
 		target = PLC_Data[40];
-		//播报目标位置
-		IGK_Speek("目标是%d号位置",target);
-		osdelay_s(3);
+		if(target>=NodeNum){
+			IGK_Speek("目标最大为%d,请重新输入",NodeNum);
+		}
+		else
+		{
+			
+		}
 		//打印内存情况
 		percentMem = my_mem_perused(SRAMIN);
 		IGK_SysTimePrintln(p_arg,"内存使用率：[%d]",percentMem);
@@ -680,53 +701,56 @@ void Manual_task(void *p_arg)
 		IGK_SysTimePrintln(p_arg,"内存使用率：[%d]",percentMem);
 		//搜索路径
 		FindRoute(IgkAgvOs.RFID,target);
-		
+		IGK_SysTimePrintln(p_arg,"路径搜索完成!");
+		percentMem = my_mem_perused(SRAMIN);
+		IGK_SysTimePrintln(p_arg,"内存使用率：[%d]",percentMem);
+
+		//播报目标位置
+		IGK_Speek("准备从%d号标签前往%d号标签",IgkAgvOs.RFID,target);
+		osdelay_s(4);
 		if(PathTotal==0)
 		{
 			IGK_SysPrintf("未找到有效路径！\r\n\r\n");
-			IGK_Speek("未找到有效路径");
+			IGK_Speek("未找到有效路径,请重新设置");
 		}
 		else
 		{
-			IGK_SysPrintf("搜索完成,共找到%d条路径！\r\n\r\n",PathTotal);
-			IGK_Speek("搜索完成,共找到%d条路径！",PathTotal);
-		}
-		osdelay_s(4);
-		u8 num=0;
-		while(num<1&&PathNodeNum[num]>0)
-		{
-			//进入说明有路,启动
+			IGK_SysPrintf("共找到%d条路径！\r\n\r\n",PathTotal);
+			IGK_Speek("共找到%d条路径！",PathTotal);
+			osdelay_s(4);
+			/*-----------------开始执行--------------------------*/
+			IGK_Speek("启动！");
 			IgkAgvOs.RunOrStop = Enum_Run;
-			for(int i=0;i < PathNodeNum[num];i++)
+			for(int i=0;i < BestPathNodeCount;i++)
 			{
 				//给定默认速度
 				IgkAgvOs.Speed = 50;
+				u16 nodeId = BestPathNodeList[i];
 				//读取对应站点的地图
 				StaionMapStruct mapStruct;
-				ReadToMapStruct(PathArry[num][i],&mapStruct);
-				IGK_SysPrintf("[%d]",PathArry[num][i]);
+				ReadToMapStruct(nodeId,&mapStruct);
+				IGK_SysPrintf("标签号:[%d]",nodeId);
 				//下一个位置更新到界面
-				PLC_Data[42] = PathArry[num][i];
+				PLC_Data[42] = nodeId;
 				//等待标签,起点不用等待
 				if(i!=0)
 				{
-						IGK_Speek("等待%d号标签!",PathArry[num][i]);
+						IGK_Speek("等待%d号标签!",nodeId);
 						//osdelay_s(2);
-						while(IgkAgvOs.RFID != PathArry[num][i])
+						while(IgkAgvOs.RFID != nodeId)
 						{
 							osdelay_ms(5);
 						}
-						if(i==PathNodeNum[num]-1)
+						if(i == BestPathNodeCount-1)
 						{
 							//到达终点
 							break;
 						}
 				}
-				
 				//直行站点方向，动作
 				for(int j=0;j<StationMapType;j++)
 				{
-					if(mapStruct.Stop[j] == PathArry[num][i+1])
+					if(mapStruct.Stop[j] == BestPathNodeList[i+1])
 					{
 						//方向
 						if(mapStruct.Dir[j] == Enum_QianJin)
@@ -894,7 +918,7 @@ void Manual_task(void *p_arg)
 						}
 						IgkAgvOs.RunOrStop = Enum_Run;
 						//到达
-						IGK_SysPrintf("[%d]",mapStruct.Stop[j]);
+						IGK_SysPrintf("[%d]\r\n\r\n",mapStruct.Stop[j]);
 						//找到对应站点，跳出循环
 						break;
 					}
@@ -904,13 +928,8 @@ void Manual_task(void *p_arg)
 			//到达目标位置,停车
 			IgkAgvOs.RunOrStop = Enum_Stop;
 			IGK_Speek("到达终点，任务完成");
-			IGK_SysPrintf("\r\n\r\n");
-			num++;
+			IGK_SysTimePrintln("到达终点，任务完成");
 		}
-		IGK_SysTimePrintln(p_arg,"路径搜索完成 !");
-		percentMem = my_mem_perused(SRAMIN);
-		IGK_SysTimePrintln(p_arg,"内存使用率：[%d]",percentMem);
-
 		delay(0, 0, 1, 10); //延时10ms
 	}
 }

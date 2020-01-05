@@ -92,7 +92,7 @@ void IGK_SysTimePrintln(char* fmt,...)
 	va_end(ap);
 	//打印系统时间
 	IGK_Struct_DateTime *dt = &IgkAgvOs.OsTime;
-	IGK_SysPrintf("[%d:%d:%d:%d]",&dt->Hour,&dt->Minute,&dt->Second,&dt->Millisecond);
+	IGK_SysPrintf("[%d:%d:%d:%d]",dt->Hour,dt->Minute,dt->Second,dt->Millisecond);
 	//打印消息
 	IGK_Printf(USART2,buf);
 	//打印换行

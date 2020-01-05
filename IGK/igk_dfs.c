@@ -10,15 +10,20 @@ STACK stack;
 //保存结点状态的数组
 u16 states[NodeNum];
 
-//路径节点序列
-//默认最多搜索10条路径,用户可以通过权值配置选择一条合适的路径
-u16 PathArry[10][NodeNum];//N:A->B->C...
-//每条路径的节点数
-u16 PathNodeNum[10];
-//记录路径总数
-u16 PathTotal=0;
+//定义路径结果缓冲区
+//最优路径节点列表【目前以节点数最少为最优路径】【公共变量】
+u16 BestPathNodeList[NodeNum]={0};
+//最优路径节点数【公共变量】
+u16 BestPathNodeCount = 0;
+//临时路径节点列表【内部变量】
+u16 TempPathNodeList[NodeNum]={0};
+//临时路径节点数【内部变量】
+u16 TempPathNodeCount = 0;
 
-//数组倒叙
+//可执行路径总数【公共变量】
+u16 PathTotal = 0;
+
+//数组倒叙方法
 void Reverse(u16 *p , u16 size)
 {
 	int i,tmp;
@@ -72,6 +77,7 @@ PNODE neighbour(int a){
 	}
 	return NULL;
 }
+
 //找邻居节点值
 u16 NeighbourData(int a){
 	//定义临时变量,用于存储带返回结果
@@ -143,14 +149,18 @@ u16 NeighbourData(int a){
 }
 
 
+
 //搜索路径
 void FindRoute(u16 start,u16 end){
-	//清空结果寄存器
-	for(int i=0;i<10;i++)
-		memset(PathArry[i],0,NodeNum);
-	memset(PathNodeNum,0,10);
+	//清空变量
+	memset(BestPathNodeList,0,NodeNum);
+	memset(TempPathNodeList,0,NodeNum);
+	BestPathNodeCount = 0;
+	TempPathNodeCount = 0;
+  PathTotal = 0;
 	memset(states,0,NodeNum);
 	memset(map_next,0,NodeNum);
+	/*--------------循环遍历搜索--------------------*/
 	//当前路径号
 	int curPath = 0;
 	//初始化stack
@@ -166,47 +176,75 @@ void FindRoute(u16 start,u16 end){
 	states[start]=1;
 	//栈不为空
 	while(!IsEmpty(&stack)) {
-		if (stack.PTOP->Element == end){
-			//建立一个临时节点指针，初始化时指向栈顶
-			PNODE P = stack.PTOP;
-			int i = 0;
-			while(P->Element != start){
-				//将结果放入PathArry缓存
-				PathArry[curPath][i++]=P->Element;
-				//路径节点数加1
-				PathNodeNum[curPath]+=1;
-				P=P->Next;
-			}
-			//将结果放入PathArry缓存
-			PathArry[curPath][i++]=P->Element;
-			//路径节点数加1
-			PathNodeNum[curPath]+=1;
-			//将路径倒序
-			Reverse(PathArry[curPath],PathNodeNum[curPath]);
-			//打印路径
-			IGK_SysPrintf("路径号:%d\r\n",curPath);
-			IGK_SysPrintf("节点数:%d\r\n",PathNodeNum[curPath]);
-			for(int i=0;i < PathNodeNum[curPath];i++)
-				if(i==PathNodeNum[curPath]-1)
-					IGK_SysPrintf("%d",PathArry[curPath][i]);
-				else
-					IGK_SysPrintf("%d-",PathArry[curPath][i]);
-			IGK_SysPrintf("\r\n");
+		//找到了有效路径
+		if (stack.PTOP->Element == end)
+		{
 			//路径号加1
 			curPath++;
 			
-			PopStack(&stack);//将栈顶结点弹出
-			states[end]=0;//清除终点的状态
+			/*-----------------------提取路径到临时列表，并倒叙处理---------------------------*/
+
+			//建立一个临时节点指针，初始化时指向栈顶
+			PNODE P = stack.PTOP;
+			int i = 0;
+			//清空临时路径变量
+			memset(TempPathNodeList,0,NodeNum);
+			TempPathNodeCount = 0;
+			//将结果从栈中提取到临时路径列表
+			while(P->Element != NULL)
+			{
+				//将结果放入临时路径列表
+				TempPathNodeList[i++]=P->Element;
+				//路径节点数加1
+				TempPathNodeCount+=1;
+				P=P->Next;
+			}
+			//将路径倒序
+			Reverse(TempPathNodeList,TempPathNodeCount);
+			
+			/*------------------------打印路径---------------------------*/
+			
+			IGK_SysTimePrintln("第:[%d]条路径,节点数:[%d]",curPath,TempPathNodeCount);
+			for(int i=0;i < TempPathNodeCount;i++)
+				if(i == TempPathNodeCount-1)
+					IGK_SysPrintf("%d\r\n",TempPathNodeList[i]);
+				else
+					IGK_SysPrintf("%d-",TempPathNodeList[i]);
+			
+			/*----------------------选择最有路径-------------------------*/
+			
+			//如果是第一条路径
+			if(curPath == 1){
+				//将路径复制到最有路径列表
+				for(int i=0;i < TempPathNodeCount;i++)
+					BestPathNodeList[i] = TempPathNodeList[i];
+				//复制节点数
+				BestPathNodeCount = TempPathNodeCount;
+			}
+			//如果不是第一条
+			else{
+				//如果当前路径更优，则更新最优路径信息
+				if(TempPathNodeCount < BestPathNodeCount){
+					//将路径复制到最有路径列表
+					for(int i=0;i < TempPathNodeCount;i++)
+						BestPathNodeList[i] = TempPathNodeList[i];
+					//复制节点数
+					BestPathNodeCount = TempPathNodeCount;
+				}
+			}
+			/*-------------------------弹出栈顶，清除终点标志，准备下一次搜索---------------------------------*/
+			//将栈顶结点弹出
+			PopStack(&stack);
+			//清除终点的状态
+			states[end]=0;
 			map_next[end]=-1;
 		}
+		//还没找到
 		else{
 			cur_node=stack.PTOP->Element;
 			//邻居不为空
 			if(neighbour(cur_node) != NULL){
 				PNODE d =neighbour(cur_node);
-//				//当出现0时会无限循环
-//				if(d->Element == 0)
-//					break;
 				map_next[cur_node] = d->Element;
 				cur_node=d->Element;
 				PushStack(&stack,cur_node);

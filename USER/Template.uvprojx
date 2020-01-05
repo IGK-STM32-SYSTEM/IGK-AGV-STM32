@@ -431,6 +431,11 @@
               <FileType>1</FileType>
               <FilePath>..\IGK\malloc.c</FilePath>
             </File>
+            <File>
+              <FileName>igk_speek.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IGK\igk_speek.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -610,11 +615,6 @@
               <FileName>usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\usart\usart.c</FilePath>
-            </File>
-            <File>
-              <FileName>xf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\yuyin\xf.c</FilePath>
             </File>
             <File>
               <FileName>function.c</FileName>

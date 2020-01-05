@@ -8,12 +8,12 @@
 //定义邻接关系栈
 extern STACK MapSTACK[NodeNum];
 
-//路径节点序列
-//默认最多搜索10条路径,用户可以通过权值配置选择一条合适的路径
-extern u16 PathArry[10][NodeNum];//N:A->B->C...
-//每条路径的节点数
-extern u16 PathNodeNum[10];
-//记录路径总数
+//定义路径结果缓冲区
+//最优路径节点列表【目前以节点数最少为最优路径】【公共变量】
+extern u16 BestPathNodeList[NodeNum];
+//最优路径节点数【公共变量】
+extern u16 BestPathNodeCount;
+//可执行路径总数【公共变量】
 extern u16 PathTotal;
 
 void FindRoute(u16 start,u16 end);

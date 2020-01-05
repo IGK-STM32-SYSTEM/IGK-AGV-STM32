@@ -293,12 +293,12 @@ void ReadWriteMap(void* p_arg)
 	if(ApiRegister[31] == 1){
 		WriteMap(nowNum);
 		ApiRegister[31] = 0;
-		IGK_SysTimePrintln(p_arg,"写入%d号位置地图!",nowNum);
+		IGK_SysTimePrintln("写入%d号标签地图!",nowNum);
 	}
 	//请求读取
 	if(ApiRegister[32] == 1){
 		ReadMapToReg(nowNum);
 		ApiRegister[32] = 0;
-		IGK_SysTimePrintln(p_arg,"读取%d号位置地图!",nowNum);
+		IGK_SysTimePrintln("读取%d号标签地图!",nowNum);
 	}
 }

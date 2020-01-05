@@ -1,7 +1,4 @@
 #include "sys.h"
-#include "StepperControl.h"
-#include "communication.h"
-#include "calculate.h"
 #include "igk_dfs.h"
 #include "igk_map.h"
 //将这些优先级分配给了UCOSIII的5个系统内部任务
@@ -658,25 +655,44 @@ void Manual_task(void *p_arg)
 	IGK_Speek("系统自检完成");
 	while(1)
 	{
-		//等待执行信号，目标不为零且不能和当前相同
-		while(PLC_Data[43]!=1||PLC_Data[40]==0||PLC_Data[40]==IgkAgvOs.RFID)
+		/*-----------------等待执行信号--------------------------*/
+		IGK_SysTimePrintln("等待任务!");
+		while(PLC_Data[43]!=1)
 		{
 			osdelay_ms(10);
 		}
-		//满足以上条件后清除执行信号
+		//清除执行信号
 		PLC_Data[43] = 0;
-		target = PLC_Data[40];
-		if(target>=NodeNum){
-			IGK_Speek("目标最大为%d,请重新输入",NodeNum);
+		/*-----------------判断目标位置合法性--------------------------*/
+		if(PLC_Data[40]==IgkAgvOs.RFID)
+		{
+			IGK_Speek("目标标签和当前标签相同,任务完成！");
+			IGK_SysTimePrintln("目标标签和当前标签相同,任务完成！");
+			//跳过
+			continue;
 		}
 		else
+		if(PLC_Data[40]==0)
 		{
-			
+			IGK_Speek("目标标签为0,操作非法！");
+			IGK_SysTimePrintln("目标标签为0,操作非法！");
+			//跳过
+			continue;
 		}
+		else
+		if(PLC_Data[40] > NodeNum)
+		{
+			IGK_Speek("目标标签不能大于%d,操作非法！",NodeNum);
+			IGK_SysTimePrintln("目标标签不能大于%d,操作非法！",NodeNum);
+			//跳过
+			continue;
+		}	
+		//更新目标位置到临时变量
+		target = PLC_Data[40];
 		//打印内存情况
 		percentMem = my_mem_perused(SRAMIN);
-		IGK_SysTimePrintln(p_arg,"内存使用率：[%d]",percentMem);
-		IGK_SysTimePrintln(p_arg,"开始搜索[%d]->[%d]!",1,target);
+		IGK_SysTimePrintln("内存使用率：[%d]",percentMem);
+		IGK_SysTimePrintln("开始搜索[%d]->[%d]!",1,target);
 		//注意：起始点从1开始，不能从0开始
 		//初始化栈
 		for(int i=0;i<NodeNum;i++){
@@ -693,21 +709,21 @@ void Manual_task(void *p_arg)
 				if(mapStruct.Stop[j]>0)
 				{
 					PushStack(&MapSTACK[i],mapStruct.Stop[j]);
-					//IGK_SysTimePrintln(p_arg,"%d->%d!",i,mapStruct.Stop[j]);
+					//IGK_SysTimePrintln("%d->%d!",i,mapStruct.Stop[j]);
 				}
 			}
 		}
 		percentMem = my_mem_perused(SRAMIN);
-		IGK_SysTimePrintln(p_arg,"内存使用率：[%d]",percentMem);
+		IGK_SysTimePrintln("内存使用率：[%d]",percentMem);
 		//搜索路径
 		FindRoute(IgkAgvOs.RFID,target);
-		IGK_SysTimePrintln(p_arg,"路径搜索完成!");
+		IGK_SysTimePrintln("路径搜索完成!");
 		percentMem = my_mem_perused(SRAMIN);
-		IGK_SysTimePrintln(p_arg,"内存使用率：[%d]",percentMem);
+		IGK_SysTimePrintln("内存使用率：[%d]",percentMem);
 
 		//播报目标位置
-		IGK_Speek("准备从%d号标签前往%d号标签",IgkAgvOs.RFID,target);
-		osdelay_s(4);
+		IGK_Speek("准备前往%d号标签",target);
+		osdelay_s(3);
 		if(PathTotal==0)
 		{
 			IGK_SysPrintf("未找到有效路径！\r\n\r\n");
@@ -717,9 +733,9 @@ void Manual_task(void *p_arg)
 		{
 			IGK_SysPrintf("共找到%d条路径！\r\n\r\n",PathTotal);
 			IGK_Speek("共找到%d条路径！",PathTotal);
-			osdelay_s(4);
+			osdelay_s(2);
 			/*-----------------开始执行--------------------------*/
-			IGK_Speek("启动！");
+			//启动
 			IgkAgvOs.RunOrStop = Enum_Run;
 			for(int i=0;i < BestPathNodeCount;i++)
 			{
@@ -737,7 +753,7 @@ void Manual_task(void *p_arg)
 				{
 						IGK_Speek("等待%d号标签!",nodeId);
 						//osdelay_s(2);
-						while(IgkAgvOs.RFID != nodeId)
+						while(IgkAgvOs.RFID != nodeId )
 						{
 							osdelay_ms(5);
 						}
@@ -755,22 +771,48 @@ void Manual_task(void *p_arg)
 						//方向
 						if(mapStruct.Dir[j] == Enum_QianJin)
 						{
-							IgkAgvOs.Dir = Enum_QianJin;
+							if(IgkAgvOs.Dir != Enum_QianJin)
+							{
+								//停止
+								IgkAgvOs.RunOrStop = Enum_Stop;
+								DriverTingZhi();
+								//切换方向
+								IgkAgvOs.Dir = Enum_QianJin;
+								//等待
+								osdelay_ms(500);
+							}
+							//打印数据
 							IGK_SysPrintf("前进-");
-							IGK_Speek("前进");
+							//语音播报
+							IGK_Speek("前进");					
 						}
 						else
 						if(mapStruct.Dir[j] == Enum_HouTui)
 						{
-							IgkAgvOs.Dir = Enum_HouTui;
+							if(IgkAgvOs.Dir != Enum_HouTui)
+							{
+								//停止
+								IgkAgvOs.RunOrStop = Enum_Stop;
+								DriverTingZhi();
+								//切换方向
+								IgkAgvOs.Dir = Enum_HouTui;
+								//等待
+								osdelay_ms(500);
+							}
+							//打印数据
 							IGK_SysPrintf("后退-");
+							//语音播报
 							IGK_Speek("后退");
 						}
 						else
 						if(mapStruct.Dir[j] == Enum_PingYi)
 						{
-							IGK_SysPrintf("平移-");
-							IGK_Speek("平移");
+							if(IgkAgvOs.Dir != Enum_ZuoFenCha)
+							{
+								osdelay_ms(300);
+								IGK_SysPrintf("平移-");
+								IGK_Speek("平移");
+							}
 						}
 						
 						//动作
@@ -802,7 +844,7 @@ void Manual_task(void *p_arg)
 							DriverTingZhi();
 							IGK_Speek("左旋%d度",mapStruct.Angle[j]);
 							//原地旋转
-							osdelay_s(1);
+							osdelay_ms(200);
 							//左旋
 							IgkAgvOs.Action = Enum_ZuoXuan;
 							//启动
@@ -847,11 +889,11 @@ void Manual_task(void *p_arg)
 							//停止
 							IgkAgvOs.RunOrStop = Enum_Stop;
 							DriverTingZhi();
-							osdelay_s(1);
+							osdelay_ms(200);
 							//切换直行
 							IgkAgvOs.Action = Enum_ZhiXing;
 							//切换为运动状态
-							osdelay_s(1);
+							osdelay_ms(200);
 							IgkAgvOs.RunOrStop = Enum_Run;
 							IGK_SysPrintf("左旋[%d]度-",mapStruct.Angle[j]);
 						}
@@ -863,7 +905,7 @@ void Manual_task(void *p_arg)
 							DriverTingZhi();
 							IGK_Speek("右旋%d度",mapStruct.Angle[j]);
 							//原地旋转
-							osdelay_s(1);
+							osdelay_ms(200);
 							//右旋
 							IgkAgvOs.Action = Enum_YouXuan;
 							//启动
@@ -908,11 +950,11 @@ void Manual_task(void *p_arg)
 							//停止
 							IgkAgvOs.RunOrStop = Enum_Stop;
 							DriverTingZhi();
-							osdelay_s(1);
+							osdelay_ms(200);
 							//切换直行
 							IgkAgvOs.Action = Enum_ZhiXing;
 							//切换为运动状态
-							osdelay_s(1);
+							osdelay_ms(200);
 							//原地旋转
 							IGK_SysPrintf("右旋[%d]度-",mapStruct.Angle[j]);
 						}
@@ -922,7 +964,6 @@ void Manual_task(void *p_arg)
 						//找到对应站点，跳出循环
 						break;
 					}
-					
 				}
 			}
 			//到达目标位置,停车
@@ -930,7 +971,7 @@ void Manual_task(void *p_arg)
 			IGK_Speek("到达终点，任务完成");
 			IGK_SysTimePrintln("到达终点，任务完成");
 		}
-		delay(0, 0, 1, 10); //延时10ms
+		delay(0, 0, 0, 10); //延时10ms
 	}
 }
 //Modbus同步进程

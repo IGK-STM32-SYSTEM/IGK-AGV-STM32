@@ -436,6 +436,11 @@
               <FileType>1</FileType>
               <FilePath>..\IGK\igk_speek.c</FilePath>
             </File>
+            <File>
+              <FileName>igk_def.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IGK\igk_def.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

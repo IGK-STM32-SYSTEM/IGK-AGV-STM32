@@ -152,56 +152,7 @@
           <Name>-T0</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-        <Bp>
-          <Number>0</Number>
-          <Type>0</Type>
-          <LineNumber>25</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134252004</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>C:\Users\Administrator\Desktop\璺緞瑙勫垝绠楁硶\STM32\IGK\igk_dfs.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\Template\../IGK/igk_dfs.c\25</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>196</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134228428</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>C:\Users\Administrator\Desktop\璺緞瑙勫垝绠楁硶\STM32\IGK\igk_dfs.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\\../IGK/igk_dfs.c\196</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>203</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134228458</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>C:\Users\Administrator\Desktop\璺緞瑙勫垝绠楁硶\STM32\IGK\igk_dfs.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\Template\../IGK/igk_dfs.c\203</Expression>
-        </Bp>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
           <count>0</count>

@@ -204,9 +204,9 @@ void FindRoute(u16 start,u16 end){
 			//邻居不为空
 			if(neighbour(cur_node) != NULL){
 				PNODE d =neighbour(cur_node);
-				//当出现0时会无限循环
-				if(d->Element == 0)
-					break;
+//				//当出现0时会无限循环
+//				if(d->Element == 0)
+//					break;
 				map_next[cur_node] = d->Element;
 				cur_node=d->Element;
 				PushStack(&stack,cur_node);

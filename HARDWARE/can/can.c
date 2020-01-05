@@ -89,14 +89,6 @@ void CAN1_RX0_IRQHandler(void)
 {
 	int i=0;
 	//转换分叉
-	u8 dir=0;
-	if(IgkAgvOs.Action == Enum_ZhiXing)
-		dir = 0;
-	else
-	if(IgkAgvOs.Action == Enum_ZuoFenCha)
-		dir = 1;
-	if(IgkAgvOs.Action == Enum_YouFenCha)
-		dir = 2;
   CAN_Receive(CAN1, 0, &RxMessage);
 	//继电器扩展板
 	if(RxMessage.StdId==12)
@@ -127,12 +119,28 @@ void CAN1_RX0_IRQHandler(void)
 	//前磁导航dir:分叉方向(0：直行，1：左分叉，2：右分叉)
 	if(RxMessage.StdId==3)
 	{	
+		u8 dir=0;
+		if(IgkAgvOs.Action == Enum_ZhiXing)
+			dir = 0;
+		else
+		if(IgkAgvOs.Action == Enum_ZuoFenCha)
+			dir = 2;
+		if(IgkAgvOs.Action == Enum_YouFenCha)
+			dir = 1;
 		IgkAgvOs.QianCiDaoHang = CdhFind(8,~RxMessage.Data[0],4,dir);
 	}
 	else
 	//后磁导航
 	if(RxMessage.StdId==4)
 	{
+		u8 dir=0;
+		if(IgkAgvOs.Action == Enum_ZhiXing)
+			dir = 0;
+		else
+		if(IgkAgvOs.Action == Enum_ZuoFenCha)
+			dir = 1;
+		if(IgkAgvOs.Action == Enum_YouFenCha)
+			dir = 2;
 		IgkAgvOs.HouCiDaoHang = CdhFind(8,~RxMessage.Data[0],4,dir);
 	}
 	else

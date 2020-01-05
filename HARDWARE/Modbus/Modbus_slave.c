@@ -1,7 +1,7 @@
 #include "sys.h"
-u8 PLC_InPut[64];//PLC输入状态寄存器1x
-u8 PLC_OutPut[128];//PLC输出状态寄存器0x
-u16 PLC_Data[128];//PLC数据寄存器  4x
+u8 PLC_InPut[64]={0};//PLC输入状态寄存器1x
+u8 PLC_OutPut[128]={0};//PLC输出状态寄存器0x
+u16 PLC_Data[128]={0};//PLC数据寄存器  4x
 u16 reclength = 500;
 u16 sendlength;
 void AnalyzeRecieve()                              //分析并生成响应报文

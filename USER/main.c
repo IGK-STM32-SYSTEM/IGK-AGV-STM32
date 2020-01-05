@@ -463,7 +463,6 @@ void start_task(void *p_arg)
 void task1(void *p_arg)
 {
 	p_arg = p_arg;
-	yinling(2);
 	osdelay_ms(10);
 	while(1)
 	{
@@ -600,7 +599,7 @@ void Auto_task(void *p_arg)
 						case Enum_ZuoFenCha://左分叉
 						case Enum_YouFenCha://右分叉
 						case Enum_ZhiXing:  //直行
-							if(IgkAgvOs.QianCiDaoHang.Error == 0)
+							if(IgkAgvOs.HouCiDaoHang.Error == 0)
 							{
 								//PID动态调节循迹
 								float Inc = PosPIDCalc(-IgkAgvOs.HouCiDaoHang.Distance);
@@ -638,275 +637,279 @@ void Manual_task(void *p_arg)
 	p_arg = p_arg;
 	u16 nowTarget = 0;
 	osdelay_s(5);
+	yinling(2);
+	IGK_Speek("系统自检完成");
 	while(1)
 	{
-		//目标改变,自动搜索
-		if(nowTarget != target)
-		{ 
-			nowTarget = target;
-//			if(target==5)
-//				target = 1;
-//			else 
-//				target = 5;
-			IGK_Speek("目标是%d号位置",target);
-			osdelay_s(3);
-			
-			percentMem = my_mem_perused(SRAMIN);
-			IGK_SysTimePrintln(p_arg,"内存使用率：[%d]",percentMem);
-			IGK_SysTimePrintln(p_arg,"开始搜索[%d]->[%d]!",1,target);
-			//注意：起始点从1开始，不能从0开始
-			//初始化栈
-			for(int i=0;i<NodeNum;i++){
-				InitStack(&MapSTACK[i]);
-			}
-			//初始化节点邻接关系
-			for(int i=1;i<NodeNum;i++)
+		//等待执行信号，目标不为零且不能和当前相同
+		while(PLC_Data[43]!=1||PLC_Data[40]==0||PLC_Data[40]==IgkAgvOs.RFID)
+		{
+			osdelay_ms(10);
+		}
+		//满足以上条件后清除执行信号
+		PLC_Data[43] = 0;
+		target = PLC_Data[40];
+		//播报目标位置
+		IGK_Speek("目标是%d号位置",target);
+		osdelay_s(3);
+		//打印内存情况
+		percentMem = my_mem_perused(SRAMIN);
+		IGK_SysTimePrintln(p_arg,"内存使用率：[%d]",percentMem);
+		IGK_SysTimePrintln(p_arg,"开始搜索[%d]->[%d]!",1,target);
+		//注意：起始点从1开始，不能从0开始
+		//初始化栈
+		for(int i=0;i<NodeNum;i++){
+			InitStack(&MapSTACK[i]);
+		}
+		//初始化节点邻接关系
+		for(int i=1;i<NodeNum;i++)
+		{
+			//读取对应站点的地图
+			StaionMapStruct mapStruct;
+			ReadToMapStruct(i,&mapStruct);
+			for(int j=0;j<StationMapType;j++)
 			{
-				//读取对应站点的地图
-				StaionMapStruct mapStruct;
-				ReadToMapStruct(i,&mapStruct);
-				for(int j=0;j<StationMapType;j++)
+				if(mapStruct.Stop[j]>0)
 				{
-					if(mapStruct.Stop[j]>0)
-					{
-						PushStack(&MapSTACK[i],mapStruct.Stop[j]);
-						//IGK_SysTimePrintln(p_arg,"%d->%d!",i,mapStruct.Stop[j]);
-					}
+					PushStack(&MapSTACK[i],mapStruct.Stop[j]);
+					//IGK_SysTimePrintln(p_arg,"%d->%d!",i,mapStruct.Stop[j]);
 				}
 			}
-			percentMem = my_mem_perused(SRAMIN);
-			IGK_SysTimePrintln(p_arg,"内存使用率：[%d]",percentMem);
-			//搜索路径
-			FindRoute(IgkAgvOs.RFID,target);
-			
-			if(PathTotal==0)
-			{
-				IGK_SysPrintf("未找到有效路径！\r\n\r\n");
-				IGK_Speek("未找到有效路径");
-			}
-			else
-			{
-				IGK_SysPrintf("搜索完成,共找到%d条路径！\r\n\r\n",PathTotal);
-				IGK_Speek("搜索完成,共找到%d条路径！",PathTotal);
-			}
-			osdelay_s(4);
-			u8 num=0;
-			while(num<1&&PathNodeNum[num]>0)
+		}
+		percentMem = my_mem_perused(SRAMIN);
+		IGK_SysTimePrintln(p_arg,"内存使用率：[%d]",percentMem);
+		//搜索路径
+		FindRoute(IgkAgvOs.RFID,target);
+		
+		if(PathTotal==0)
+		{
+			IGK_SysPrintf("未找到有效路径！\r\n\r\n");
+			IGK_Speek("未找到有效路径");
+		}
+		else
+		{
+			IGK_SysPrintf("搜索完成,共找到%d条路径！\r\n\r\n",PathTotal);
+			IGK_Speek("搜索完成,共找到%d条路径！",PathTotal);
+		}
+		osdelay_s(4);
+		u8 num=0;
+		while(num<1&&PathNodeNum[num]>0)
+		{
+			//进入说明有路,启动
+			IgkAgvOs.RunOrStop = Enum_Run;
+			for(int i=0;i < PathNodeNum[num];i++)
 			{
 				//给定默认速度
 				IgkAgvOs.Speed = 50;
-				//进入说明有路,启动
-				IgkAgvOs.RunOrStop = Enum_Run;
-				for(int i=0;i < PathNodeNum[num];i++)
+				//读取对应站点的地图
+				StaionMapStruct mapStruct;
+				ReadToMapStruct(PathArry[num][i],&mapStruct);
+				IGK_SysPrintf("[%d]",PathArry[num][i]);
+				//下一个位置更新到界面
+				PLC_Data[42] = PathArry[num][i];
+				//等待标签,起点不用等待
+				if(i!=0)
 				{
-					//读取对应站点的地图
-					StaionMapStruct mapStruct;
-					ReadToMapStruct(PathArry[num][i],&mapStruct);
-					IGK_SysPrintf("[%d]",PathArry[num][i]);
-					//等待标签,起点不用等待
-					if(i!=0)
-					{
-							IGK_Speek("等待%d号标签!",PathArry[num][i]);
-							//osdelay_s(2);
-							while(IgkAgvOs.RFID != PathArry[num][i])
-							{
-								osdelay_ms(5);
-							}
-							if(i==PathNodeNum[num]-1)
-							{
-								//到达终点
-								break;
-							}
-					}
-					
-					//直行站点方向，动作
-					for(int j=0;j<StationMapType;j++)
-					{
-						if(mapStruct.Stop[j] == PathArry[num][i+1])
+						IGK_Speek("等待%d号标签!",PathArry[num][i]);
+						//osdelay_s(2);
+						while(IgkAgvOs.RFID != PathArry[num][i])
 						{
-							//方向
-							if(mapStruct.Dir[j] == Enum_QianJin)
-							{
-								IgkAgvOs.Dir = Enum_QianJin;
-								IGK_SysPrintf("前进-");
-								IGK_Speek("前进");
-							}
-							else
-							if(mapStruct.Dir[j] == Enum_HouTui)
-							{
-								IgkAgvOs.Dir = Enum_HouTui;
-								IGK_SysPrintf("后退-");
-								IGK_Speek("后退");
-							}
-							else
-							if(mapStruct.Dir[j] == Enum_PingYi)
-							{
-								IGK_SysPrintf("平移-");
-								IGK_Speek("平移");
-							}
-							
-							//动作
-							if(mapStruct.Action[j] == Enum_ZuoFenCha)
-							{
-								IgkAgvOs.Action = Enum_ZuoFenCha;
-								IGK_SysPrintf("左分叉-");
-								IGK_Speek("左分叉");
-							}
-							else
-							if(mapStruct.Action[j] == Enum_YouFenCha)
-							{
-								IgkAgvOs.Action = Enum_YouFenCha;
-								IGK_SysPrintf("右分叉-");
-								IGK_Speek("右分叉");
-							}
-							else
-							if(mapStruct.Action[j] == Enum_ZhiXing)
-							{
-								IgkAgvOs.Action = Enum_ZhiXing;
-								IGK_SysPrintf("直行-");
-								IGK_Speek("直行");
-							}
-							else
-							if(mapStruct.Action[j] == Enum_ZuoXuan)
-							{
-								//停车
-								IgkAgvOs.RunOrStop = Enum_Stop;
-								DriverTingZhi();
-								IGK_Speek("左旋%d度",mapStruct.Angle[j]);
-								//原地旋转
-								osdelay_s(1);
-								//左旋
-								IgkAgvOs.Action = Enum_ZuoXuan;
-								//启动
-								IgkAgvOs.RunOrStop = Enum_Run;
-								//根据方向选择磁导航传感器
-								Fencha_struct * PCiDaoHang;
-								if(IgkAgvOs.Dir == Enum_QianJin)
-									PCiDaoHang = &IgkAgvOs.QianCiDaoHang;
-								else
-									PCiDaoHang = &IgkAgvOs.HouCiDaoHang;
-								//等待离开磁条
-								while(PCiDaoHang->Error==0)
-									osdelay_ms(10);
-								//等待检测到磁条[至少两个点并且居中]
-								while(PCiDaoHang->Num <3)
-									osdelay_ms(10);
-								if(mapStruct.Angle[j]==180)
-								{
-									//等待离开磁条
-									while(PCiDaoHang->Error==0)
-										osdelay_ms(10);
-									//等待检测到磁条[至少两个点并且居中]
-									while(PCiDaoHang->Num <3)
-										osdelay_ms(10);
-								}
-								else
-								if(mapStruct.Angle[j]==270)
-								{
-									//等待离开磁条
-									while(PCiDaoHang->Error==0)
-										osdelay_ms(10);
-									//等待检测到磁条[至少两个点并且居中]
-									while(PCiDaoHang->Num <3)
-										osdelay_ms(10);
-									//等待离开磁条
-									while(PCiDaoHang->Error==0)
-										osdelay_ms(10);
-									//等待检测到磁条[至少两个点并且居中]
-									while(PCiDaoHang->Num <3)
-										osdelay_ms(10);
-								}
-								//停止
-								IgkAgvOs.RunOrStop = Enum_Stop;
-								DriverTingZhi();
-								osdelay_s(1);
-								//切换直行
-								IgkAgvOs.Action = Enum_ZhiXing;
-								//切换为运动状态
-								osdelay_s(1);
-								IgkAgvOs.RunOrStop = Enum_Run;
-								IGK_SysPrintf("左旋[%d]度-",mapStruct.Angle[j]);
-							}
-							else
-							if(mapStruct.Action[j] == Enum_YouXuan)
-							{
-								//停车
-								IgkAgvOs.RunOrStop = Enum_Stop;
-								DriverTingZhi();
-								IGK_Speek("右旋%d度",mapStruct.Angle[j]);
-								//原地旋转
-								osdelay_s(1);
-								//右旋
-								IgkAgvOs.Action = Enum_YouXuan;
-								//启动
-								IgkAgvOs.RunOrStop = Enum_Run;
-								//根据方向选择磁导航传感器
-								Fencha_struct * PCiDaoHang;
-								if(IgkAgvOs.Dir == Enum_QianJin)
-									PCiDaoHang = &IgkAgvOs.QianCiDaoHang;
-								else
-									PCiDaoHang = &IgkAgvOs.HouCiDaoHang;
-								//等待离开磁条
-								while(PCiDaoHang->Error==0)
-									osdelay_ms(10);
-								//等待检测到磁条[至少两个点并且居中]
-								while(PCiDaoHang->Num <3)
-									osdelay_ms(10);
-								if(mapStruct.Angle[j]==180)
-								{
-									//等待离开磁条
-									while(PCiDaoHang->Error==0)
-										osdelay_ms(10);
-									//等待检测到磁条[至少两个点并且居中]
-									while(PCiDaoHang->Num <3)
-										osdelay_ms(10);
-								}
-								else
-								if(mapStruct.Angle[j]==270)
-								{
-									//等待离开磁条
-									while(PCiDaoHang->Error==0)
-										osdelay_ms(10);
-									//等待检测到磁条[至少两个点并且居中]
-									while(PCiDaoHang->Num <3)
-										osdelay_ms(10);
-									//等待离开磁条
-									while(PCiDaoHang->Error==0)
-										osdelay_ms(10);
-									//等待检测到磁条[至少两个点并且居中]
-									while(PCiDaoHang->Num <3)
-										osdelay_ms(10);
-								}
-								//停止
-								IgkAgvOs.RunOrStop = Enum_Stop;
-								DriverTingZhi();
-								osdelay_s(1);
-								//切换直行
-								IgkAgvOs.Action = Enum_ZhiXing;
-								//切换为运动状态
-								osdelay_s(1);
-								//原地旋转
-								IGK_SysPrintf("右旋[%d]度-",mapStruct.Angle[j]);
-							}
-							IgkAgvOs.RunOrStop = Enum_Run;
-							//到达
-							IGK_SysPrintf("[%d]",mapStruct.Stop[j]);
-							//找到对应站点，跳出循环
+							osdelay_ms(5);
+						}
+						if(i==PathNodeNum[num]-1)
+						{
+							//到达终点
 							break;
 						}
-						
-					}
 				}
-				//到达目标位置,停车
-				IgkAgvOs.RunOrStop = Enum_Stop;
-				IGK_Speek("到达终点，任务完成");
-				IGK_SysPrintf("\r\n\r\n");
-				num++;
+				
+				//直行站点方向，动作
+				for(int j=0;j<StationMapType;j++)
+				{
+					if(mapStruct.Stop[j] == PathArry[num][i+1])
+					{
+						//方向
+						if(mapStruct.Dir[j] == Enum_QianJin)
+						{
+							IgkAgvOs.Dir = Enum_QianJin;
+							IGK_SysPrintf("前进-");
+							IGK_Speek("前进");
+						}
+						else
+						if(mapStruct.Dir[j] == Enum_HouTui)
+						{
+							IgkAgvOs.Dir = Enum_HouTui;
+							IGK_SysPrintf("后退-");
+							IGK_Speek("后退");
+						}
+						else
+						if(mapStruct.Dir[j] == Enum_PingYi)
+						{
+							IGK_SysPrintf("平移-");
+							IGK_Speek("平移");
+						}
+						
+						//动作
+						if(mapStruct.Action[j] == Enum_ZuoFenCha)
+						{
+							IgkAgvOs.Action = Enum_ZuoFenCha;
+							IGK_SysPrintf("左分叉-");
+							IGK_Speek("左分叉");
+						}
+						else
+						if(mapStruct.Action[j] == Enum_YouFenCha)
+						{
+							IgkAgvOs.Action = Enum_YouFenCha;
+							IGK_SysPrintf("右分叉-");
+							IGK_Speek("右分叉");
+						}
+						else
+						if(mapStruct.Action[j] == Enum_ZhiXing)
+						{
+							IgkAgvOs.Action = Enum_ZhiXing;
+							IGK_SysPrintf("直行-");
+							IGK_Speek("直行");
+						}
+						else
+						if(mapStruct.Action[j] == Enum_ZuoXuan)
+						{
+							//停车
+							IgkAgvOs.RunOrStop = Enum_Stop;
+							DriverTingZhi();
+							IGK_Speek("左旋%d度",mapStruct.Angle[j]);
+							//原地旋转
+							osdelay_s(1);
+							//左旋
+							IgkAgvOs.Action = Enum_ZuoXuan;
+							//启动
+							IgkAgvOs.RunOrStop = Enum_Run;
+							//根据方向选择磁导航传感器
+							Fencha_struct * PCiDaoHang;
+							if(IgkAgvOs.Dir == Enum_QianJin)
+								PCiDaoHang = &IgkAgvOs.QianCiDaoHang;
+							else
+								PCiDaoHang = &IgkAgvOs.HouCiDaoHang;
+							//等待离开磁条
+							while(PCiDaoHang->Error==0)
+								osdelay_ms(10);
+							//等待检测到磁条[至少两个点并且居中]
+							while(PCiDaoHang->Num <3)
+								osdelay_ms(10);
+							if(mapStruct.Angle[j]==180)
+							{
+								//等待离开磁条
+								while(PCiDaoHang->Error==0)
+									osdelay_ms(10);
+								//等待检测到磁条[至少两个点并且居中]
+								while(PCiDaoHang->Num <3)
+									osdelay_ms(10);
+							}
+							else
+							if(mapStruct.Angle[j]==270)
+							{
+								//等待离开磁条
+								while(PCiDaoHang->Error==0)
+									osdelay_ms(10);
+								//等待检测到磁条[至少两个点并且居中]
+								while(PCiDaoHang->Num <3)
+									osdelay_ms(10);
+								//等待离开磁条
+								while(PCiDaoHang->Error==0)
+									osdelay_ms(10);
+								//等待检测到磁条[至少两个点并且居中]
+								while(PCiDaoHang->Num <3)
+									osdelay_ms(10);
+							}
+							//停止
+							IgkAgvOs.RunOrStop = Enum_Stop;
+							DriverTingZhi();
+							osdelay_s(1);
+							//切换直行
+							IgkAgvOs.Action = Enum_ZhiXing;
+							//切换为运动状态
+							osdelay_s(1);
+							IgkAgvOs.RunOrStop = Enum_Run;
+							IGK_SysPrintf("左旋[%d]度-",mapStruct.Angle[j]);
+						}
+						else
+						if(mapStruct.Action[j] == Enum_YouXuan)
+						{
+							//停车
+							IgkAgvOs.RunOrStop = Enum_Stop;
+							DriverTingZhi();
+							IGK_Speek("右旋%d度",mapStruct.Angle[j]);
+							//原地旋转
+							osdelay_s(1);
+							//右旋
+							IgkAgvOs.Action = Enum_YouXuan;
+							//启动
+							IgkAgvOs.RunOrStop = Enum_Run;
+							//根据方向选择磁导航传感器
+							Fencha_struct * PCiDaoHang;
+							if(IgkAgvOs.Dir == Enum_QianJin)
+								PCiDaoHang = &IgkAgvOs.QianCiDaoHang;
+							else
+								PCiDaoHang = &IgkAgvOs.HouCiDaoHang;
+							//等待离开磁条
+							while(PCiDaoHang->Error==0)
+								osdelay_ms(10);
+							//等待检测到磁条[至少两个点并且居中]
+							while(PCiDaoHang->Num <3)
+								osdelay_ms(10);
+							if(mapStruct.Angle[j]==180)
+							{
+								//等待离开磁条
+								while(PCiDaoHang->Error==0)
+									osdelay_ms(10);
+								//等待检测到磁条[至少两个点并且居中]
+								while(PCiDaoHang->Num <3)
+									osdelay_ms(10);
+							}
+							else
+							if(mapStruct.Angle[j]==270)
+							{
+								//等待离开磁条
+								while(PCiDaoHang->Error==0)
+									osdelay_ms(10);
+								//等待检测到磁条[至少两个点并且居中]
+								while(PCiDaoHang->Num <3)
+									osdelay_ms(10);
+								//等待离开磁条
+								while(PCiDaoHang->Error==0)
+									osdelay_ms(10);
+								//等待检测到磁条[至少两个点并且居中]
+								while(PCiDaoHang->Num <3)
+									osdelay_ms(10);
+							}
+							//停止
+							IgkAgvOs.RunOrStop = Enum_Stop;
+							DriverTingZhi();
+							osdelay_s(1);
+							//切换直行
+							IgkAgvOs.Action = Enum_ZhiXing;
+							//切换为运动状态
+							osdelay_s(1);
+							//原地旋转
+							IGK_SysPrintf("右旋[%d]度-",mapStruct.Angle[j]);
+						}
+						IgkAgvOs.RunOrStop = Enum_Run;
+						//到达
+						IGK_SysPrintf("[%d]",mapStruct.Stop[j]);
+						//找到对应站点，跳出循环
+						break;
+					}
+					
+				}
 			}
-			IGK_SysTimePrintln(p_arg,"路径搜索完成 !");
-			percentMem = my_mem_perused(SRAMIN);
-			IGK_SysTimePrintln(p_arg,"内存使用率：[%d]",percentMem);
+			//到达目标位置,停车
+			IgkAgvOs.RunOrStop = Enum_Stop;
+			IGK_Speek("到达终点，任务完成");
+			IGK_SysPrintf("\r\n\r\n");
+			num++;
 		}
+		IGK_SysTimePrintln(p_arg,"路径搜索完成 !");
+		percentMem = my_mem_perused(SRAMIN);
+		IGK_SysTimePrintln(p_arg,"内存使用率：[%d]",percentMem);
 
 		delay(0, 0, 1, 10); //延时10ms
 	}
@@ -917,6 +920,10 @@ void PID_task(void *p_arg)
 	while(1)
 	{
 		ReadWriteMap(p_arg);
+		//当前位置
+		PLC_Data[41] = IgkAgvOs.RFID;
+		//当前速度
+		PLC_Data[61] = IgkAgvOs.Speed;
 		delay(0, 0, 0, 100);
 	}
 }

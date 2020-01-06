@@ -34,11 +34,27 @@ void Reverse(u16 *p , u16 size)
 		p[size-1-i] = tmp ;    
 	}    
 }
+	//1.创建一个空栈
+	STACK stackTemp;
 
 //找邻居节点
-PNODE neighbour(int a){
+u16 neighbourV(int a){
+	u16 value=0;
+	//2.栈初始化
+	InitStack(&stackTemp);
+	//读取对应站点的地图
+	StaionMapStruct mapStruct;
+	ReadToMapStruct(a,&mapStruct);
+	for(int j=0;j<StationMapType;j++)
+	{
+		if(mapStruct.Stop[j]>0)
+		{
+			PushStack(&stackTemp,mapStruct.Stop[j]);
+			//IGK_SysTimePrintln("%d->%d!",i,mapStruct.Stop[j]);
+		}
+	}
 	//建立一个临时节点指针，初始化时指向栈顶
-	PNODE P = MapSTACK[a].PTOP;
+	PNODE P = stackTemp.PTOP;
 	//结点P不空
 	while (P != NULL){
 		//邻居节点已经在栈stack里了
@@ -57,7 +73,8 @@ PNODE neighbour(int a){
 				{
 					P = P->Next;
 				}
-				return P;
+				value = P->Element;
+				return value;
 			}
 			//判断当前节点是否是a节点的邻居节点
 			else if(P->Element == map_next[a])   
@@ -67,7 +84,9 @@ PNODE neighbour(int a){
 				{
 					P = P->Next;
 				}
-				return P; //将P的下一个结点返回
+				value = P->Element;
+				
+				return value;
 			}
 			else
 			{
@@ -77,6 +96,47 @@ PNODE neighbour(int a){
 	}
 	return NULL;
 }
+//PNODE neighbour(int a){
+//	//建立一个临时节点指针，初始化时指向栈顶
+//	PNODE P = MapSTACK[a].PTOP;
+//	//结点P不空
+//	while (P != NULL){
+//		//邻居节点已经在栈stack里了
+//		if( states[P->Element]==1 )
+//		{
+//			//继续找下一个邻居节点 
+//			P=P->Next;
+//		}
+//		//不在栈stack里
+//		else
+//		{
+//			//就要P作为返回值  如果a是最栈顶节点 
+//			if(map_next[a] == -1)
+//			{
+//				while(P != NULL && states[P->Element]==1)
+//				{
+//					P = P->Next;
+//				}
+//				return P;
+//			}
+//			//判断当前节点是否是a节点的邻居节点
+//			else if(P->Element == map_next[a])   
+//			{
+//				P=P->Next;
+//				while(P != NULL && states[P->Element]==1)
+//				{
+//					P = P->Next;
+//				}
+//				return P; //将P的下一个结点返回
+//			}
+//			else
+//			{
+//				P=P->Next;
+//			}
+//		}
+//	}
+//	return NULL;
+//}
 
 //找邻居节点值
 u16 NeighbourData(int a){
@@ -176,7 +236,7 @@ void FindRoute(u16 start,u16 end){
 	states[start]=1;
 	//栈不为空
 	while(!IsEmpty(&stack)) {
-		//找到了有效路径
+		//到达终点
 		if (stack.PTOP->Element == end)
 		{
 			//路径号加1
@@ -239,18 +299,25 @@ void FindRoute(u16 start,u16 end){
 			states[end]=0;
 			map_next[end]=-1;
 		}
-		//还没找到
+		//未到达终点
 		else{
 			cur_node=stack.PTOP->Element;
+			u16 vv = neighbourV(cur_node);
 			//邻居不为空
-			if(neighbour(cur_node) != NULL){
-				PNODE d =neighbour(cur_node);
-				map_next[cur_node] = d->Element;
-				cur_node=d->Element;
+			if(vv != NULL){
+				map_next[cur_node] = vv;
+				cur_node=vv;
 				PushStack(&stack,cur_node);
 				states[cur_node]=1;
 			}
-//			u16 dataTemp = NeighbourData(cur_node);
+//			if(neighbour(cur_node) != NULL){
+//				PNODE d =neighbour(cur_node);
+//				map_next[cur_node] = d->Element;
+//				cur_node=d->Element;
+//				PushStack(&stack,cur_node);
+//				states[cur_node]=1;
+//			}
+			//			u16 dataTemp = NeighbourData(cur_node);
 //			if(dataTemp != NULL){
 //				//PNODE d =neighbour(cur_node);
 //				map_next[cur_node] = dataTemp;
@@ -263,6 +330,7 @@ void FindRoute(u16 start,u16 end){
 				states[cur_node]=0;//删除的栈顶节点states置为0  通过该节点到不了目的地 
 				map_next[cur_node] = -1;
 			}
+			DeleteStack(&stackTemp);
 		}
 	}
 	//删除,并释放内存

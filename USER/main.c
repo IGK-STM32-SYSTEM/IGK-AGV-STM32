@@ -695,24 +695,24 @@ void Manual_task(void *p_arg)
 		IGK_SysTimePrintln("开始搜索[%d]->[%d]!",1,target);
 		//注意：起始点从1开始，不能从0开始
 		//初始化栈
-		for(int i=0;i<NodeNum;i++){
-			InitStack(&MapSTACK[i]);
-		}
+//		for(int i=0;i<NodeNum;i++){
+//			InitStack(&MapSTACK[i]);
+//		}
 		//初始化节点邻接关系
-		for(int i=1;i<NodeNum;i++)
-		{
-			//读取对应站点的地图
-			StaionMapStruct mapStruct;
-			ReadToMapStruct(i,&mapStruct);
-			for(int j=0;j<StationMapType;j++)
-			{
-				if(mapStruct.Stop[j]>0)
-				{
-					PushStack(&MapSTACK[i],mapStruct.Stop[j]);
-					//IGK_SysTimePrintln("%d->%d!",i,mapStruct.Stop[j]);
-				}
-			}
-		}
+//		for(int i=1;i<NodeNum;i++)
+//		{
+//			//读取对应站点的地图
+//			StaionMapStruct mapStruct;
+//			ReadToMapStruct(i,&mapStruct);
+//			for(int j=0;j<StationMapType;j++)
+//			{
+//				if(mapStruct.Stop[j]>0)
+//				{
+//					PushStack(&MapSTACK[i],mapStruct.Stop[j]);
+//					//IGK_SysTimePrintln("%d->%d!",i,mapStruct.Stop[j]);
+//				}
+//			}
+//		}
 		percentMem = my_mem_perused(SRAMIN);
 		IGK_SysTimePrintln("内存使用率：[%d]",percentMem);
 		//搜索路径

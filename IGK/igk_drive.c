@@ -1,6 +1,4 @@
 #include "igk_drive.h"
-//内部变量
-u16* _driveSpeed = &IgkAgvOs.Speed;
 //初始化
 void DriverInitial()
 {
@@ -25,23 +23,11 @@ void MotorFanZhuan(u8 Num,u16 speed)
 	Igk_CAN1_Send(2,buf,3);
 }
 
-//前进
-void DriverQinJin()
-{
-	MotorZhengZhuan(1,*_driveSpeed);
-	MotorFanZhuan(2,*_driveSpeed);
-}
 //前进,带单轮速度
 void DriverQinJinSpeed(u16 s1,u16 s2)
 {
 	MotorZhengZhuan(1,s1);
 	MotorFanZhuan(2,s2);
-}
-//后退
-void DriverHouTui()
-{
-	MotorFanZhuan(1,*_driveSpeed);
-	MotorZhengZhuan(2,*_driveSpeed);
 }
 //后退,带单轮速度
 void DriverHouTuiSpeed(u16 s1,u16 s2)

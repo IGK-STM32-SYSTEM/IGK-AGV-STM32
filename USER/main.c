@@ -208,6 +208,10 @@ int main(void)
 	SPI1_Init();
   TLC5620_Init();
 	
+	//指针类型变量指向默认地址
+	IgkAgvOs.TongXin.NowRfid = &PLC_Data[41];
+	IgkAgvOs.Speed = &PLC_Data[61];
+
 	
 	//设定默认参数
 	IgkAgvOs.OsTime.Hour = 0;
@@ -219,7 +223,7 @@ int main(void)
 	IgkAgvOs.Dir = Enum_QianJin;//前进方向
 	*IgkAgvOs.TongXin.NowRfid = 1;
 	IgkAgvOs.RunOrStop = Enum_Stop;//停止状态
-	IgkAgvOs.Speed = 50;//速度50%;	
+	*IgkAgvOs.Speed = 50;//速度50%;	
 	
 	IGK_SysTimePrintln("正在初始化...");
 	//初始化Flash
@@ -504,34 +508,34 @@ void task1(void *p_arg)
 			//判断当前动作
 			if(abs(IgkAgvOs.YaoGan.y)>0)//前进后退
 			{
-				IgkAgvOs.Speed = abs(IgkAgvOs.YaoGan.y)*1;
+				*IgkAgvOs.Speed = abs(IgkAgvOs.YaoGan.y)*1;
 				//转向速度
 				s8 speed = IgkAgvOs.YaoGan.z*0.5;
 				if(IgkAgvOs.YaoGan.y>0)
 				{
 					if(speed >= 0)
-						DriverQinJinSpeed(IgkAgvOs.Speed-speed,IgkAgvOs.Speed);
+						DriverQinJinSpeed(*IgkAgvOs.Speed-speed,*IgkAgvOs.Speed);
 					else
-						DriverQinJinSpeed(IgkAgvOs.Speed,IgkAgvOs.Speed+speed);
+						DriverQinJinSpeed(*IgkAgvOs.Speed,*IgkAgvOs.Speed+speed);
 				}
 				else
 				if(IgkAgvOs.YaoGan.y<0)
 				{
 					if(speed >= 0)
-						DriverHouTuiSpeed(IgkAgvOs.Speed,IgkAgvOs.Speed-speed);
+						DriverHouTuiSpeed(*IgkAgvOs.Speed,*IgkAgvOs.Speed-speed);
 					else
-						DriverHouTuiSpeed(IgkAgvOs.Speed+speed,IgkAgvOs.Speed);
+						DriverHouTuiSpeed(*IgkAgvOs.Speed+speed,*IgkAgvOs.Speed);
 				}
 			}
 			else
 			if(abs(IgkAgvOs.YaoGan.z)>0)//左右旋转
 			{
-				IgkAgvOs.Speed = abs(IgkAgvOs.YaoGan.z)*0.8;
+				*IgkAgvOs.Speed = abs(IgkAgvOs.YaoGan.z)*0.8;
 				if(IgkAgvOs.YaoGan.z<0)
-					DriverZuoXuan(IgkAgvOs.Speed);
+					DriverZuoXuan(*IgkAgvOs.Speed);
 				else
 				if(IgkAgvOs.YaoGan.z>0)
-					DriverYouXuan(IgkAgvOs.Speed);
+					DriverYouXuan(*IgkAgvOs.Speed);
 			}
 			else // 停止
 				DriverTingZhi();
@@ -573,8 +577,8 @@ void Auto_task(void *p_arg)
 								//PID动态调节循迹
 								float Inc = PosPIDCalc(IgkAgvOs.QianCiDaoHang.Distance);
 								//更新速度
-								s16 s1 = IgkAgvOs.Speed+Inc;
-								s16 s2 = IgkAgvOs.Speed-Inc;
+								s16 s1 = *IgkAgvOs.Speed+Inc;
+								s16 s2 = *IgkAgvOs.Speed-Inc;
 								//判定边界
 								s1 = s1>100?100:s1;
 								s1 = s1<0?0:s1;
@@ -617,8 +621,8 @@ void Auto_task(void *p_arg)
 								//PID动态调节循迹
 								float Inc = PosPIDCalc(-IgkAgvOs.HouCiDaoHang.Distance);
 								//更新速度
-								s16 s1 = IgkAgvOs.Speed + Inc;
-								s16 s2 = IgkAgvOs.Speed - Inc;
+								s16 s1 = *IgkAgvOs.Speed + Inc;
+								s16 s2 = *IgkAgvOs.Speed - Inc;
 								//判定边界
 								s1 = s1>100?100:s1;
 								s1 = s1<0?0:s1;
@@ -709,7 +713,7 @@ void Manual_task(void *p_arg)
 			for(int i=0;i < BestPath.NodeCount;i++)
 			{
 				//给定默认速度
-				IgkAgvOs.Speed = 50;
+				*IgkAgvOs.Speed = 50;
 				u16 nodeId = BestPath.NodeList[i];
 				//读取对应站点的地图
 				StaionMapStruct mapStruct;
@@ -949,10 +953,6 @@ void PID_task(void *p_arg)
 	while(1)
 	{
 		ReadWriteMap(p_arg);
-		//当前位置
-		PLC_Data[41] = *IgkAgvOs.TongXin.NowRfid;
-		//当前速度
-		PLC_Data[61] = IgkAgvOs.Speed;
 		delay(0, 0, 0, 100);
 	}
 }

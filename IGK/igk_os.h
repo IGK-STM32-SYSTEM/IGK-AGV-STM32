@@ -42,7 +42,6 @@ typedef struct {
 
 //通信结构体【触摸屏、调度系统、三方系统】
 typedef struct {
-	
 	u16 *NowRfid;//当前标签
 	u16 *Target;//目标标签
 	u16 *NentRfid;//下一个位置
@@ -59,7 +58,7 @@ typedef struct {
 	//当前工作模式
 	enum WorkModeEnum WorkMode;
 	//速度
-	u16 Speed;
+	u16 *Speed;
 	//启停状态
 	enum RunOrStopEnum RunOrStop;
 	//自动运动方向

@@ -7,12 +7,8 @@ void MotorZhengZhuan(u8 Num,u16 speed);
 void MotorFanZhuan(u8 Num,u16 speed);
 //初始化
 void DriverInitial(void);
-//前进
-void DriverQinJin(void);
 //前进,带单轮速度
 void DriverQinJinSpeed(u16 s1,u16 s2);
-//后退
-void DriverHouTui(void);
 //后退,带单轮速度
 void DriverHouTuiSpeed(u16 s1,u16 s2);
 //左移

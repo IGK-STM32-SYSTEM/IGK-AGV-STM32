@@ -113,7 +113,7 @@ void CAN1_RX0_IRQHandler(void)
 		IgkAgvOs.YaoGan.x = RxMessage.Data[0];
 		IgkAgvOs.YaoGan.y = RxMessage.Data[1];
 		IgkAgvOs.YaoGan.z = RxMessage.Data[2];
-		IgkAgvOs.YaoGan.key = RxMessage.Data[3];
+		IgkAgvOs.YaoGan.key = RxMessage.Data[3]==0?KeyUp:KeyDown;
 	}
 	else
 	//前磁导航dir:分叉方向(0：直行，1：左分叉，2：右分叉)
@@ -147,7 +147,7 @@ void CAN1_RX0_IRQHandler(void)
 	//RFID
 	if(RxMessage.StdId==5)
 	{
-		IgkAgvOs.RFID = (RxMessage.Data[1]<<8)|RxMessage.Data[0];
+		*IgkAgvOs.TongXin.NowRfid = (RxMessage.Data[1]<<8)|RxMessage.Data[0];
 	}
 }
 #endif

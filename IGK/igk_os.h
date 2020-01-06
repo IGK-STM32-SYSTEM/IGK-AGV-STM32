@@ -14,7 +14,7 @@ typedef  unsigned  int u32;
 #define igk_ReverseBit(x,y) x^=(1<<y)//指定的某一位数取反
 #define igk_GetBit(x,y) ((x) >> (y)&1)//获取的某一位的值
 //按键枚举,全局通用
-enum ButtonEnum {KeyDown,KeyUp};
+enum ButtonEnum {KeyUp,KeyDown};
 //工作模式【手动，本地自动，远程控制】
 enum WorkModeEnum {Enum_LocalManual,Enum_LocalAuto,Enum_RemoteControl};
 //启停状态【启动，停止】启动和停止按键或者直行路径时的启动停止标志，和障碍物的停止不一样
@@ -40,13 +40,15 @@ typedef struct {
 	u16 Millisecond;//毫秒
 }IGK_Struct_DateTime;
 
-//工作模式
+//通信结构体【触摸屏、调度系统、三方系统】
 typedef struct {
-	u16 Manual;//时
-	u8 Auto;//分
-	u8 Second;//秒
-	u16 Millisecond;//毫秒
-}IGK_Struct_WorkMode;
+	
+	u16 *NowRfid;//当前标签
+	u16 *Target;//目标标签
+	u16 *NentRfid;//下一个位置
+	u16 *Execute;//执行
+	u16 *Cancel;//取消
+}IGK_Struct_TongXin;
 
 //系统结构体,全局通用
 typedef struct {
@@ -68,14 +70,8 @@ typedef struct {
 	Fencha_struct QianCiDaoHang;
 	//后磁导航
 	Fencha_struct HouCiDaoHang;
-	//RFID
-	u16 RFID;
-	//目标位置
-	u16 Target;
-	//下一个位置
-	u16 Next;
-	//
-	
+	//通信
+	IGK_Struct_TongXin TongXin;
 }IgkAgvOsStruct;
 
 

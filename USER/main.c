@@ -217,11 +217,9 @@ int main(void)
 	
 	IgkAgvOs.WorkMode = Enum_LocalAuto;//自动模式
 	IgkAgvOs.Dir = Enum_QianJin;//前进方向
-	IgkAgvOs.RFID = 5;
+	*IgkAgvOs.TongXin.NowRfid = 1;
 	IgkAgvOs.RunOrStop = Enum_Stop;//停止状态
-	IgkAgvOs.Speed = 50;//速度50%;
-
-	
+	IgkAgvOs.Speed = 50;//速度50%;	
 	
 	IGK_SysTimePrintln("正在初始化...");
 	//初始化Flash
@@ -646,7 +644,6 @@ void Auto_task(void *p_arg)
 
 //计算目标位置
 u16 target = 1;
-u8 percentMem=0;//内存使用率
 void Manual_task(void *p_arg)
 {
 	p_arg = p_arg;
@@ -655,7 +652,7 @@ void Manual_task(void *p_arg)
 	IGK_Speek("系统自检完成");
 	while(1)
 	{
-		/*-----------------等待执行信号--------------------------*/
+		/*1.-----------------等待执行信号--------------------------*/
 		IGK_SysTimePrintln("等待任务!");
 		while(PLC_Data[43]!=1)
 		{
@@ -663,8 +660,8 @@ void Manual_task(void *p_arg)
 		}
 		//清除执行信号
 		PLC_Data[43] = 0;
-		/*-----------------判断目标位置合法性--------------------------*/
-		if(PLC_Data[40]==IgkAgvOs.RFID)
+		/*2.-----------------判断目标标签合法性--------------------------*/
+		if(PLC_Data[40]==*IgkAgvOs.TongXin.NowRfid)
 		{
 			IGK_Speek("目标标签和当前标签相同,任务完成！");
 			IGK_SysTimePrintln("目标标签和当前标签相同,任务完成！");
@@ -680,68 +677,40 @@ void Manual_task(void *p_arg)
 			continue;
 		}
 		else
-		if(PLC_Data[40] > NodeNum)
+		if(PLC_Data[40] > NodeMaxNum)
 		{
-			IGK_Speek("目标标签不能大于%d,操作非法！",NodeNum);
-			IGK_SysTimePrintln("目标标签不能大于%d,操作非法！",NodeNum);
+			IGK_Speek("目标标签不能大于%d,操作非法！",NodeMaxNum);
+			IGK_SysTimePrintln("目标标签不能大于%d,操作非法！",NodeMaxNum);
 			//跳过
 			continue;
 		}	
 		//更新目标位置到临时变量
 		target = PLC_Data[40];
-		//打印内存情况
-		percentMem = my_mem_perused(SRAMIN);
-		IGK_SysTimePrintln("内存使用率：[%d]",percentMem);
-		IGK_SysTimePrintln("开始搜索[%d]->[%d]!",1,target);
-		//注意：起始点从1开始，不能从0开始
-		//初始化栈
-//		for(int i=0;i<NodeNum;i++){
-//			InitStack(&MapSTACK[i]);
-//		}
-		//初始化节点邻接关系
-//		for(int i=1;i<NodeNum;i++)
-//		{
-//			//读取对应站点的地图
-//			StaionMapStruct mapStruct;
-//			ReadToMapStruct(i,&mapStruct);
-//			for(int j=0;j<StationMapType;j++)
-//			{
-//				if(mapStruct.Stop[j]>0)
-//				{
-//					PushStack(&MapSTACK[i],mapStruct.Stop[j]);
-//					//IGK_SysTimePrintln("%d->%d!",i,mapStruct.Stop[j]);
-//				}
-//			}
-//		}
-		percentMem = my_mem_perused(SRAMIN);
-		IGK_SysTimePrintln("内存使用率：[%d]",percentMem);
 		//搜索路径
-		FindRoute(IgkAgvOs.RFID,target);
+		FindRoute(*IgkAgvOs.TongXin.NowRfid,target);
 		IGK_SysTimePrintln("路径搜索完成!");
-		percentMem = my_mem_perused(SRAMIN);
-		IGK_SysTimePrintln("内存使用率：[%d]",percentMem);
 
 		//播报目标位置
 		IGK_Speek("准备前往%d号标签",target);
 		osdelay_s(3);
-		if(PathTotal==0)
+		if(BestPath.PathTotal==0)
 		{
 			IGK_SysPrintf("未找到有效路径！\r\n\r\n");
 			IGK_Speek("未找到有效路径,请重新设置");
 		}
 		else
 		{
-			IGK_SysPrintf("共找到%d条路径！\r\n\r\n",PathTotal);
-			IGK_Speek("共找到%d条路径！",PathTotal);
+			IGK_SysPrintf("共找到%d条路径！\r\n\r\n",BestPath.PathTotal);
+			IGK_Speek("共找到%d条路径！",BestPath.PathTotal);
 			osdelay_s(2);
-			/*-----------------开始执行--------------------------*/
+		/*3.-----------------执行路径--------------------------*/
 			//启动
 			IgkAgvOs.RunOrStop = Enum_Run;
-			for(int i=0;i < BestPathNodeCount;i++)
+			for(int i=0;i < BestPath.NodeCount;i++)
 			{
 				//给定默认速度
 				IgkAgvOs.Speed = 50;
-				u16 nodeId = BestPathNodeList[i];
+				u16 nodeId = BestPath.NodeList[i];
 				//读取对应站点的地图
 				StaionMapStruct mapStruct;
 				ReadToMapStruct(nodeId,&mapStruct);
@@ -753,11 +722,11 @@ void Manual_task(void *p_arg)
 				{
 						IGK_Speek("等待%d号标签!",nodeId);
 						//osdelay_s(2);
-						while(IgkAgvOs.RFID != nodeId )
+						while(*IgkAgvOs.TongXin.NowRfid != nodeId )
 						{
 							osdelay_ms(5);
 						}
-						if(i == BestPathNodeCount-1)
+						if(i == BestPath.NodeCount-1)
 						{
 							//到达终点
 							break;
@@ -766,7 +735,7 @@ void Manual_task(void *p_arg)
 				//直行站点方向，动作
 				for(int j=0;j<StationMapType;j++)
 				{
-					if(mapStruct.Stop[j] == BestPathNodeList[i+1])
+					if(mapStruct.Stop[j] == BestPath.NodeList[i+1])
 					{
 						//方向
 						if(mapStruct.Dir[j] == Enum_QianJin)
@@ -981,7 +950,7 @@ void PID_task(void *p_arg)
 	{
 		ReadWriteMap(p_arg);
 		//当前位置
-		PLC_Data[41] = IgkAgvOs.RFID;
+		PLC_Data[41] = *IgkAgvOs.TongXin.NowRfid;
 		//当前速度
 		PLC_Data[61] = IgkAgvOs.Speed;
 		delay(0, 0, 0, 100);

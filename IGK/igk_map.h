@@ -10,7 +10,7 @@ typedef unsigned short int u16;
 typedef unsigned char u8;
 
 #define StartAddress 0   //地图起始地址
-#define StationMax 1000  //站点最大值
+#define StationMax NodeMaxNum  //站点最大值
 #define StationMapSpace 17  //站点地图占用空间(单位:16Bit)
 #define StationMapType 12   //站点地图类型(如:左转,左分叉,直行...)
 #define TotalSpace StationMax*StationMapSpace  //占用空间总数(单位:16Bit)

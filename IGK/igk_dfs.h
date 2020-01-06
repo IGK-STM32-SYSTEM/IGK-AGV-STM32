@@ -4,18 +4,19 @@
 #include "usart.h"
 
 //节点总数
-#define NodeNum 100
-//定义邻接关系栈
-extern STACK MapSTACK[NodeNum];
+#define NodeMaxNum 100
+//最优路径结构体
+typedef struct {
+	u16 NodeList[NodeMaxNum];//最优路径节点列表【目前以节点数最少为最优路径】
+	u16 NodeCount;//最优路径节点数
+	u16 PathTotal;//可执行路径总数
+}IgkStuct_BestPath;
 
-//定义路径结果缓冲区
-//最优路径节点列表【目前以节点数最少为最优路径】【公共变量】
-extern u16 BestPathNodeList[NodeNum];
-//最优路径节点数【公共变量】
-extern u16 BestPathNodeCount;
-//可执行路径总数【公共变量】
-extern u16 PathTotal;
+/*--------------------------公共变量-------------------------------------*/
+//最优路径结构体变量【公共变量】
+extern IgkStuct_BestPath BestPath;
 
+//搜索函数，搜索结果存在公共变量中
 void FindRoute(u16 start,u16 end);
 
 //使用示例

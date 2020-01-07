@@ -25,10 +25,9 @@ void IGK_Printf(USART_TypeDef* USARTx ,char* fmt,...)
 		PAout(15) = 1;
 	if(USARTx==UART4)
 		PAout(2) = 1;
-	
 	for(j=0;j<i;j++)//循环发送数据
 	{
-	  while(USART_GetFlagStatus(USARTx,USART_FLAG_TC)==RESET);  //等待上次传输完成 
+		while(USART_GetFlagStatus(USARTx,USART_FLAG_TC)==RESET);  //等待上次传输完成 
 		USART_SendData(USARTx,(uint8_t)buf[j]); 	 //发送数据到串口 
 	}
 }

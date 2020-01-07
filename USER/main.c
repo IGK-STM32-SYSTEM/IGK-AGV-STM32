@@ -2,6 +2,10 @@
 #include "igk_dfs.h"
 #include "igk_map.h"
 #include "igk_ucos.h"
+
+static OS_TCB TestTCB;//任务控制块
+void Test_task(void *p_arg);//任务函数
+
 int main(void)
 {
 	delay_init(168);  	//时钟初始化
@@ -69,8 +73,37 @@ int main(void)
 	//初始化ucos
 	UCOS_Init();
 	IGK_SysTimePrintln("UCOSIII初始化完成,系统进入时间轮片!");
+	
 	while(1);
 }
+
+//开始任务函数
+void start_task(void *p_arg)
+{
+	OS_ERR err;
+	CPU_SR_ALLOC();
+	p_arg = p_arg;
+
+	CPU_Init();
+#if OS_CFG_STAT_TASK_EN > 0u
+	OSStatTaskCPUUsageInit(&err);  	//统计任务
+#endif
+
+#ifdef CPU_CFG_INT_DIS_MEAS_EN		//如果使能了测量中断关闭时间
+	CPU_IntDisMeasMaxCurReset();
+#endif
+
+#if	OS_CFG_SCHED_ROUND_ROBIN_EN  //当使用时间片轮转的时候
+	//使能时间片轮转调度功能,时间片长度为1个系统时钟节拍，既1*5=5ms
+	OSSchedRoundRobinCfg(DEF_ENABLED, 1, &err);
+#endif
+
+	
+	//创建任务
+	CreakTask(8,512,&TestTCB,Test_task);
+	
+}
+
 void Test_task(void *p_arg)
 {
 	p_arg = p_arg;
@@ -78,16 +111,20 @@ void Test_task(void *p_arg)
 	while(1)
 	{
 		num++;
+		//更新系统运行时间
+		GetSysRunTime(&IgkAgvOs.OsTime,p_arg);
 		IGK_SysTimePrintln("计数：%d",num);
-		delay(0, 0,0 , 20);
+
+		delay(0, 0,0 , 100);
 	}
 }
+
+
 //模式
 void task1(void *p_arg)
 {
 	p_arg = p_arg;
 	osdelay_ms(10);
-	CreakTask();
 	while(1)
 	{
 		//监控摇杆按键,切换模式
@@ -150,6 +187,12 @@ void task1(void *p_arg)
 		delay(0, 0, 0, 5);
 	}
 }
+
+
+
+
+
+
 //自动运行模式
 void Auto_task(void *p_arg)
 {

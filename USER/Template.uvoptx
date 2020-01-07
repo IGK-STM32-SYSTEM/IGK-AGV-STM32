@@ -158,7 +158,7 @@
           <Type>0</Type>
           <LineNumber>96</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134262758</Address>
+          <Address>134262264</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -168,38 +168,6 @@
           <Filename>C:\Users\Administrator\Desktop\璺緞瑙勫垝绠楁硶\STM32\IGK-AGV-STM32\USER\main.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\Template\main.c\96</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>93</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134262754</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>C:\Users\Administrator\Desktop\璺緞瑙勫垝绠楁硶\STM32\IGK-AGV-STM32\USER\main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\Template\main.c\93</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>83</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134260570</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>C:\Users\Administrator\Desktop\璺緞瑙勫垝绠楁硶\STM32\IGK-AGV-STM32\USER\main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\Template\main.c\83</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -363,6 +331,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>n_used,0x0A</ItemText>
         </Ww>
+        <Ww>
+          <count>32</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>num,0x0A</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
@@ -419,16 +392,16 @@
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
-          <SubType>10</SubType>
-          <ItemText>buffer</ItemText>
+          <SubType>8</SubType>
+          <ItemText>num</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
       <MemoryWindow2>
         <Mm>
           <WinNumber>2</WinNumber>
-          <SubType>266</SubType>
-          <ItemText>PLC_Data</ItemText>
+          <SubType>264</SubType>
+          <ItemText>send2_buf</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow2>
@@ -881,7 +854,7 @@
 
   <Group>
     <GroupName>HARDWARE</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

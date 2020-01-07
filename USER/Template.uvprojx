@@ -632,34 +632,9 @@
               <FilePath>..\HARDWARE\Function\function.c</FilePath>
             </File>
             <File>
-              <FileName>route.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\route\route.c</FilePath>
-            </File>
-            <File>
               <FileName>iwdg.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\IWDG\iwdg.c</FilePath>
-            </File>
-            <File>
-              <FileName>read.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\read_PC\read.c</FilePath>
-            </File>
-            <File>
-              <FileName>wizchip_conf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\Ethernet\wizchip_conf.c</FilePath>
-            </File>
-            <File>
-              <FileName>socket.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\Ethernet\socket.c</FilePath>
-            </File>
-            <File>
-              <FileName>w5500.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\Ethernet\W5500\w5500.c</FilePath>
             </File>
           </Files>
         </Group>

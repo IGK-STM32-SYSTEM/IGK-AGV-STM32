@@ -98,15 +98,15 @@ int main(void)
 	W25QXX_Init();			//W25QXX初始化
 	while(W25QXX_ReadID()!=W25Q128)//检测不到W25Q128，LED闪烁
 	{
-		delay(0,0,0,100);
+		delay_ms(100);
 	}
-
 	//系统启动，蜂鸣器提示
 	for(u8 i=0;i<4;i++)
 	{
 		BEEP =~BEEP;
-		osdelay_ms(60);
+		delay_ms(60);
 	}
+
 	IGK_SysTimePrintln("Flash Ok!");	
 	//初始化内存池[采用原子内存管理]
 	my_mem_init(SRAMIN);
@@ -131,6 +131,8 @@ void start_task(void *p_arg)
 	IGK_UCOS_Create(9,sizeof(Task6_STK)/4,Task6_STK,&Task6TCB,Task6_task);
 	IGK_UCOS_Create(10,sizeof(Task7_STK)/4,Task7_STK,&Task7TCB,Task7_task);
 	IGK_UCOS_Create(11,sizeof(Task8_STK)/4,Task8_STK,&Task8TCB,Task8_task);
+	
+
 	IGK_SysTimePrintln("UCOSIII初始化完成,系统进入时间轮片!");
 }
 
@@ -169,7 +171,7 @@ void Task1_task(void *p_arg)
 		IGK_SysTimePrintln("Task7 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
 		OSTaskStkChk (&Task8TCB,&free,&used,&err);	
 		IGK_SysTimePrintln("Task8 used/free:%d/%d  usage:%d",used,free,(used*100)/(used+free));  		
-		delay(0,0,1,5);
+		osdelay_s(1);
 	}
 }
 /*【任务2】【自动模式】**************************************************

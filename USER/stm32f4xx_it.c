@@ -188,7 +188,6 @@ void  DMA2_Stream7_IRQHandler(void)//串口6发送DMA中断
     {
 		DMA_ClearITPendingBit(DMA2_Stream7, DMA_IT_TCIF7);
 		DMA_Cmd(DMA2_Stream7, DISABLE);
-		send_ok = 1;
     }
 }
 void  DMA2_Stream0_IRQHandler(void)//AD DMA中断
@@ -322,7 +321,6 @@ void USART6_IRQHandler(void)
 		rece6_index = USART6->DR; //清除IDLE标志
 		rece6_index = UART6_RX_LEN - DMA_GetCurrDataCounter(DMA2_Stream1); 
 		DMA2_Stream1->NDTR = UART6_RX_LEN;
-		receive_ok = 1;
 		DMA_Cmd(DMA2_Stream1, ENABLE);
 	} 
 #if SYSTEM_SUPPORT_OS 	

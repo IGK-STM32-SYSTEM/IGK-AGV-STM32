@@ -44,7 +44,7 @@ typedef struct {
 typedef struct {
 	u16 *SerialNum;  //任务编号【系统自动增加，可通过接口更新】
 	u16 *Target;     //目标标签
-	u16 *NextRfid;   //下一个位置
+	u16 *Next;   //下一个位置
 	u16 *Execute;    //执行
 	u16 *Cancel;     //取消
 //	u16 *State;      //任务状态【完成，失败，未找到路径，】

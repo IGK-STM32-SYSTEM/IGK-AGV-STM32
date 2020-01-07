@@ -70,7 +70,7 @@ int main(void)
 	IgkAgvOs.ManuaSpeed = &PLC_Data[62];//手动模式速度
 	
 	IgkAgvOs.Task.Target = &PLC_Data[40];     //目标标签
-	IgkAgvOs.Task.NextRfid = &PLC_Data[42];   //下一个位置
+	IgkAgvOs.Task.Next = &PLC_Data[42];   //下一个位置
 	IgkAgvOs.Task.Execute = &PLC_Data[43];    //执行
 	IgkAgvOs.Task.Cancel = &PLC_Data[44];     //取消
 	IgkAgvOs.Task.SerialNum = &PLC_Data[45];  //任务编号【系统自动增加，可通过接口更新】
@@ -88,10 +88,6 @@ int main(void)
 	IgkAgvOs.RunOrStop = Enum_Stop;//停止状态
 	*IgkAgvOs.AutoSpeed = 50;//自动速度;	
 	*IgkAgvOs.ManuaSpeed = 80;//手动速度;
-	
-	
-
-
 	
 	/*------------------------------------------------------*/
 
@@ -290,6 +286,7 @@ void Task3_task(void *p_arg)
 	p_arg = p_arg;
 	while(1)
 	{
+		GotoStart:
 		/*1.-----------------等待执行信号--------------------------*/
 		IGK_SysTimePrintln("等待任务!");
 		while(*IgkAgvOs.Task.Execute != DEF_TRUE)
@@ -350,7 +347,7 @@ void Task3_task(void *p_arg)
 				ReadToMapStruct(nodeId,&mapStruct);
 				IGK_SysPrintf("标签号:[%d]",nodeId);
 				//下一个位置更新到界面
-				*IgkAgvOs.Task.NextRfid = nodeId;
+				*IgkAgvOs.Task.Next = nodeId;
 				//等待标签,起点不用等待
 				if(i!=0)
 				{
@@ -358,6 +355,21 @@ void Task3_task(void *p_arg)
 						//osdelay_s(2);
 						while(*IgkAgvOs.RFID != nodeId )
 						{
+							//如果取消任务
+							if(*IgkAgvOs.Task.Cancel == DEF_TRUE)
+							{
+								//停车
+								IgkAgvOs.RunOrStop = Enum_Stop;
+								//清除取消标记
+								*IgkAgvOs.Task.Cancel = DEF_FALSE;
+								//更新目标和下一站点位当前
+								*IgkAgvOs.Task.Next  = *IgkAgvOs.RFID;
+								*IgkAgvOs.Task.Target  = *IgkAgvOs.RFID;
+								IGK_Speek("任务取消成功！");
+								IGK_SysTimePrintln("任务已取消！");
+								//程序退回到等待状态
+								goto GotoStart;
+							}
 							osdelay_ms(5);
 						}
 						if(i == BestPath.NodeCount-1)
@@ -366,7 +378,6 @@ void Task3_task(void *p_arg)
 							break;
 						}
 				}
-				
 				
 				//TODO:
 				//这里写站点动作,如停车时间，按键启动等

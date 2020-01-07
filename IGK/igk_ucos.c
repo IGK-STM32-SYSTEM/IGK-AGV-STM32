@@ -239,12 +239,22 @@ void UCOS_Init(void)
 	             (OS_ERR * )&err);				//存放该函数错误时的返回值
 	OS_CRITICAL_EXIT();	//退出临界区
 	OSStart(&err);  //开启UCOSIII
+
+							 CPU_Init();
+#if OS_CFG_STAT_TASK_EN > 0u
+	OSStatTaskCPUUsageInit(&err);  	//统计任务
+#endif
+
+#ifdef CPU_CFG_INT_DIS_MEAS_EN		//如果使能了测量中断关闭时间
+	CPU_IntDisMeasMaxCurReset();
+#endif
+
+#if	OS_CFG_SCHED_ROUND_ROBIN_EN  //当使用时间片轮转的时候
+	//使能时间片轮转调度功能,时间片长度为1个系统时钟节拍，既1*5=5ms
+	OSSchedRoundRobinCfg(DEF_ENABLED, 1, &err);
+#endif
 }
-//#define Test_TASK_PRIO		6
-//#define Test_STK_SIZE 		512//任务堆栈大小
-//OS_TCB TestTaskTCB;//任务控制块
-//CPU_STK Test_TASK_STK[Test_STK_SIZE];//任务堆栈
-//void Test_task(void *p_arg);//任务函数
+
 /*
 Prio：任务优先级
 TaskFun：任务函数

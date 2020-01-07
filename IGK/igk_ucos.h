@@ -3,9 +3,6 @@
 #include "sys.h"
 
 //UCOS≥ı ºªØ
-void UCOS_Init(void);
-
-
-
-
+extern void UCOS_Init(void);
+extern void CreakTask(void);
 #endif

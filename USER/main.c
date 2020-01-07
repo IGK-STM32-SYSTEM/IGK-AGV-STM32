@@ -2,12 +2,8 @@
 #include "igk_dfs.h"
 #include "igk_map.h"
 #include "igk_ucos.h"
-
 int main(void)
 {
-//	OS_ERR err;
-//	CPU_SR_ALLOC();
-
 	delay_init(168);  	//时钟初始化
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//中断分组配置
 	LED_Init();         //LED初始化
@@ -69,16 +65,29 @@ int main(void)
 	//初始化内存池[采用原子内存管理]
 	my_mem_init(SRAMIN);
 	IGK_SysTimePrintln("开启动态内存：%dKByte!",MEM1_MAX_SIZE/1024);	
+	
 	//初始化ucos
 	UCOS_Init();
+	IGK_SysTimePrintln("UCOSIII初始化完成,系统进入时间轮片!");
 	while(1);
 }
-
+void Test_task(void *p_arg)
+{
+	p_arg = p_arg;
+	u16 num = 0;
+	while(1)
+	{
+		num++;
+		IGK_SysTimePrintln("计数：%d",num);
+		delay(0, 0,0 , 20);
+	}
+}
 //模式
 void task1(void *p_arg)
 {
 	p_arg = p_arg;
 	osdelay_ms(10);
+	CreakTask();
 	while(1)
 	{
 		//监控摇杆按键,切换模式

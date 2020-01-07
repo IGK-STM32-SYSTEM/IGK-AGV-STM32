@@ -1,68 +1,36 @@
 #include "igk_ucos.h"
-//将这些优先级分配给了UCOSIII的5个系统内部任务
-//优先级0：中断服务服务管理任务 OS_IntQTask()
-//优先级1：时钟节拍任务 OS_TickTask()
-//优先级2：定时任务 OS_TmrTask()
-//优先级OS_CFG_PRIO_MAX-2：统计任务 OS_StatTask()
-//优先级OS_CFG_PRIO_MAX-1：空闲任务 OS_IdleTask()
-//任务优先级
-#define START_TASK_PRIO		3
-//任务堆栈大小
-#define START_STK_SIZE 		512
-//任务控制块
-OS_TCB StartTaskTCB;
-//任务堆栈
-CPU_STK START_TASK_STK[START_STK_SIZE];
-//任务函数
-void start_task(void *p_arg);
 
 
+#define START_TASK_PRIO		3//任务优先级
+#define START_STK_SIZE 		512//任务堆栈大小
+OS_TCB StartTaskTCB;//任务控制块
+CPU_STK START_TASK_STK[START_STK_SIZE];//任务堆栈
+void start_task(void *p_arg);//任务函数
 
-
-
-//任务优先级
-#define TASK1_PRIO		4
-//任务堆栈大小
-#define TASK1_STK_SIZE 		128
-//任务控制块
-OS_TCB Task1TCB;
-//任务堆栈
-CPU_STK TASK1_STK[TASK1_STK_SIZE];
+#define TASK1_PRIO		4//任务优先级
+#define TASK1_STK_SIZE 		128//任务堆栈大小
+OS_TCB Task1TCB;//任务控制块
+CPU_STK TASK1_STK[TASK1_STK_SIZE];//任务堆栈
 void task1(void *p_arg);
 
+#define Auto_TASK_PRIO		5//任务优先级
+#define Auto_STK_SIZE 		512//任务堆栈大小
+OS_TCB AutoTaskTCB;//任务控制块
+CPU_STK Auto_TASK_STK[Auto_STK_SIZE];//任务堆栈
+void Auto_task(void *p_arg);//任务函数
 
-//任务优先级
-#define Auto_TASK_PRIO		5
-//任务堆栈大小
-#define Auto_STK_SIZE 		512
-//任务控制块
-OS_TCB AutoTaskTCB;
-//任务堆栈
-CPU_STK Auto_TASK_STK[Auto_STK_SIZE];
-//任务函数
-void Auto_task(void *p_arg);
+#define Manual_TASK_PRIO		6//任务优先级
+#define Manual_STK_SIZE 		512//任务堆栈大小
+OS_TCB ManualTaskTCB;//任务控制块
+CPU_STK Manual_TASK_STK[Manual_STK_SIZE];//任务堆栈
+void Manual_task(void *p_arg);//任务函数
 
-//任务优先级
-#define Manual_TASK_PRIO		6
-//任务堆栈大小
-#define Manual_STK_SIZE 		512
-//任务控制块
-OS_TCB ManualTaskTCB;
-//任务堆栈
-CPU_STK Manual_TASK_STK[Manual_STK_SIZE];
-//任务函数
-void Manual_task(void *p_arg);
+#define FLOAT_TASK_PRIO		7//任务优先级
+#define FLOAT_STK_SIZE		512//任务堆栈大小
+OS_TCB	FloatTaskTCB;//任务控制块
+CPU_STK	FLOAT_TASK_STK[FLOAT_STK_SIZE];//任务堆栈
+void float_task(void *p_arg);//任务函数
 
-//任务优先级
-#define FLOAT_TASK_PRIO		7
-//任务堆栈大小
-#define FLOAT_STK_SIZE		512
-//任务控制块
-OS_TCB	FloatTaskTCB;
-//任务堆栈
-CPU_STK	FLOAT_TASK_STK[FLOAT_STK_SIZE];
-//任务函数
-void float_task(void *p_arg);
 
 //任务优先级
 #define DEMO_TASK_PRIO		8
@@ -75,38 +43,32 @@ CPU_STK DEMO_TASK_STK[DEMO_STK_SIZE];
 //任务函数
 void DEMO_task(void *p_arg);
 
-//任务优先级
 #define DEMO1_TASK_PRIO		13
-//任务堆栈大小
-#define DEMO1_STK_SIZE 		512
-//任务控制块
-OS_TCB DEMO1TaskTCB;
-//任务堆栈
-CPU_STK DEMO1_TASK_STK[DEMO1_STK_SIZE];
-//任务函数
-void DEMO1_task(void *p_arg);
+#define DEMO1_STK_SIZE 		512//任务堆栈大小
+OS_TCB DEMO1TaskTCB;//任务控制块
+CPU_STK DEMO1_TASK_STK[DEMO1_STK_SIZE];//任务堆栈
+void DEMO1_task(void *p_arg);//任务函数
 
-//任务优先级
-#define DEMO2_TASK_PRIO		12
-//任务堆栈大小
-#define DEMO2_STK_SIZE 		512
-//任务控制块
-OS_TCB DEMO2TaskTCB;
-//任务堆栈
-CPU_STK DEMO2_TASK_STK[DEMO2_STK_SIZE];
-//任务函数
-void DEMO2_task(void *p_arg);
+#define DEMO2_TASK_PRIO		12//任务优先级
+#define DEMO2_STK_SIZE 		512//任务堆栈大小
+OS_TCB DEMO2TaskTCB;//任务控制块
+CPU_STK DEMO2_TASK_STK[DEMO2_STK_SIZE];//任务堆栈
+void DEMO2_task(void *p_arg);//任务函数
 
-//任务优先级
+
 #define PID_TASK_PRIO		15
-//任务堆栈大小
-#define PID_STK_SIZE 		512
-//任务控制块
-OS_TCB PIDTaskTCB;
-//任务堆栈
-CPU_STK PID_TASK_STK[PID_STK_SIZE];
-//任务函数
-void PID_task(void *p_arg);
+#define PID_STK_SIZE 		512//任务堆栈大小
+OS_TCB PIDTaskTCB;//任务控制块
+CPU_STK PID_TASK_STK[PID_STK_SIZE];//任务堆栈
+void PID_task(void *p_arg);//任务函数
+
+#define Test_TASK_PRIO		16
+#define Test_STK_SIZE 		512//任务堆栈大小
+OS_TCB TestTaskTCB;//任务控制块
+CPU_STK Test_TASK_STK[Test_STK_SIZE];//任务堆栈
+void Test_task(void *p_arg);//任务函数
+
+
 //开始任务函数
 void start_task(void *p_arg)
 {
@@ -252,10 +214,8 @@ void start_task(void *p_arg)
 	             (OS_OPT      )OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR,
 	             (OS_ERR * )&err);
 
-//	IGK_SysTimePrintln("Task5创建完成!");
 	OS_TaskSuspend((OS_TCB *)&StartTaskTCB, &err);		//挂起开始任务
-	OS_CRITICAL_EXIT();	//进入临界区
-	IGK_SysTimePrintln("任务创建完成!");
+	OS_CRITICAL_EXIT();	//退出临界区
 }
 
 
@@ -266,7 +226,6 @@ void UCOS_Init(void)
 	CPU_SR_ALLOC();
 
 	OSInit(&err);		//初始化UCOSIII
-	IGK_SysTimePrintln("UCOSIII初始化完成,系统进入时间轮片!");
 	
 	OS_CRITICAL_ENTER();//进入临界区
 	//创建开始任务
@@ -287,13 +246,27 @@ void UCOS_Init(void)
 	OSStart(&err);  //开启UCOSIII
 }
 
-
-
-
-
-
-
-
+void CreakTask(void)
+{
+	OS_ERR err;
+	CPU_SR_ALLOC();	
+	OS_CRITICAL_ENTER();//进入临界区
+	//创建开始任务
+	OSTaskCreate((OS_TCB * )&TestTaskTCB,		//任务控制块
+	             (CPU_CHAR * )"Test task", 		//任务名字
+	             (OS_TASK_PTR )Test_task, 			//任务函数
+	             (void * )0,					//传递给任务函数的参数
+	             (OS_PRIO	  )Test_TASK_PRIO,     //任务优先级
+	             (CPU_STK * )&Test_TASK_STK[0],	//任务堆栈基地址
+	             (CPU_STK_SIZE)Test_STK_SIZE / 10,	//任务堆栈深度限位
+	             (CPU_STK_SIZE)Test_STK_SIZE,		//任务堆栈大小
+	             (OS_MSG_QTY  )0,					//任务内部消息队列能够接收的最大消息数目,为0时禁止接收消息
+	             (OS_TICK	  )0,					//当使能时间片轮转时的时间片长度，为0时为默认长度，
+	             (void * )0,					//用户补充的存储区
+	             (OS_OPT      )OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR, //任务选项
+	             (OS_ERR * )&err);				//存放该函数错误时的返回值
+	OS_CRITICAL_EXIT();	//退出临界区
+}
 
 
 

@@ -3,7 +3,7 @@
 
 u16 AD_Value[30][4];
 double After_filter[4];
-u8 rece_index=0,rece2_index=0,rece6_index=0,rece3_index=0,rece5_index=0;
+u16 rece_index=0,rece2_index=0,rece6_index=0,rece3_index=0,rece5_index=0;
 u8  sendBuf[UART_RX_LEN];  //定义发送数组，最大允许发送32个字，64个字节
 u8  receBuf[UART_RX_LEN];	//定义接收数组，最大允许接收32个字，64个字节写入
 u8  rece2_buf[UART_RX_LEN];

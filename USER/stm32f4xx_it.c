@@ -123,21 +123,6 @@ void SVC_Handler(void)
 void DebugMon_Handler(void)
 {
 }
-void  DMA1_Stream3_IRQHandler(void)//串口3发送DMA中断
-{
-#if SYSTEM_SUPPORT_OS 	
-	OSIntEnter();    
-#endif	
-    if(DMA_GetITStatus(DMA1_Stream3, DMA_IT_TCIF3))
-    {
-      USART_ITConfig(USART3, USART_IT_TC, ENABLE);//发送数据时，进入串口3DMA中断，打开串口3发送中断
-			DMA_ClearITPendingBit(DMA1_Stream3, DMA_IT_TCIF3);
-			DMA_Cmd(DMA1_Stream3, DISABLE);
-    }
-#if SYSTEM_SUPPORT_OS 	
-	OSIntExit();  											 
-#endif	
-}
 void  DMA1_Stream6_IRQHandler(void)//串口2发送DMA中断
 {
 #if SYSTEM_SUPPORT_OS 	
@@ -148,6 +133,21 @@ void  DMA1_Stream6_IRQHandler(void)//串口2发送DMA中断
         USART_ITConfig(USART2, USART_IT_TC, ENABLE);//发送数据时，进入串口2DMA中断，打开串口3发送中断
 				DMA_ClearITPendingBit(DMA1_Stream6, DMA_IT_TCIF6);
 				DMA_Cmd(DMA1_Stream6, DISABLE);
+    }
+#if SYSTEM_SUPPORT_OS 	
+	OSIntExit();  											 
+#endif	
+}
+void  DMA1_Stream3_IRQHandler(void)//串口3发送DMA中断
+{
+#if SYSTEM_SUPPORT_OS 	
+	OSIntEnter();    
+#endif	
+    if(DMA_GetITStatus(DMA1_Stream3, DMA_IT_TCIF3))
+    {
+      USART_ITConfig(USART3, USART_IT_TC, ENABLE);//发送数据时，进入串口3DMA中断，打开串口3发送中断
+			DMA_ClearITPendingBit(DMA1_Stream3, DMA_IT_TCIF3);
+			DMA_Cmd(DMA1_Stream3, DISABLE);
     }
 #if SYSTEM_SUPPORT_OS 	
 	OSIntExit();  											 
@@ -182,6 +182,15 @@ void  DMA1_Stream7_IRQHandler(void)//串口5DMA发送中断
 	OSIntExit();  											 
 #endif	
 }
+void  DMA2_Stream7_IRQHandler(void)//串口6发送DMA中断
+{
+    if(DMA_GetITStatus(DMA2_Stream7, DMA_IT_TCIF7))
+    {
+		DMA_ClearITPendingBit(DMA2_Stream7, DMA_IT_TCIF7);
+		DMA_Cmd(DMA2_Stream7, DISABLE);
+		send_ok = 1;
+    }
+}
 void  DMA2_Stream0_IRQHandler(void)//AD DMA中断
 {
 	long  sum = 0;
@@ -201,15 +210,6 @@ void  DMA2_Stream0_IRQHandler(void)//AD DMA中断
 
 	  DMA_ClearITPendingBit(DMA2_Stream0,DMA_IT_TCIF0);
 	}
-}
-void  DMA2_Stream7_IRQHandler(void)//串口6发送DMA中断
-{
-    if(DMA_GetITStatus(DMA2_Stream7, DMA_IT_TCIF7))
-    {
-		DMA_ClearITPendingBit(DMA2_Stream7, DMA_IT_TCIF7);
-		DMA_Cmd(DMA2_Stream7, DISABLE);
-		send_ok = 1;
-    }
 }
 void USART2_IRQHandler(void)             
 {
@@ -247,8 +247,13 @@ void USART3_IRQHandler(void)
 		rece3_index = USART3->DR; //清除IDLE标志
 		rece3_index = UART_RX_LEN - DMA_GetCurrDataCounter(DMA1_Stream1); 
 		DMA1_Stream1->NDTR = UART3_RX_LEN;
-		AnalyzeRecieve();
-		memset(rece3_buf,0,UART3_RX_LEN);
+		//判断数据长度，防止查出索引
+		if(rece3_index<UART_RX_LEN)
+		{
+			//Modbus解析
+			AnalyzeRecieve();
+			memset(rece3_buf,0,UART3_RX_LEN);
+		}
 		DMA_Cmd(DMA1_Stream1, ENABLE);
 	}
   if(USART_GetITStatus(USART3, USART_IT_TC)!= RESET)//当发送完成时进入串口4中断，改变485发送接收方向
@@ -286,6 +291,25 @@ void UART4_IRQHandler(void)
 	OSIntExit();  											 
 #endif
 } 
+void UART5_IRQHandler(void)             
+{
+#if SYSTEM_SUPPORT_OS 	
+	OSIntEnter();    
+#endif
+	if(USART_GetITStatus(UART5, USART_IT_IDLE) != RESET) 
+	{
+		DMA_Cmd(DMA1_Stream0,DISABLE);
+		rece5_index = UART5->SR;
+		rece5_index = UART5->DR; //清除IDLE标志
+		rece5_index = UART5_RX_LEN - DMA_GetCurrDataCounter(DMA1_Stream0); 
+		DMA1_Stream1->NDTR = UART5_RX_LEN;
+		
+		DMA_Cmd(DMA1_Stream0, ENABLE);
+	} 
+#if SYSTEM_SUPPORT_OS 	
+	OSIntExit();  											 
+#endif
+}
 void USART6_IRQHandler(void)             
 {
 #if SYSTEM_SUPPORT_OS 	
@@ -305,25 +329,7 @@ void USART6_IRQHandler(void)
 	OSIntExit();  											 
 #endif
 } 
-void UART5_IRQHandler(void)             
-{
-#if SYSTEM_SUPPORT_OS 	
-	OSIntEnter();    
-#endif
-	if(USART_GetITStatus(UART5, USART_IT_IDLE) != RESET) 
-	{
-		DMA_Cmd(DMA1_Stream0,DISABLE);
-		rece5_index = UART5->SR;
-		rece5_index = UART5->DR; //清除IDLE标志
-		rece5_index = UART5_RX_LEN - DMA_GetCurrDataCounter(DMA1_Stream0); 
-		DMA1_Stream1->NDTR = UART5_RX_LEN;
-		
-		DMA_Cmd(DMA1_Stream0, ENABLE);
-	} 
-#if SYSTEM_SUPPORT_OS 	
-	OSIntExit();  											 
-#endif
-} 
+ 
 /**
   * @brief  This function handles PendSVC exception.
   * @param  None

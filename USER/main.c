@@ -2,6 +2,37 @@
 #include "igk_dfs.h"
 #include "igk_map.h"
 #include "igk_ucos.h"
+OS_TCB Task1TCB;//任务控制块
+CPU_STK Task1_STK[512];//任务堆栈
+void Task1_task(void *p_arg);//任务函数
+
+OS_TCB Task2TCB;//任务控制块
+CPU_STK Task2_STK[256];//任务堆栈
+void Task2_task(void *p_arg);//任务函数
+
+OS_TCB Task3TCB;//任务控制块
+CPU_STK Task3_STK[512];//任务堆栈
+void Task3_task(void *p_arg);//任务函数
+
+OS_TCB Task4TCB;//任务控制块
+CPU_STK Task4_STK[256];//任务堆栈
+void Task4_task(void *p_arg);//任务函数
+
+OS_TCB Task5TCB;//任务控制块
+CPU_STK Task5_STK[256];//任务堆栈
+void Task5_task(void *p_arg);//任务函数
+
+OS_TCB Task6TCB;//任务控制块
+CPU_STK Task6_STK[256];//任务堆栈
+void Task6_task(void *p_arg);//任务函数
+
+OS_TCB Task7TCB;//任务控制块
+CPU_STK Task7_STK[256];//任务堆栈
+void Task7_task(void *p_arg);//任务函数
+
+OS_TCB Task8TCB;//任务控制块
+CPU_STK Task8_STK[256];//任务堆栈
+void Task8_task(void *p_arg);//任务函数
 
 int main(void)
 {
@@ -27,7 +58,7 @@ int main(void)
 	CAN2_Mode_Init(CAN_SJW_1tq, CAN_BS2_6tq, CAN_BS1_7tq, 6, CAN_Mode_Normal); //CAN2初始化普通模式,波特率500Kbps
 	PID_Init();
 	TIM2_Int_Init(5 - 1, 84 - 1);			//Tout=((arr+1)*(psc+1))/Ft us.  5us
-//	IWDG_Init(4, 500);
+	IWDG_Init(4, 500);//大概1066ms
 	SPI1_Init();
   TLC5620_Init();
 	
@@ -66,140 +97,50 @@ int main(void)
 	//初始化内存池[采用原子内存管理]
 	my_mem_init(SRAMIN);
 	IGK_SysTimePrintln("开启动态内存：%dKByte!",MEM1_MAX_SIZE/1024);	
-	
 	//初始化ucos
-	UCOS_Init();
-	IGK_SysTimePrintln("UCOSIII初始化完成,系统进入时间轮片!");
+	UCOS_Init();	
 	
 	while(1);
 }
 
-OS_TCB Test1TCB;//任务控制块
-void Test1_task(void *p_arg);//任务函数
 
-OS_TCB Test2TCB;//任务控制块
-void Test2_task(void *p_arg);//任务函数
-
-//开始任务函数
+//开始任务函数,创建任务进程，执行一次后自动退出
 void start_task(void *p_arg)
 {
-	OS_ERR err;
-	CPU_SR_ALLOC();
 	p_arg = p_arg;
-
-
-
-	
 	//创建任务
-	CreakTask(8,512,&Test1TCB,Test1_task);
-	CreakTask(9,512,&Test2TCB,Test2_task);
+	CreakTask(4,sizeof(Task1_STK)/4,Task1_STK,&Task1TCB,Task1_task);
+	CreakTask(5,sizeof(Task2_STK)/4,Task2_STK,&Task2TCB,Task2_task);
+	CreakTask(6,sizeof(Task3_STK)/4,Task3_STK,&Task3TCB,Task3_task);
+	CreakTask(7,sizeof(Task4_STK)/4,Task4_STK,&Task4TCB,Task4_task);
+	CreakTask(8,sizeof(Task5_STK)/4,Task5_STK,&Task5TCB,Task5_task);
+	CreakTask(9,sizeof(Task6_STK)/4,Task6_STK,&Task6TCB,Task6_task);
+	CreakTask(10,sizeof(Task7_STK)/4,Task7_STK,&Task7TCB,Task7_task);
+	CreakTask(11,sizeof(Task8_STK)/4,Task8_STK,&Task8TCB,Task8_task);
 	
+	IGK_SysTimePrintln("UCOSIII初始化完成,系统进入时间轮片!");
 }
-
-void Test1_task(void *p_arg)
+/*【任务1】【调试专用】*****************************
+****************************************************/
+void Task1_task(void *p_arg)
 {
-	p_arg = p_arg;
 	u16 num = 0;
-	while(1)
-	{
-		num++;
-		//更新系统运行时间
-		GetSysRunTime(&IgkAgvOs.OsTime,p_arg);
-//		IGK_SysTimePrintln("计数：%d",num);
-
-		delay(0, 0,0 , 5);
-	}
-}
-void Test2_task(void *p_arg)
-{
-	p_arg = p_arg;
-	u16 num = 0;
+	osdelay_s(1);
+	yinling(1);
+	IGK_Speek("系统自检完成");
 	while(1)
 	{
 		num++;
 		IGK_SysTimePrintln("计数：%d",num);
-
-		delay(0, 0,0 , 100);
+		LED1 = ~LED1;
+		delay(0, 0,0 , 20);
 	}
 }
-
-//模式
-void task1(void *p_arg)
+/*【任务2】【自动模式】**************************************************
+*                    
+****************************************************/
+void Task2_task(void *p_arg)
 {
-	p_arg = p_arg;
-	osdelay_ms(10);
-	while(1)
-	{
-		//监控摇杆按键,切换模式
-		if(IgkAgvOs.YaoGan.key==KeyDown)
-		{
-			delay(0, 0, 1, 0);
-			if(IgkAgvOs.YaoGan.key==KeyDown)
-			{
-				if(IgkAgvOs.WorkMode == Enum_LocalManual)
-				{
-					IgkAgvOs.WorkMode = Enum_LocalAuto;
-					IGK_Speek("自动模式");
-				}
-				else
-				{
-					IgkAgvOs.WorkMode = Enum_LocalManual;
-					IGK_Speek("手动模式");
-				}
-			}
-		}
-		//手动控制模式
-		if(IgkAgvOs.WorkMode == Enum_LocalManual)
-		{
-			//直接将速度赋值到驱动器
-			//判断当前动作
-			if(abs(IgkAgvOs.YaoGan.y)>0)//前进后退
-			{
-				*IgkAgvOs.Speed = abs(IgkAgvOs.YaoGan.y)*1;
-				//转向速度
-				s8 speed = IgkAgvOs.YaoGan.z*0.5;
-				if(IgkAgvOs.YaoGan.y>0)
-				{
-					if(speed >= 0)
-						DriverQinJinSpeed(*IgkAgvOs.Speed-speed,*IgkAgvOs.Speed);
-					else
-						DriverQinJinSpeed(*IgkAgvOs.Speed,*IgkAgvOs.Speed+speed);
-				}
-				else
-				if(IgkAgvOs.YaoGan.y<0)
-				{
-					if(speed >= 0)
-						DriverHouTuiSpeed(*IgkAgvOs.Speed,*IgkAgvOs.Speed-speed);
-					else
-						DriverHouTuiSpeed(*IgkAgvOs.Speed+speed,*IgkAgvOs.Speed);
-				}
-			}
-			else
-			if(abs(IgkAgvOs.YaoGan.z)>0)//左右旋转
-			{
-				*IgkAgvOs.Speed = abs(IgkAgvOs.YaoGan.z)*0.8;
-				if(IgkAgvOs.YaoGan.z<0)
-					DriverZuoXuan(*IgkAgvOs.Speed);
-				else
-				if(IgkAgvOs.YaoGan.z>0)
-					DriverYouXuan(*IgkAgvOs.Speed);
-			}
-			else // 停止
-				DriverTingZhi();
-		}
-		delay(0, 0, 0, 5);
-	}
-}
-
-
-
-
-
-
-//自动运行模式
-void Auto_task(void *p_arg)
-{
-	p_arg = p_arg;
 	//初始化PID
 	PID_Init();
 	while(1)
@@ -298,15 +239,16 @@ void Auto_task(void *p_arg)
 		delay(0, 0, 0, 10);
 	}
 }
-
-//计算目标位置
-u16 target = 1;
-void Manual_task(void *p_arg)
+/*【任务3】【执行自动任务】**************************************************
+1.监听执行
+2.检查非法
+3.计算最有路径
+4.执行任务
+****************************************************/
+void Task3_task(void *p_arg)
 {
 	p_arg = p_arg;
-	osdelay_s(1);
-	yinling(1);
-	IGK_Speek("系统自检完成");
+	u16 target = 1;
 	while(1)
 	{
 		/*1.-----------------等待执行信号--------------------------*/
@@ -597,20 +539,91 @@ void Manual_task(void *p_arg)
 			IGK_Speek("到达终点，任务完成");
 			IGK_SysTimePrintln("到达终点，任务完成");
 		}
-		delay(0, 0, 0, 10); //延时10ms
+		delay(0, 0, 0, 100); //延时10ms
 	}
 }
-//Modbus同步进程
-void PID_task(void *p_arg)
+/***************************************************
+*任务4                   
+****************************************************/
+void Task4_task(void *p_arg)
+{
+	p_arg = p_arg;
+	while(1)
+	{
+		delay(0,0,0,100);
+	}
+}
+/*【任务5】【手动、自动切换】**************************************************
+*                   
+****************************************************/
+void Task5_task(void *p_arg)
 {
 	while(1)
 	{
-		ReadWriteMap(p_arg);
-		delay(0, 0, 0, 100);
+		//监控摇杆按键,切换模式
+		if(IgkAgvOs.YaoGan.key==KeyDown)
+		{
+			delay(0, 0, 1, 0);
+			if(IgkAgvOs.YaoGan.key==KeyDown)
+			{
+				if(IgkAgvOs.WorkMode == Enum_LocalManual)
+				{
+					IgkAgvOs.WorkMode = Enum_LocalAuto;
+					IGK_Speek("自动模式");
+				}
+				else
+				{
+					IgkAgvOs.WorkMode = Enum_LocalManual;
+					IGK_Speek("手动模式");
+				}
+			}
+		}
+		//手动控制模式
+		if(IgkAgvOs.WorkMode == Enum_LocalManual)
+		{
+			//直接将速度赋值到驱动器
+			//判断当前动作
+			if(abs(IgkAgvOs.YaoGan.y)>0)//前进后退
+			{
+				*IgkAgvOs.Speed = abs(IgkAgvOs.YaoGan.y)*1;
+				//转向速度
+				s8 speed = IgkAgvOs.YaoGan.z*0.5;
+				if(IgkAgvOs.YaoGan.y>0)
+				{
+					if(speed >= 0)
+						DriverQinJinSpeed(*IgkAgvOs.Speed-speed,*IgkAgvOs.Speed);
+					else
+						DriverQinJinSpeed(*IgkAgvOs.Speed,*IgkAgvOs.Speed+speed);
+				}
+				else
+				if(IgkAgvOs.YaoGan.y<0)
+				{
+					if(speed >= 0)
+						DriverHouTuiSpeed(*IgkAgvOs.Speed,*IgkAgvOs.Speed-speed);
+					else
+						DriverHouTuiSpeed(*IgkAgvOs.Speed+speed,*IgkAgvOs.Speed);
+				}
+			}
+			else
+			if(abs(IgkAgvOs.YaoGan.z)>0)//左右旋转
+			{
+				*IgkAgvOs.Speed = abs(IgkAgvOs.YaoGan.z)*0.8;
+				if(IgkAgvOs.YaoGan.z<0)
+					DriverZuoXuan(*IgkAgvOs.Speed);
+				else
+				if(IgkAgvOs.YaoGan.z>0)
+					DriverYouXuan(*IgkAgvOs.Speed);
+			}
+			else // 停止
+				DriverTingZhi();
+		}
+		delay(0, 0, 0, 10);
 	}
 }
-//监听按键
-void float_task(void *p_arg)
+/*【任务6】【IO监控】**************************************************
+*                   
+****************************************************/
+void Task6_task(void *p_arg)
 {
 	while(1)
 	{
@@ -638,58 +651,53 @@ void float_task(void *p_arg)
 				while(IN7 == KeyDown){delay(0, 0, 0, 5);}
 			}
 		}
-		delay(0, 0, 0, 5); //延时5ms
+		delay(0, 0, 0, 10); //延时5ms
 	}
 }
-
-void DEMO_task(void *p_arg)//LED,DA，FLASH，语音测试
+/*【任务7】【Modbus】**************************************************
+*                 
+****************************************************/
+void Task7_task(void *p_arg)
 {
-    
+	p_arg = p_arg;
 	while(1)
 	{
-		LED1 = ~LED1;
-		delay(0, 0, 0, 300);
+		//响应Modbus读写地图信息
+		ReadWriteMap(p_arg);
+		delay(0,0,0,100);
 	}
 }
-
-//启动
-void DEMO1_task(void *p_arg)//网口测试
+/*【任务8】【喂狗+系统时间更新】**************************************************   
+1.
+2.更新系统运行时间
+****************************************************/
+void Task8_task(void *p_arg)
 {
-//	OS_ERR err;
-//	CPU_STK_SIZE  n_free;
-//  CPU_STK_SIZE  n_used;  
 	while(1)
 	{
-		delay(0, 0, 1, 10);
-//		OSTaskStkChk(&Task1TCB,
-//                 &n_free,
-//                 &n_used,
-//                 &err);
-//		IGK_SysTimePrintln("Task1:%d，占用：%d，使用率：%f",TASK1_STK_SIZE,n_used,n_used/(float)TASK1_STK_SIZE);
-//		OSTaskStkChk(&ManualTaskTCB,
-//                 &n_free,
-//                 &n_used,
-//                 &err);
-//		IGK_SysTimePrintln("Manual:%d，占用：%d，使用率：%f",Manual_STK_SIZE,n_used,n_used/(float)Manual_STK_SIZE);
-	}
-}
-//喂狗,更新系统运行时间
-void DEMO2_task(void *p_arg)
-{
-	u16 num = 0;
-	while(1)
-	{
-		//定时喂狗
-		num++;
-		if(num == 20)
-		{
-			num = 0;
-			IWDG_Feed();//喂狗
-		}
+		IWDG_Feed();//喂狗
 		//更新系统运行时间
 		GetSysRunTime(&IgkAgvOs.OsTime,p_arg);
-		delay(0, 0, 0, 5);
+		delay(0, 0, 0, 200);
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

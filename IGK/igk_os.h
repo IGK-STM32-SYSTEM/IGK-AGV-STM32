@@ -40,7 +40,7 @@ typedef struct {
 	u16 Millisecond;//毫秒
 }IGK_Struct_DateTime;
 
-//通信结构体【触摸屏、调度系统、三方系统】
+//任务结构体
 typedef struct {
 	u16 *SerialNum;  //任务编号【系统自动增加，可通过接口更新】
 	u16 *Target;     //目标标签
@@ -48,10 +48,19 @@ typedef struct {
 	u16 *Execute;    //执行
 	u16 *Cancel;     //取消
 //	u16 *State;      //任务状态【完成，失败，未找到路径，】
-	
-	
 }IGK_Struct_Task;
 
+//PID结构体定义
+typedef struct {
+	float SetTarget;
+	s16 *SumError;
+	float Error;							//Error[n]
+	float LastError;					//Error[n-1]
+	float PrevError;					//Error[n-2]
+	u16 *Kp;
+	u16 *Ki;
+	u16 *Kd;
+}IGK_Struct_PID;
 //系统结构体,全局通用
 typedef struct {
 	//系统运行时间
@@ -78,6 +87,8 @@ typedef struct {
 	Fencha_struct HouCiDaoHang;
 	//AGV任务
 	IGK_Struct_Task Task;
+	//PID
+	IGK_Struct_PID PID;	
 }IgkAgvOsStruct;
 
 

@@ -17,7 +17,5 @@ struct Agv_Pid
 };
 
 void PID_Init(void);
-float IncPIDCalc(int error);
 float PosPIDCalc(int NextTarget);
-extern struct  Agv_Pid PID;
 #endif

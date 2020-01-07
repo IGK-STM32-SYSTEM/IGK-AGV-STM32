@@ -58,7 +58,6 @@ int main(void)
 //	TIM4_PWM_Init(1000 - 1, 8 - 1);	//84M/8=10Mhz?????,????1000,??PWM??? 10M/50000=200hz. //500-10   20hz-1000hz
 	CAN1_Mode_Init(CAN_SJW_1tq, CAN_BS2_6tq, CAN_BS1_7tq, 6, CAN_Mode_Normal); //CAN1初始化普通模式,波特率500Kbps
 	CAN2_Mode_Init(CAN_SJW_1tq, CAN_BS2_6tq, CAN_BS1_7tq, 6, CAN_Mode_Normal); //CAN2初始化普通模式,波特率500Kbps
-	PID_Init();
 	TIM2_Int_Init(5 - 1, 84 - 1);			//Tout=((arr+1)*(psc+1))/Ft us.  5us
 	IWDG_Init(4, 500);//大概1066ms
 	SPI1_Init();
@@ -75,6 +74,12 @@ int main(void)
 	IgkAgvOs.Task.Cancel = &PLC_Data[44];     //取消
 	IgkAgvOs.Task.SerialNum = &PLC_Data[45];  //任务编号【系统自动增加，可通过接口更新】
 	
+	//PID
+	IgkAgvOs.PID.SumError = (s16*)&PLC_Data[101]; 
+	IgkAgvOs.PID.Kp = &PLC_Data[105]; 
+	IgkAgvOs.PID.Ki = &PLC_Data[106]; 
+	IgkAgvOs.PID.Kd = &PLC_Data[107]; 
+	
 	/*------------设定默认参数-------------------------------*/
 	//初始化时间
 	IgkAgvOs.OsTime.Hour = 0;
@@ -88,9 +93,10 @@ int main(void)
 	IgkAgvOs.RunOrStop = Enum_Stop;//停止状态
 	*IgkAgvOs.AutoSpeed = 50;//自动速度;	
 	*IgkAgvOs.ManuaSpeed = 80;//手动速度;
-	
+		
 	/*------------------------------------------------------*/
 
+	PID_Init();
 
 	
 	IGK_SysTimePrintln("正在初始化...");

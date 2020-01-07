@@ -1,4 +1,6 @@
 #include "igk_stack.h"
+#include "malloc.h"
+
 //定义初始化栈函数
 void InitStack(PSTACK Stack) {
 	//新建一个节点

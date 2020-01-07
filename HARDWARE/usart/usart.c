@@ -9,15 +9,15 @@
 公司:西安爱极客网络科技公司
 姓名:孙毅明
 *****************************************************/
+char PrintfBuf[SerialPrintSize]={0};
 void IGK_Printf(USART_TypeDef* USARTx ,char* fmt,...)  
 {  
-	char buf[SerialPrintSize]={0};
 	u16 i,j;
 	va_list ap;
 	va_start(ap,fmt);
-	vsprintf((char*)buf,fmt,ap);
+	vsprintf((char*)PrintfBuf,fmt,ap);
 	va_end(ap);
-	i=strlen((const char*)buf);//此次发送数据的长度
+	i=strlen((const char*)PrintfBuf);//此次发送数据的长度
 	//为485端口自动切换发送
 	if(USARTx==USART2)
 		PDout(4) = 1;
@@ -28,7 +28,7 @@ void IGK_Printf(USART_TypeDef* USARTx ,char* fmt,...)
 	for(j=0;j<i;j++)//循环发送数据
 	{
 		while(USART_GetFlagStatus(USARTx,USART_FLAG_TC)==RESET);  //等待上次传输完成 
-		USART_SendData(USARTx,(uint8_t)buf[j]); 	 //发送数据到串口 
+		USART_SendData(USARTx,(uint8_t)PrintfBuf[j]); 	 //发送数据到串口 
 	}
 }
 
@@ -72,28 +72,28 @@ void IGK_PrintBuf(USART_TypeDef* USARTx ,char* buf,u8 len)
 公司:西安爱极客网络科技公司
 姓名:孙毅明
 *****************************************************/
+char SysPrintfBuf[SerialPrintSize]={0};
 void IGK_SysPrintf(char* fmt,...)
 {
-	char buf[SerialPrintSize]={0};
 	va_list ap;
 	va_start(ap,fmt);
-	vsprintf((char*)buf,fmt,ap);
+	vsprintf((char*)SysPrintfBuf,fmt,ap);
 	va_end(ap);
-	IGK_Printf(USART2,buf);
+	IGK_Printf(USART2,SysPrintfBuf);
 }
 //带系统时间和换行
+char SysTimePrintlnBuf[SerialPrintSize]={0};
 void IGK_SysTimePrintln(char* fmt,...)
 {
-	char buf[SerialPrintSize]={0};
 	va_list ap;
 	va_start(ap,fmt);
-	vsprintf((char*)buf,fmt,ap);
+	vsprintf((char*)SysTimePrintlnBuf,fmt,ap);
 	va_end(ap);
 	//打印系统时间
 	IGK_Struct_DateTime *dt = &IgkAgvOs.OsTime;
 	IGK_SysPrintf("[%d:%d:%d:%d]",dt->Hour,dt->Minute,dt->Second,dt->Millisecond);
 	//打印消息
-	IGK_Printf(USART2,buf);
+	IGK_Printf(USART2,SysTimePrintlnBuf);
 	//打印换行
 	IGK_SysPrintf("\r\n\r\n");
 }

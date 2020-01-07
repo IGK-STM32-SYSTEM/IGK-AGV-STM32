@@ -120,7 +120,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>P跛w萶?P跛w萶?</Name>
+          <Name>P跛w蒯?P跛w蒯?</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -194,6 +194,16 @@
           <count>7</count>
           <WinNumber>1</WinNumber>
           <ItemText>Task8TCB,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>PLC_Data</ItemText>
+        </Ww>
+        <Ww>
+          <count>9</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>PLC_Data,0x0A</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>

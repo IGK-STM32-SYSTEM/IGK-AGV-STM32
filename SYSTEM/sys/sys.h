@@ -30,7 +30,6 @@
 #include "route.h"
 #include "read.h"
 #include "socket.h"
-#include "malloc.h"
 #include "igk_os.h"
 #include "igk_drive.h"
 #include "cdhdata.h"

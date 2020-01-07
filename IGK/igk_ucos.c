@@ -6,7 +6,7 @@ CPU_STK START_TASK_STK[START_STK_SIZE];//任务堆栈
 void start_task(void *p_arg);//任务函数
 
 //UCOS初始化
-void UCOS_Init(void)
+void IGK_UCOS_Init(void)
 {
 	OS_ERR err;
 	CPU_SR_ALLOC();
@@ -46,14 +46,15 @@ void UCOS_Init(void)
 #endif
 }
 
-/*创建任务
+
+/*创建任务**********************************************
 Prio:     任务优先级
 Size:     任务堆栈大小
 Task_STK: 任务堆栈基地址
 TaskTCB:  任务控制块
 TaskFun:  任务函数
-*/	
-void CreakTask(u8 Prio,u16 Size,CPU_STK *Task_STK,OS_TCB *TaskTCB,OS_TASK_PTR TaskFun)
+******************************************************/	
+void IGK_UCOS_Create(u8 Prio,u16 Size,CPU_STK *Task_STK,OS_TCB *TaskTCB,OS_TASK_PTR TaskFun)
 {
 	OS_ERR err;
 	CPU_SR_ALLOC();	

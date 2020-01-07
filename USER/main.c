@@ -2,8 +2,10 @@
 #include "igk_dfs.h"
 #include "igk_map.h"
 #include "igk_ucos.h"
+#include "malloc.h"
+
 OS_TCB Task1TCB;//任务控制块
-CPU_STK Task1_STK[512];//任务堆栈
+CPU_STK Task1_STK[256];//任务堆栈
 void Task1_task(void *p_arg);//任务函数
 
 OS_TCB Task2TCB;//任务控制块
@@ -11,7 +13,7 @@ CPU_STK Task2_STK[256];//任务堆栈
 void Task2_task(void *p_arg);//任务函数
 
 OS_TCB Task3TCB;//任务控制块
-CPU_STK Task3_STK[512];//任务堆栈
+CPU_STK Task3_STK[256];//任务堆栈
 void Task3_task(void *p_arg);//任务函数
 
 OS_TCB Task4TCB;//任务控制块
@@ -31,7 +33,7 @@ CPU_STK Task7_STK[256];//任务堆栈
 void Task7_task(void *p_arg);//任务函数
 
 OS_TCB Task8TCB;//任务控制块
-CPU_STK Task8_STK[256];//任务堆栈
+CPU_STK Task8_STK[128];//任务堆栈
 void Task8_task(void *p_arg);//任务函数
 
 int main(void)
@@ -98,7 +100,7 @@ int main(void)
 	my_mem_init(SRAMIN);
 	IGK_SysTimePrintln("开启动态内存：%dKByte!",MEM1_MAX_SIZE/1024);	
 	//初始化ucos
-	UCOS_Init();	
+	IGK_UCOS_Init();	
 	
 	while(1);
 }
@@ -109,31 +111,53 @@ void start_task(void *p_arg)
 {
 	p_arg = p_arg;
 	//创建任务
-	CreakTask(4,sizeof(Task1_STK)/4,Task1_STK,&Task1TCB,Task1_task);
-	CreakTask(5,sizeof(Task2_STK)/4,Task2_STK,&Task2TCB,Task2_task);
-	CreakTask(6,sizeof(Task3_STK)/4,Task3_STK,&Task3TCB,Task3_task);
-	CreakTask(7,sizeof(Task4_STK)/4,Task4_STK,&Task4TCB,Task4_task);
-	CreakTask(8,sizeof(Task5_STK)/4,Task5_STK,&Task5TCB,Task5_task);
-	CreakTask(9,sizeof(Task6_STK)/4,Task6_STK,&Task6TCB,Task6_task);
-	CreakTask(10,sizeof(Task7_STK)/4,Task7_STK,&Task7TCB,Task7_task);
-	CreakTask(11,sizeof(Task8_STK)/4,Task8_STK,&Task8TCB,Task8_task);
-	
+	IGK_UCOS_Create(4,sizeof(Task1_STK)/4,Task1_STK,&Task1TCB,Task1_task);
+	IGK_UCOS_Create(5,sizeof(Task2_STK)/4,Task2_STK,&Task2TCB,Task2_task);
+	IGK_UCOS_Create(6,sizeof(Task3_STK)/4,Task3_STK,&Task3TCB,Task3_task);
+	IGK_UCOS_Create(7,sizeof(Task4_STK)/4,Task4_STK,&Task4TCB,Task4_task);
+	IGK_UCOS_Create(8,sizeof(Task5_STK)/4,Task5_STK,&Task5TCB,Task5_task);
+	IGK_UCOS_Create(9,sizeof(Task6_STK)/4,Task6_STK,&Task6TCB,Task6_task);
+	IGK_UCOS_Create(10,sizeof(Task7_STK)/4,Task7_STK,&Task7TCB,Task7_task);
+	IGK_UCOS_Create(11,sizeof(Task8_STK)/4,Task8_STK,&Task8TCB,Task8_task);
 	IGK_SysTimePrintln("UCOSIII初始化完成,系统进入时间轮片!");
 }
+
 /*【任务1】【调试专用】*****************************
 ****************************************************/
 void Task1_task(void *p_arg)
 {
-	u16 num = 0;
+	OS_ERR err;  
+//	u16 num = 0;
 	osdelay_s(1);
 	yinling(1);
 	IGK_Speek("系统自检完成");
+			CPU_STK_SIZE free,used;
+
 	while(1)
 	{
-		num++;
-		IGK_SysTimePrintln("计数：%d",num);
-		LED1 = ~LED1;
-		delay(0, 0,0 , 20);
+		//计数测试
+//		num++;
+//		IGK_SysTimePrintln("计数：%d",num);
+//		LED1 = ~LED1;
+//		delay(0, 0,0 , 20);
+		//打印任务堆栈使用量
+		OSTaskStkChk (&Task1TCB,&free,&used,&err);
+		IGK_SysTimePrintln("Task1 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+		OSTaskStkChk (&Task2TCB,&free,&used,&err);
+		IGK_SysTimePrintln("Task2 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+		OSTaskStkChk (&Task3TCB,&free,&used,&err); 	
+		IGK_SysTimePrintln("Task3 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+		OSTaskStkChk (&Task4TCB,&free,&used,&err);
+		IGK_SysTimePrintln("Task4 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+		OSTaskStkChk (&Task5TCB,&free,&used,&err);
+		IGK_SysTimePrintln("Task5 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+		OSTaskStkChk (&Task6TCB,&free,&used,&err);
+		IGK_SysTimePrintln("Task6 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+		OSTaskStkChk (&Task7TCB,&free,&used,&err);
+		IGK_SysTimePrintln("Task7 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+		OSTaskStkChk (&Task8TCB,&free,&used,&err);	
+		IGK_SysTimePrintln("Task8 used/free:%d/%d  usage:%d",used,free,(used*100)/(used+free));  		
+		delay(0,0,1,5);
 	}
 }
 /*【任务2】【自动模式】**************************************************
@@ -542,8 +566,8 @@ void Task3_task(void *p_arg)
 		delay(0, 0, 0, 100); //延时10ms
 	}
 }
-/***************************************************
-*任务4                   
+/*【任务4】【空】**************************************************
+*                   
 ****************************************************/
 void Task4_task(void *p_arg)
 {

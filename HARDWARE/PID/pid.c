@@ -35,7 +35,7 @@ float PosPIDCalc(int NextTarget)
 
 	Out = PID.Kp*PID.Error + PID.Ki*PID.SumError + PID.Kd*Error1;	
 	return(Out);
-}
+} 
 
 /***********************************************/
 //增量式PID计算

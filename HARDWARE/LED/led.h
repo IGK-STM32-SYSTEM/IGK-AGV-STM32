@@ -30,9 +30,9 @@
 
 #define IN4 PGin(0)
 #define IN5 PGin(1)
-
-#define IN6 !PEin(7)  //Æô¶¯
-#define IN7 !PEin(8)  //Í£Ö¹
+//¾ÀÕýÆô¶¯Í£Ö¹Âß¼­
+#define IN6 PEin(7)==0?1:0  //Æô¶¯
+#define IN7 PEin(8)==0?1:0  //Í£Ö¹
 #define IN8 PEin(9)
 #define IN9 PEin(10)
 #define IN10 PEin(11)

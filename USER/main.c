@@ -63,13 +63,20 @@ int main(void)
 	IWDG_Init(4, 500);//大概1066ms
 	SPI1_Init();
   TLC5620_Init();
+	/*-----------系统指针类型变量指向默认地址---------------*/
+	//
+	IgkAgvOs.RFID = &PLC_Data[41];//实时RFID值,和读卡器读到的值同步
+	IgkAgvOs.AutoSpeed = &PLC_Data[61];//自动模式速度
+	IgkAgvOs.ManuaSpeed = &PLC_Data[62];//手动模式速度
 	
-	//指针类型变量指向默认地址
-	IgkAgvOs.TongXin.NowRfid = &PLC_Data[41];
-	IgkAgvOs.Speed = &PLC_Data[61];
-
+	IgkAgvOs.Task.Target = &PLC_Data[40];     //目标标签
+	IgkAgvOs.Task.NextRfid = &PLC_Data[42];   //下一个位置
+	IgkAgvOs.Task.Execute = &PLC_Data[43];    //执行
+	IgkAgvOs.Task.Cancel = &PLC_Data[44];     //取消
+	IgkAgvOs.Task.SerialNum = &PLC_Data[45];  //任务编号【系统自动增加，可通过接口更新】
 	
-	//设定默认参数
+	/*------------设定默认参数-------------------------------*/
+	//初始化时间
 	IgkAgvOs.OsTime.Hour = 0;
 	IgkAgvOs.OsTime.Minute = 0;
 	IgkAgvOs.OsTime.Second = 0;
@@ -77,9 +84,18 @@ int main(void)
 	
 	IgkAgvOs.WorkMode = Enum_LocalAuto;//自动模式
 	IgkAgvOs.Dir = Enum_QianJin;//前进方向
-	*IgkAgvOs.TongXin.NowRfid = 1;
+	*IgkAgvOs.RFID = 1;//RFID值
 	IgkAgvOs.RunOrStop = Enum_Stop;//停止状态
-	*IgkAgvOs.Speed = 50;//速度50%;	
+	*IgkAgvOs.AutoSpeed = 50;//自动速度;	
+	*IgkAgvOs.ManuaSpeed = 80;//手动速度;
+	
+	
+
+
+	
+	/*------------------------------------------------------*/
+
+
 	
 	IGK_SysTimePrintln("正在初始化...");
 	//初始化Flash
@@ -195,8 +211,8 @@ void Task2_task(void *p_arg)
 								//PID动态调节循迹
 								float Inc = PosPIDCalc(IgkAgvOs.QianCiDaoHang.Distance);
 								//更新速度
-								s16 s1 = *IgkAgvOs.Speed+Inc;
-								s16 s2 = *IgkAgvOs.Speed-Inc;
+								s16 s1 = *IgkAgvOs.AutoSpeed+Inc;
+								s16 s2 = *IgkAgvOs.AutoSpeed-Inc;
 								//判定边界
 								s1 = s1>100?100:s1;
 								s1 = s1<0?0:s1;
@@ -239,8 +255,8 @@ void Task2_task(void *p_arg)
 								//PID动态调节循迹
 								float Inc = PosPIDCalc(-IgkAgvOs.HouCiDaoHang.Distance);
 								//更新速度
-								s16 s1 = *IgkAgvOs.Speed + Inc;
-								s16 s2 = *IgkAgvOs.Speed - Inc;
+								s16 s1 = *IgkAgvOs.AutoSpeed + Inc;
+								s16 s2 = *IgkAgvOs.AutoSpeed - Inc;
 								//判定边界
 								s1 = s1>100?100:s1;
 								s1 = s1<0?0:s1;
@@ -272,19 +288,18 @@ void Task2_task(void *p_arg)
 void Task3_task(void *p_arg)
 {
 	p_arg = p_arg;
-	u16 target = 1;
 	while(1)
 	{
 		/*1.-----------------等待执行信号--------------------------*/
 		IGK_SysTimePrintln("等待任务!");
-		while(PLC_Data[43]!=1)
+		while(*IgkAgvOs.Task.Execute != DEF_TRUE)
 		{
 			osdelay_ms(10);
 		}
 		//清除执行信号
-		PLC_Data[43] = 0;
+		*IgkAgvOs.Task.Execute = DEF_FALSE;
 		/*2.-----------------判断目标标签合法性--------------------------*/
-		if(PLC_Data[40]==*IgkAgvOs.TongXin.NowRfid)
+		if(*IgkAgvOs.Task.Target == *IgkAgvOs.RFID)
 		{
 			IGK_Speek("目标标签和当前标签相同,任务完成！");
 			IGK_SysTimePrintln("目标标签和当前标签相同,任务完成！");
@@ -292,7 +307,7 @@ void Task3_task(void *p_arg)
 			continue;
 		}
 		else
-		if(PLC_Data[40]==0)
+		if(*IgkAgvOs.Task.Target == 0)
 		{
 			IGK_Speek("目标标签为0,操作非法！");
 			IGK_SysTimePrintln("目标标签为0,操作非法！");
@@ -300,21 +315,19 @@ void Task3_task(void *p_arg)
 			continue;
 		}
 		else
-		if(PLC_Data[40] > NodeMaxNum)
+		if(*IgkAgvOs.Task.Target > NodeMaxNum)
 		{
 			IGK_Speek("目标标签不能大于%d,操作非法！",NodeMaxNum);
 			IGK_SysTimePrintln("目标标签不能大于%d,操作非法！",NodeMaxNum);
 			//跳过
 			continue;
 		}	
-		//更新目标位置到临时变量
-		target = PLC_Data[40];
 		//搜索路径
-		FindRoute(*IgkAgvOs.TongXin.NowRfid,target);
+		FindRoute(*IgkAgvOs.RFID,*IgkAgvOs.Task.Target);
 		IGK_SysTimePrintln("路径搜索完成!");
 
 		//播报目标位置
-		IGK_Speek("准备前往%d号标签",target);
+		IGK_Speek("准备前往%d号标签",*IgkAgvOs.Task.Target);
 		osdelay_s(3);
 		if(BestPath.PathTotal==0)
 		{
@@ -331,21 +344,19 @@ void Task3_task(void *p_arg)
 			IgkAgvOs.RunOrStop = Enum_Run;
 			for(int i=0;i < BestPath.NodeCount;i++)
 			{
-				//给定默认速度
-				*IgkAgvOs.Speed = 50;
 				u16 nodeId = BestPath.NodeList[i];
 				//读取对应站点的地图
 				StaionMapStruct mapStruct;
 				ReadToMapStruct(nodeId,&mapStruct);
 				IGK_SysPrintf("标签号:[%d]",nodeId);
 				//下一个位置更新到界面
-				PLC_Data[42] = nodeId;
+				*IgkAgvOs.Task.NextRfid = nodeId;
 				//等待标签,起点不用等待
 				if(i!=0)
 				{
 						IGK_Speek("等待%d号标签!",nodeId);
 						//osdelay_s(2);
-						while(*IgkAgvOs.TongXin.NowRfid != nodeId )
+						while(*IgkAgvOs.RFID != nodeId )
 						{
 							osdelay_ms(5);
 						}
@@ -355,6 +366,12 @@ void Task3_task(void *p_arg)
 							break;
 						}
 				}
+				
+				
+				//TODO:
+				//这里写站点动作,如停车时间，按键启动等
+				
+
 				//直行站点方向，动作
 				for(int j=0;j<StationMapType;j++)
 				{
@@ -585,10 +602,10 @@ void Task5_task(void *p_arg)
 	while(1)
 	{
 		//监控摇杆按键,切换模式
-		if(IgkAgvOs.YaoGan.key==KeyDown)
+		if(IgkAgvOs.YaoGan.key==Enum_KeyDown)
 		{
 			delay(0, 0, 1, 0);
-			if(IgkAgvOs.YaoGan.key==KeyDown)
+			if(IgkAgvOs.YaoGan.key==Enum_KeyDown)
 			{
 				if(IgkAgvOs.WorkMode == Enum_LocalManual)
 				{
@@ -609,34 +626,34 @@ void Task5_task(void *p_arg)
 			//判断当前动作
 			if(abs(IgkAgvOs.YaoGan.y)>0)//前进后退
 			{
-				*IgkAgvOs.Speed = abs(IgkAgvOs.YaoGan.y)*1;
+				*IgkAgvOs.ManuaSpeed = abs(IgkAgvOs.YaoGan.y)*1;
 				//转向速度
 				s8 speed = IgkAgvOs.YaoGan.z*0.5;
 				if(IgkAgvOs.YaoGan.y>0)
 				{
 					if(speed >= 0)
-						DriverQinJinSpeed(*IgkAgvOs.Speed-speed,*IgkAgvOs.Speed);
+						DriverQinJinSpeed(*IgkAgvOs.ManuaSpeed-speed,*IgkAgvOs.ManuaSpeed);
 					else
-						DriverQinJinSpeed(*IgkAgvOs.Speed,*IgkAgvOs.Speed+speed);
+						DriverQinJinSpeed(*IgkAgvOs.ManuaSpeed,*IgkAgvOs.ManuaSpeed+speed);
 				}
 				else
 				if(IgkAgvOs.YaoGan.y<0)
 				{
 					if(speed >= 0)
-						DriverHouTuiSpeed(*IgkAgvOs.Speed,*IgkAgvOs.Speed-speed);
+						DriverHouTuiSpeed(*IgkAgvOs.ManuaSpeed,*IgkAgvOs.ManuaSpeed-speed);
 					else
-						DriverHouTuiSpeed(*IgkAgvOs.Speed+speed,*IgkAgvOs.Speed);
+						DriverHouTuiSpeed(*IgkAgvOs.ManuaSpeed+speed,*IgkAgvOs.ManuaSpeed);
 				}
 			}
 			else
 			if(abs(IgkAgvOs.YaoGan.z)>0)//左右旋转
 			{
-				*IgkAgvOs.Speed = abs(IgkAgvOs.YaoGan.z)*0.8;
+				*IgkAgvOs.ManuaSpeed = abs(IgkAgvOs.YaoGan.z)*0.8;
 				if(IgkAgvOs.YaoGan.z<0)
-					DriverZuoXuan(*IgkAgvOs.Speed);
+					DriverZuoXuan(*IgkAgvOs.ManuaSpeed);
 				else
 				if(IgkAgvOs.YaoGan.z>0)
-					DriverYouXuan(*IgkAgvOs.Speed);
+					DriverYouXuan(*IgkAgvOs.ManuaSpeed);
 			}
 			else // 停止
 				DriverTingZhi();
@@ -651,28 +668,28 @@ void Task6_task(void *p_arg)
 {
 	while(1)
 	{
-		if(IN6 == KeyDown)
+		if(IN6 == Enum_KeyDown)
 		{
 			//延时消抖
 			delay(0, 0, 0, 30);
-			if(IN6 == KeyDown)
+			if(IN6 == Enum_KeyDown)
 			{
 				IgkAgvOs.RunOrStop = Enum_Run;
 				IGK_Speek("启动");
 				//等待按键抬起
-				while(IN6 == KeyDown){delay(0, 0, 0, 5);}
+				while(IN6 == Enum_KeyDown){delay(0, 0, 0, 5);}
 			}
 		}
-		if(IN7 == KeyDown)
+		if(IN7 == Enum_KeyDown)
 		{
 			//延时消抖
 			delay(0, 0, 0, 30);
-			if(IN7 == KeyDown)
+			if(IN7 == Enum_KeyDown)
 			{
 				IgkAgvOs.RunOrStop = Enum_Stop;
 				IGK_Speek("停止");
 				//等待按键抬起
-				while(IN7 == KeyDown){delay(0, 0, 0, 5);}
+				while(IN7 == Enum_KeyDown){delay(0, 0, 0, 5);}
 			}
 		}
 		delay(0, 0, 0, 10); //延时5ms

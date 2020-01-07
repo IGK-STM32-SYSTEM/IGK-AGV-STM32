@@ -14,7 +14,7 @@ typedef  unsigned  int u32;
 #define igk_ReverseBit(x,y) x^=(1<<y)//指定的某一位数取反
 #define igk_GetBit(x,y) ((x) >> (y)&1)//获取的某一位的值
 //按键枚举,全局通用
-enum ButtonEnum {KeyUp,KeyDown};
+enum ButtonEnum {Enum_KeyUp,Enum_KeyDown};
 //工作模式【手动，本地自动，远程控制】
 enum WorkModeEnum {Enum_LocalManual,Enum_LocalAuto,Enum_RemoteControl};
 //启停状态【启动，停止】启动和停止按键或者直行路径时的启动停止标志，和障碍物的停止不一样
@@ -42,12 +42,15 @@ typedef struct {
 
 //通信结构体【触摸屏、调度系统、三方系统】
 typedef struct {
-	u16 *NowRfid;//当前标签
-	u16 *Target;//目标标签
-	u16 *NentRfid;//下一个位置
-	u16 *Execute;//执行
-	u16 *Cancel;//取消
-}IGK_Struct_TongXin;
+	u16 *SerialNum;  //任务编号【系统自动增加，可通过接口更新】
+	u16 *Target;     //目标标签
+	u16 *NextRfid;   //下一个位置
+	u16 *Execute;    //执行
+	u16 *Cancel;     //取消
+//	u16 *State;      //任务状态【完成，失败，未找到路径，】
+	
+	
+}IGK_Struct_Task;
 
 //系统结构体,全局通用
 typedef struct {
@@ -57,8 +60,12 @@ typedef struct {
 	IGK_Struct_YaoGan YaoGan;
 	//当前工作模式
 	enum WorkModeEnum WorkMode;
-	//速度
-	u16 *Speed;
+	//手动模式速度
+	u16 *ManuaSpeed;
+	//自动模式速度
+	u16 *AutoSpeed;
+	//实时RFID值,和读卡器读到的值同步
+	u16 *RFID;
 	//启停状态
 	enum RunOrStopEnum RunOrStop;
 	//自动运动方向
@@ -69,8 +76,8 @@ typedef struct {
 	Fencha_struct QianCiDaoHang;
 	//后磁导航
 	Fencha_struct HouCiDaoHang;
-	//通信
-	IGK_Struct_TongXin TongXin;
+	//AGV任务
+	IGK_Struct_Task Task;
 }IgkAgvOsStruct;
 
 

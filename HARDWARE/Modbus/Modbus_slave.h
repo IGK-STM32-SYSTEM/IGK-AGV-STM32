@@ -1,6 +1,8 @@
 #ifndef __Modbus_slave_H
 #define	__Modbus_slave_H	 
 #include "sys.h"
+//保持寄存器数量
+#define HoldingRegMax 4096
 
 void AnalyzeRecieve(void);                              
 void send_comm(void);
@@ -16,5 +18,5 @@ u16 CalcCrc(unsigned char *chData,unsigned short uNo);
 //extern u8  Reciver_bit;//接收位置一
 extern u8 PLC_InPut[128];//PLC输入状态寄存器
 extern u8 PLC_OutPut[128];//PLC输出状态寄存器
-extern u16 PLC_Data[128];//PLC数据寄存器
+extern u16 PLC_Data[HoldingRegMax];//PLC数据寄存器
 #endif

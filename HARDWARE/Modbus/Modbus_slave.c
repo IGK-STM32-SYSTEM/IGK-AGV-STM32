@@ -1,7 +1,7 @@
 #include "sys.h"
 u8 PLC_InPut[128]={0};//PLC输入状态寄存器1x
 u8 PLC_OutPut[128]={0};//PLC输出状态寄存器0x
-u16 PLC_Data[128]={0};//PLC数据寄存器  4x
+u16 PLC_Data[HoldingRegMax]={0};//PLC数据寄存器  4x
 u16 reclength = 128;
 u16 ModbusSendLength=0;
 //定义接收数组指针
@@ -212,7 +212,7 @@ void Recirve_03()
 	lengthL = ModbusReceBuf[5];
 	startadd = (startaddH << 8) + startaddL; //要返回的起始地址
 	length = (lengthH << 8) + lengthL;	 //要读的字节数量
-	if((startadd + length) > reclength)            //最多只能返回32个寄存器,64个字节，注意返回的长度不能超过发送数组长度，否则会溢出导致错误
+	if((startadd + length) > HoldingRegMax)            //最多只能返回32个寄存器,64个字节，注意返回的长度不能超过发送数组长度，否则会溢出导致错误
 	{
 		errorsend(0x03, 0x02);    //响应寄存器数量超出范围
 	}
@@ -346,7 +346,7 @@ void Recirve_06()//单字节写入
 	startadd = (startaddH << 8) + startaddL; //要写入的起始地址
 	wdata_06 = (wdataH_06 << 8) + wdataL_06;	     //要写入的数值
 
-	if(startadd > reclength)                  //寄存器地址超出范围
+	if(startadd > HoldingRegMax)                  //寄存器地址超出范围
 	{ errorsend(0x06, 0x02); }        //响应寄存器数量超出范围
 	else if(wdata_06 > 0xFFFF)
 	{ errorsend(0x06, 0x03); }        //响应数据错误
@@ -385,7 +385,7 @@ void Recirve_10()//接收到数据
 	startadd = (startaddH << 8) + startaddL; //要返回的起始地址
 	length = ModbusReceBuf[6];	                             //要写的字节数量
 
-	if((startadd + (length / 2)) > reclength)          //最多允许写32个寄存器
+	if((startadd + (length / 2)) > HoldingRegMax)
 	{
 		errorsend(0x10, 0x02);    //响应寄存器数量超出范围
 	}

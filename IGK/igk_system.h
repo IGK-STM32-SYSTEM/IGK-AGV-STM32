@@ -52,10 +52,10 @@ typedef struct {
 
 //PID结构体定义
 typedef struct {
-	float SetTarget;
+	s16 *SetTarget;
 	s16 *SumError;
-	float Error;							//Error[n]
-	float LastError;					//Error[n-1]
+	s16 *Error;							//Error[n]
+	s16 *LastError;					//Error[n-1]
 	float PrevError;					//Error[n-2]
 	u16 *Kp;
 	u16 *Ki;

@@ -82,7 +82,10 @@ int main(void)
 	IgkSystem.Battery.Total = &PLC_Data[104];		//µÁ≥ÿ»›¡ø
 	
 	//PID
+	IgkSystem.PID.SetTarget = (s16*)&PLC_Data[200]; 
 	IgkSystem.PID.SumError = (s16*)&PLC_Data[201]; 
+	IgkSystem.PID.Error = (s16*)&PLC_Data[202]; 
+	IgkSystem.PID.LastError = (s16*)&PLC_Data[203]; 
 	IgkSystem.PID.Kp = &PLC_Data[205]; 
 	IgkSystem.PID.Ki = &PLC_Data[206]; 
 	IgkSystem.PID.Kd = &PLC_Data[207]; 

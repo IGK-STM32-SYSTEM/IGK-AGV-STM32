@@ -4,14 +4,14 @@
 /***********************************************/
 void PID_Init(void)
 {
-	IgkSystem.PID.SetTarget = 0;
-	//*IgkSystem.PID.SumError = 0; 
-	//IgkSystem.PID.Error = 0;
-	//IgkSystem.PID.LastError = 0;
-	//IgkSystem.PID.PrevError = 0;
-	//*IgkSystem.PID.Kp = 5;
-	//*IgkSystem.PID.Ki = 30;
-	//*IgkSystem.PID.Kd = 0;
+	IgkSystem.PID.SetTarget = 0; 
+	*IgkSystem.PID.SumError = 0; 
+	IgkSystem.PID.Error = 0;
+	IgkSystem.PID.LastError = 0;
+	IgkSystem.PID.PrevError = 0;
+	*IgkSystem.PID.Kp = 5;
+	*IgkSystem.PID.Ki = 30;
+	*IgkSystem.PID.Kd = 0;
 }
 /******************************************************/
 //Œª÷√ ΩPIDº∆À„

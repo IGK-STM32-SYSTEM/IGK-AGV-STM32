@@ -110,44 +110,44 @@ void CAN1_RX0_IRQHandler(void)
 	//遥控器
 	if(RxMessage.StdId==6)
 	{
-		IgkAgvOs.YaoGan.x = RxMessage.Data[0];
-		IgkAgvOs.YaoGan.y = RxMessage.Data[1];
-		IgkAgvOs.YaoGan.z = RxMessage.Data[2];
-		IgkAgvOs.YaoGan.key = RxMessage.Data[3]==0?Enum_KeyUp:Enum_KeyDown;
+		IgkSystem.YaoGan.x = RxMessage.Data[0];
+		IgkSystem.YaoGan.y = RxMessage.Data[1];
+		IgkSystem.YaoGan.z = RxMessage.Data[2];
+		IgkSystem.YaoGan.key = RxMessage.Data[3]==0?Enum_KeyUp:Enum_KeyDown;
 	}
 	else
 	//前磁导航dir:分叉方向(0：直行，1：左分叉，2：右分叉)
 	if(RxMessage.StdId==3)
 	{	
 		u8 dir=0;
-		if(IgkAgvOs.Action == Enum_ZhiXing)
+		if(IgkSystem.Action == Enum_ZhiXing)
 			dir = 0;
 		else
-		if(IgkAgvOs.Action == Enum_ZuoFenCha)
+		if(IgkSystem.Action == Enum_ZuoFenCha)
 			dir = 2;
-		if(IgkAgvOs.Action == Enum_YouFenCha)
+		if(IgkSystem.Action == Enum_YouFenCha)
 			dir = 1;
-		IgkAgvOs.QianCiDaoHang = CdhFind(8,~RxMessage.Data[0],4,dir);
+		IgkSystem.QianCiDaoHang = CdhFind(8,~RxMessage.Data[0],4,dir);
 	}
 	else
 	//后磁导航
 	if(RxMessage.StdId==4)
 	{
 		u8 dir=0;
-		if(IgkAgvOs.Action == Enum_ZhiXing)
+		if(IgkSystem.Action == Enum_ZhiXing)
 			dir = 0;
 		else
-		if(IgkAgvOs.Action == Enum_ZuoFenCha)
+		if(IgkSystem.Action == Enum_ZuoFenCha)
 			dir = 1;
-		if(IgkAgvOs.Action == Enum_YouFenCha)
+		if(IgkSystem.Action == Enum_YouFenCha)
 			dir = 2;
-		IgkAgvOs.HouCiDaoHang = CdhFind(8,~RxMessage.Data[0],4,dir);
+		IgkSystem.HouCiDaoHang = CdhFind(8,~RxMessage.Data[0],4,dir);
 	}
 	else
 	//RFID
 	if(RxMessage.StdId==5)
 	{
-		*IgkAgvOs.RFID = (RxMessage.Data[1]<<8)|RxMessage.Data[0];
+		*IgkSystem.RFID = (RxMessage.Data[1]<<8)|RxMessage.Data[0];
 	}
 }
 #endif

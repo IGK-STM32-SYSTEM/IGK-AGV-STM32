@@ -89,7 +89,7 @@ typedef struct {
 	IGK_Struct_Task Task;
 	//PID
 	IGK_Struct_PID PID;	
-}IgkAgvOsStruct;
+}IgkSystemStruct;
 
 
 
@@ -97,7 +97,7 @@ typedef struct {
 
 
 //爱极客AGV系统结构体
-extern IgkAgvOsStruct IgkAgvOs;
+extern IgkSystemStruct IgkSystem;
 //毫秒转时间结构体
 void MillisecondToDateTime(u32 millis,IGK_Struct_DateTime *dt);
 //获取系统运行时间

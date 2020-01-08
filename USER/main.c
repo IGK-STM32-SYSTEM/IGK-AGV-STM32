@@ -64,40 +64,39 @@ int main(void)
   TLC5620_Init();
 	/*-----------系统指针类型变量指向默认地址---------------*/
 	//
-	IgkAgvOs.RFID = &PLC_Data[41];//实时RFID值,和读卡器读到的值同步
-	IgkAgvOs.AutoSpeed = &PLC_Data[61];//自动模式速度
-	IgkAgvOs.ManuaSpeed = &PLC_Data[62];//手动模式速度
+	IgkSystem.RFID = &PLC_Data[41];//实时RFID值,和读卡器读到的值同步
+	IgkSystem.AutoSpeed = &PLC_Data[110];//自动模式速度
+	IgkSystem.ManuaSpeed = &PLC_Data[111];//手动模式速度
 	
-	IgkAgvOs.Task.Target = &PLC_Data[40];     //目标标签
-	IgkAgvOs.Task.Next = &PLC_Data[42];   //下一个位置
-	IgkAgvOs.Task.Execute = &PLC_Data[43];    //执行
-	IgkAgvOs.Task.Cancel = &PLC_Data[44];     //取消
-	IgkAgvOs.Task.SerialNum = &PLC_Data[45];  //任务编号【系统自动增加，可通过接口更新】
+	IgkSystem.Task.Target = &PLC_Data[40];     //目标标签
+	IgkSystem.Task.Next = &PLC_Data[42];   //下一个位置
+	IgkSystem.Task.Execute = &PLC_Data[43];    //执行
+	IgkSystem.Task.Cancel = &PLC_Data[44];     //取消
+	IgkSystem.Task.SerialNum = &PLC_Data[45];  //任务编号【系统自动增加，可通过接口更新】
 	
 	//PID
-	IgkAgvOs.PID.SumError = (s16*)&PLC_Data[101]; 
-	IgkAgvOs.PID.Kp = &PLC_Data[105]; 
-	IgkAgvOs.PID.Ki = &PLC_Data[106]; 
-	IgkAgvOs.PID.Kd = &PLC_Data[107]; 
+	IgkSystem.PID.SumError = (s16*)&PLC_Data[201]; 
+	IgkSystem.PID.Kp = &PLC_Data[205]; 
+	IgkSystem.PID.Ki = &PLC_Data[206]; 
+	IgkSystem.PID.Kd = &PLC_Data[207]; 
 	
 	/*------------设定默认参数-------------------------------*/
 	//初始化时间
-	IgkAgvOs.OsTime.Hour = 0;
-	IgkAgvOs.OsTime.Minute = 0;
-	IgkAgvOs.OsTime.Second = 0;
-	IgkAgvOs.OsTime.Millisecond = 0;
+	IgkSystem.OsTime.Hour = 0;
+	IgkSystem.OsTime.Minute = 0;
+	IgkSystem.OsTime.Second = 0;
+	IgkSystem.OsTime.Millisecond = 0;
 	
-	IgkAgvOs.WorkMode = Enum_LocalAuto;//自动模式
-	IgkAgvOs.Dir = Enum_QianJin;//前进方向
-	*IgkAgvOs.RFID = 1;//RFID值
-	IgkAgvOs.RunOrStop = Enum_Stop;//停止状态
-	*IgkAgvOs.AutoSpeed = 50;//自动速度;	
-	*IgkAgvOs.ManuaSpeed = 80;//手动速度;
+	IgkSystem.WorkMode = Enum_LocalAuto;//自动模式
+	IgkSystem.Dir = Enum_QianJin;//前进方向
+	*IgkSystem.RFID = 1;//RFID值
+	IgkSystem.RunOrStop = Enum_Stop;//停止状态
+	*IgkSystem.AutoSpeed = 50;//自动速度;	
+	*IgkSystem.ManuaSpeed = 80;//手动速度;
 		
 	/*------------------------------------------------------*/
 
 	PID_Init();
-
 	
 	IGK_SysTimePrintln("正在初始化...");
 	//初始化Flash
@@ -190,16 +189,16 @@ void Task2_task(void *p_arg)
 	while(1)
 	{
 		//自动模式
-		if(IgkAgvOs.WorkMode == Enum_LocalAuto)
+		if(IgkSystem.WorkMode == Enum_LocalAuto)
 		{
 			//前进
-			if(IgkAgvOs.Dir == Enum_QianJin)
+			if(IgkSystem.Dir == Enum_QianJin)
 			{ 
-				if(IgkAgvOs.RunOrStop == Enum_Stop)
+				if(IgkSystem.RunOrStop == Enum_Stop)
 					DriverTingZhi();
 				else
 				{
-					switch(IgkAgvOs.Action)
+					switch(IgkSystem.Action)
 					{
 						case Enum_ZuoXuan://左旋
 							DriverZuoXuan(50);
@@ -210,13 +209,13 @@ void Task2_task(void *p_arg)
 						case Enum_ZuoFenCha://左分叉
 						case Enum_YouFenCha://右分叉
 						case Enum_ZhiXing:  //直行
-							if(IgkAgvOs.QianCiDaoHang.Error == 0)
+							if(IgkSystem.QianCiDaoHang.Error == 0)
 							{
 								//PID动态调节循迹
-								float Inc = PosPIDCalc(IgkAgvOs.QianCiDaoHang.Distance);
+								float Inc = PosPIDCalc(IgkSystem.QianCiDaoHang.Distance);
 								//更新速度
-								s16 s1 = *IgkAgvOs.AutoSpeed+Inc;
-								s16 s2 = *IgkAgvOs.AutoSpeed-Inc;
+								s16 s1 = *IgkSystem.AutoSpeed+Inc;
+								s16 s2 = *IgkSystem.AutoSpeed-Inc;
 								//判定边界
 								s1 = s1>100?100:s1;
 								s1 = s1<0?0:s1;
@@ -237,13 +236,13 @@ void Task2_task(void *p_arg)
 			}
 			else
 			//后退
-			if(IgkAgvOs.Dir == Enum_HouTui)
+			if(IgkSystem.Dir == Enum_HouTui)
 			{
-				if(IgkAgvOs.RunOrStop == Enum_Stop)
+				if(IgkSystem.RunOrStop == Enum_Stop)
 					DriverTingZhi();
 				else
 				{
-					switch(IgkAgvOs.Action)
+					switch(IgkSystem.Action)
 					{
 						case Enum_ZuoXuan://左旋
 							DriverZuoXuan(50);
@@ -254,13 +253,13 @@ void Task2_task(void *p_arg)
 						case Enum_ZuoFenCha://左分叉
 						case Enum_YouFenCha://右分叉
 						case Enum_ZhiXing:  //直行
-							if(IgkAgvOs.HouCiDaoHang.Error == 0)
+							if(IgkSystem.HouCiDaoHang.Error == 0)
 							{
 								//PID动态调节循迹
-								float Inc = PosPIDCalc(-IgkAgvOs.HouCiDaoHang.Distance);
+								float Inc = PosPIDCalc(-IgkSystem.HouCiDaoHang.Distance);
 								//更新速度
-								s16 s1 = *IgkAgvOs.AutoSpeed + Inc;
-								s16 s2 = *IgkAgvOs.AutoSpeed - Inc;
+								s16 s1 = *IgkSystem.AutoSpeed + Inc;
+								s16 s2 = *IgkSystem.AutoSpeed - Inc;
 								//判定边界
 								s1 = s1>100?100:s1;
 								s1 = s1<0?0:s1;
@@ -297,14 +296,14 @@ void Task3_task(void *p_arg)
 		GotoStart:
 		/*1.-----------------等待执行信号--------------------------*/
 		IGK_SysTimePrintln("等待任务!");
-		while(*IgkAgvOs.Task.Execute != DEF_TRUE)
+		while(*IgkSystem.Task.Execute != DEF_TRUE)
 		{
 			osdelay_ms(10);
 		}
 		//清除执行信号
-		*IgkAgvOs.Task.Execute = DEF_FALSE;
+		*IgkSystem.Task.Execute = DEF_FALSE;
 		/*2.-----------------判断目标标签合法性--------------------------*/
-		if(*IgkAgvOs.Task.Target == *IgkAgvOs.RFID)
+		if(*IgkSystem.Task.Target == *IgkSystem.RFID)
 		{
 			IGK_Speek("目标标签和当前标签相同,任务完成！");
 			IGK_SysTimePrintln("目标标签和当前标签相同,任务完成！");
@@ -312,7 +311,7 @@ void Task3_task(void *p_arg)
 			continue;
 		}
 		else
-		if(*IgkAgvOs.Task.Target == 0)
+		if(*IgkSystem.Task.Target == 0)
 		{
 			IGK_Speek("目标标签为0,操作非法！");
 			IGK_SysTimePrintln("目标标签为0,操作非法！");
@@ -320,7 +319,7 @@ void Task3_task(void *p_arg)
 			continue;
 		}
 		else
-		if(*IgkAgvOs.Task.Target > NodeMaxNum)
+		if(*IgkSystem.Task.Target > NodeMaxNum)
 		{
 			IGK_Speek("目标标签不能大于%d,操作非法！",NodeMaxNum);
 			IGK_SysTimePrintln("目标标签不能大于%d,操作非法！",NodeMaxNum);
@@ -328,11 +327,11 @@ void Task3_task(void *p_arg)
 			continue;
 		}	
 		//搜索路径
-		FindRoute(*IgkAgvOs.RFID,*IgkAgvOs.Task.Target);
+		FindRoute(*IgkSystem.RFID,*IgkSystem.Task.Target);
 		IGK_SysTimePrintln("路径搜索完成!");
 
 		//播报目标位置
-		IGK_Speek("准备前往%d号标签",*IgkAgvOs.Task.Target);
+		IGK_Speek("准备前往%d号标签",*IgkSystem.Task.Target);
 		osdelay_s(3);
 		if(BestPath.PathTotal==0)
 		{
@@ -346,7 +345,7 @@ void Task3_task(void *p_arg)
 			osdelay_s(2);
 		/*3.-----------------执行路径--------------------------*/
 			//启动
-			IgkAgvOs.RunOrStop = Enum_Run;
+			IgkSystem.RunOrStop = Enum_Run;
 			for(int i=0;i < BestPath.NodeCount;i++)
 			{
 				u16 nodeId = BestPath.NodeList[i];
@@ -355,24 +354,24 @@ void Task3_task(void *p_arg)
 				ReadToMapStruct(nodeId,&mapStruct);
 				IGK_SysPrintf("标签号:[%d]",nodeId);
 				//下一个位置更新到界面
-				*IgkAgvOs.Task.Next = nodeId;
+				*IgkSystem.Task.Next = nodeId;
 				//等待标签,起点不用等待
 				if(i!=0)
 				{
 						IGK_Speek("等待%d号标签!",nodeId);
 						//osdelay_s(2);
-						while(*IgkAgvOs.RFID != nodeId )
+						while(*IgkSystem.RFID != nodeId )
 						{
 							//如果取消任务
-							if(*IgkAgvOs.Task.Cancel == DEF_TRUE)
+							if(*IgkSystem.Task.Cancel == DEF_TRUE)
 							{
 								//停车
-								IgkAgvOs.RunOrStop = Enum_Stop;
+								IgkSystem.RunOrStop = Enum_Stop;
 								//清除取消标记
-								*IgkAgvOs.Task.Cancel = DEF_FALSE;
+								*IgkSystem.Task.Cancel = DEF_FALSE;
 								//更新目标和下一站点位当前
-								*IgkAgvOs.Task.Next  = *IgkAgvOs.RFID;
-								*IgkAgvOs.Task.Target  = *IgkAgvOs.RFID;
+								*IgkSystem.Task.Next  = *IgkSystem.RFID;
+								*IgkSystem.Task.Target  = *IgkSystem.RFID;
 								IGK_Speek("任务取消成功！");
 								IGK_SysTimePrintln("任务已取消！");
 								//程序退回到等待状态
@@ -399,13 +398,13 @@ void Task3_task(void *p_arg)
 						//方向
 						if(mapStruct.Dir[j] == Enum_QianJin)
 						{
-							if(IgkAgvOs.Dir != Enum_QianJin)
+							if(IgkSystem.Dir != Enum_QianJin)
 							{
 								//停止
-								IgkAgvOs.RunOrStop = Enum_Stop;
+								IgkSystem.RunOrStop = Enum_Stop;
 								DriverTingZhi();
 								//切换方向
-								IgkAgvOs.Dir = Enum_QianJin;
+								IgkSystem.Dir = Enum_QianJin;
 								//等待
 								osdelay_ms(500);
 							}
@@ -417,13 +416,13 @@ void Task3_task(void *p_arg)
 						else
 						if(mapStruct.Dir[j] == Enum_HouTui)
 						{
-							if(IgkAgvOs.Dir != Enum_HouTui)
+							if(IgkSystem.Dir != Enum_HouTui)
 							{
 								//停止
-								IgkAgvOs.RunOrStop = Enum_Stop;
+								IgkSystem.RunOrStop = Enum_Stop;
 								DriverTingZhi();
 								//切换方向
-								IgkAgvOs.Dir = Enum_HouTui;
+								IgkSystem.Dir = Enum_HouTui;
 								//等待
 								osdelay_ms(500);
 							}
@@ -435,7 +434,7 @@ void Task3_task(void *p_arg)
 						else
 						if(mapStruct.Dir[j] == Enum_PingYi)
 						{
-							if(IgkAgvOs.Dir != Enum_ZuoFenCha)
+							if(IgkSystem.Dir != Enum_ZuoFenCha)
 							{
 								osdelay_ms(300);
 								IGK_SysPrintf("平移-");
@@ -446,21 +445,21 @@ void Task3_task(void *p_arg)
 						//动作
 						if(mapStruct.Action[j] == Enum_ZuoFenCha)
 						{
-							IgkAgvOs.Action = Enum_ZuoFenCha;
+							IgkSystem.Action = Enum_ZuoFenCha;
 							IGK_SysPrintf("左分叉-");
 							IGK_Speek("左分叉");
 						}
 						else
 						if(mapStruct.Action[j] == Enum_YouFenCha)
 						{
-							IgkAgvOs.Action = Enum_YouFenCha;
+							IgkSystem.Action = Enum_YouFenCha;
 							IGK_SysPrintf("右分叉-");
 							IGK_Speek("右分叉");
 						}
 						else
 						if(mapStruct.Action[j] == Enum_ZhiXing)
 						{
-							IgkAgvOs.Action = Enum_ZhiXing;
+							IgkSystem.Action = Enum_ZhiXing;
 							IGK_SysPrintf("直行-");
 							IGK_Speek("直行");
 						}
@@ -468,21 +467,21 @@ void Task3_task(void *p_arg)
 						if(mapStruct.Action[j] == Enum_ZuoXuan)
 						{
 							//停车
-							IgkAgvOs.RunOrStop = Enum_Stop;
+							IgkSystem.RunOrStop = Enum_Stop;
 							DriverTingZhi();
 							IGK_Speek("左旋%d度",mapStruct.Angle[j]);
 							//原地旋转
 							osdelay_ms(200);
 							//左旋
-							IgkAgvOs.Action = Enum_ZuoXuan;
+							IgkSystem.Action = Enum_ZuoXuan;
 							//启动
-							IgkAgvOs.RunOrStop = Enum_Run;
+							IgkSystem.RunOrStop = Enum_Run;
 							//根据方向选择磁导航传感器
 							Fencha_struct * PCiDaoHang;
-							if(IgkAgvOs.Dir == Enum_QianJin)
-								PCiDaoHang = &IgkAgvOs.QianCiDaoHang;
+							if(IgkSystem.Dir == Enum_QianJin)
+								PCiDaoHang = &IgkSystem.QianCiDaoHang;
 							else
-								PCiDaoHang = &IgkAgvOs.HouCiDaoHang;
+								PCiDaoHang = &IgkSystem.HouCiDaoHang;
 							//等待离开磁条
 							while(PCiDaoHang->Error==0)
 								osdelay_ms(10);
@@ -515,35 +514,35 @@ void Task3_task(void *p_arg)
 									osdelay_ms(10);
 							}
 							//停止
-							IgkAgvOs.RunOrStop = Enum_Stop;
+							IgkSystem.RunOrStop = Enum_Stop;
 							DriverTingZhi();
 							osdelay_ms(200);
 							//切换直行
-							IgkAgvOs.Action = Enum_ZhiXing;
+							IgkSystem.Action = Enum_ZhiXing;
 							//切换为运动状态
 							osdelay_ms(200);
-							IgkAgvOs.RunOrStop = Enum_Run;
+							IgkSystem.RunOrStop = Enum_Run;
 							IGK_SysPrintf("左旋[%d]度-",mapStruct.Angle[j]);
 						}
 						else
 						if(mapStruct.Action[j] == Enum_YouXuan)
 						{
 							//停车
-							IgkAgvOs.RunOrStop = Enum_Stop;
+							IgkSystem.RunOrStop = Enum_Stop;
 							DriverTingZhi();
 							IGK_Speek("右旋%d度",mapStruct.Angle[j]);
 							//原地旋转
 							osdelay_ms(200);
 							//右旋
-							IgkAgvOs.Action = Enum_YouXuan;
+							IgkSystem.Action = Enum_YouXuan;
 							//启动
-							IgkAgvOs.RunOrStop = Enum_Run;
+							IgkSystem.RunOrStop = Enum_Run;
 							//根据方向选择磁导航传感器
 							Fencha_struct * PCiDaoHang;
-							if(IgkAgvOs.Dir == Enum_QianJin)
-								PCiDaoHang = &IgkAgvOs.QianCiDaoHang;
+							if(IgkSystem.Dir == Enum_QianJin)
+								PCiDaoHang = &IgkSystem.QianCiDaoHang;
 							else
-								PCiDaoHang = &IgkAgvOs.HouCiDaoHang;
+								PCiDaoHang = &IgkSystem.HouCiDaoHang;
 							//等待离开磁条
 							while(PCiDaoHang->Error==0)
 								osdelay_ms(10);
@@ -576,17 +575,17 @@ void Task3_task(void *p_arg)
 									osdelay_ms(10);
 							}
 							//停止
-							IgkAgvOs.RunOrStop = Enum_Stop;
+							IgkSystem.RunOrStop = Enum_Stop;
 							DriverTingZhi();
 							osdelay_ms(200);
 							//切换直行
-							IgkAgvOs.Action = Enum_ZhiXing;
+							IgkSystem.Action = Enum_ZhiXing;
 							//切换为运动状态
 							osdelay_ms(200);
 							//原地旋转
 							IGK_SysPrintf("右旋[%d]度-",mapStruct.Angle[j]);
 						}
-						IgkAgvOs.RunOrStop = Enum_Run;
+						IgkSystem.RunOrStop = Enum_Run;
 						//到达
 						IGK_SysPrintf("[%d]\r\n\r\n",mapStruct.Stop[j]);
 						//找到对应站点，跳出循环
@@ -595,7 +594,7 @@ void Task3_task(void *p_arg)
 				}
 			}
 			//到达目标位置,停车
-			IgkAgvOs.RunOrStop = Enum_Stop;
+			IgkSystem.RunOrStop = Enum_Stop;
 			IGK_Speek("到达终点，任务完成");
 			IGK_SysTimePrintln("到达终点，任务完成");
 		}
@@ -621,58 +620,58 @@ void Task5_task(void *p_arg)
 	while(1)
 	{
 		//监控摇杆按键,切换模式
-		if(IgkAgvOs.YaoGan.key==Enum_KeyDown)
+		if(IgkSystem.YaoGan.key==Enum_KeyDown)
 		{
 			delay(0, 0, 1, 0);
-			if(IgkAgvOs.YaoGan.key==Enum_KeyDown)
+			if(IgkSystem.YaoGan.key==Enum_KeyDown)
 			{
-				if(IgkAgvOs.WorkMode == Enum_LocalManual)
+				if(IgkSystem.WorkMode == Enum_LocalManual)
 				{
-					IgkAgvOs.WorkMode = Enum_LocalAuto;
+					IgkSystem.WorkMode = Enum_LocalAuto;
 					IGK_Speek("自动模式");
 				}
 				else
 				{
-					IgkAgvOs.WorkMode = Enum_LocalManual;
+					IgkSystem.WorkMode = Enum_LocalManual;
 					IGK_Speek("手动模式");
 				}
 			}
 		}
 		//手动控制模式
-		if(IgkAgvOs.WorkMode == Enum_LocalManual)
+		if(IgkSystem.WorkMode == Enum_LocalManual)
 		{
 			//直接将速度赋值到驱动器
 			//判断当前动作
-			if(abs(IgkAgvOs.YaoGan.y)>0)//前进后退
+			if(abs(IgkSystem.YaoGan.y)>0)//前进后退
 			{
-				*IgkAgvOs.ManuaSpeed = abs(IgkAgvOs.YaoGan.y)*1;
+				*IgkSystem.ManuaSpeed = abs(IgkSystem.YaoGan.y)*1;
 				//转向速度
-				s8 speed = IgkAgvOs.YaoGan.z*0.5;
-				if(IgkAgvOs.YaoGan.y>0)
+				s8 speed = IgkSystem.YaoGan.z*0.5;
+				if(IgkSystem.YaoGan.y>0)
 				{
 					if(speed >= 0)
-						DriverQinJinSpeed(*IgkAgvOs.ManuaSpeed-speed,*IgkAgvOs.ManuaSpeed);
+						DriverQinJinSpeed(*IgkSystem.ManuaSpeed-speed,*IgkSystem.ManuaSpeed);
 					else
-						DriverQinJinSpeed(*IgkAgvOs.ManuaSpeed,*IgkAgvOs.ManuaSpeed+speed);
+						DriverQinJinSpeed(*IgkSystem.ManuaSpeed,*IgkSystem.ManuaSpeed+speed);
 				}
 				else
-				if(IgkAgvOs.YaoGan.y<0)
+				if(IgkSystem.YaoGan.y<0)
 				{
 					if(speed >= 0)
-						DriverHouTuiSpeed(*IgkAgvOs.ManuaSpeed,*IgkAgvOs.ManuaSpeed-speed);
+						DriverHouTuiSpeed(*IgkSystem.ManuaSpeed,*IgkSystem.ManuaSpeed-speed);
 					else
-						DriverHouTuiSpeed(*IgkAgvOs.ManuaSpeed+speed,*IgkAgvOs.ManuaSpeed);
+						DriverHouTuiSpeed(*IgkSystem.ManuaSpeed+speed,*IgkSystem.ManuaSpeed);
 				}
 			}
 			else
-			if(abs(IgkAgvOs.YaoGan.z)>0)//左右旋转
+			if(abs(IgkSystem.YaoGan.z)>0)//左右旋转
 			{
-				*IgkAgvOs.ManuaSpeed = abs(IgkAgvOs.YaoGan.z)*0.8;
-				if(IgkAgvOs.YaoGan.z<0)
-					DriverZuoXuan(*IgkAgvOs.ManuaSpeed);
+				*IgkSystem.ManuaSpeed = abs(IgkSystem.YaoGan.z)*0.8;
+				if(IgkSystem.YaoGan.z<0)
+					DriverZuoXuan(*IgkSystem.ManuaSpeed);
 				else
-				if(IgkAgvOs.YaoGan.z>0)
-					DriverYouXuan(*IgkAgvOs.ManuaSpeed);
+				if(IgkSystem.YaoGan.z>0)
+					DriverYouXuan(*IgkSystem.ManuaSpeed);
 			}
 			else // 停止
 				DriverTingZhi();
@@ -693,7 +692,7 @@ void Task6_task(void *p_arg)
 			delay(0, 0, 0, 30);
 			if(IN6 == Enum_KeyDown)
 			{
-				IgkAgvOs.RunOrStop = Enum_Run;
+				IgkSystem.RunOrStop = Enum_Run;
 				IGK_Speek("启动");
 				//等待按键抬起
 				while(IN6 == Enum_KeyDown){delay(0, 0, 0, 5);}
@@ -705,7 +704,7 @@ void Task6_task(void *p_arg)
 			delay(0, 0, 0, 30);
 			if(IN7 == Enum_KeyDown)
 			{
-				IgkAgvOs.RunOrStop = Enum_Stop;
+				IgkSystem.RunOrStop = Enum_Stop;
 				IGK_Speek("停止");
 				//等待按键抬起
 				while(IN7 == Enum_KeyDown){delay(0, 0, 0, 5);}
@@ -737,7 +736,7 @@ void Task8_task(void *p_arg)
 	{
 		IWDG_Feed();//喂狗
 		//更新系统运行时间
-		GetSysRunTime(&IgkAgvOs.OsTime,p_arg);
+		GetSysRunTime(&IgkSystem.OsTime,p_arg);
 		delay(0, 0, 0, 200);
 	}
 }

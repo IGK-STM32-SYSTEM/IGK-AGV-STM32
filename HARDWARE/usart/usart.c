@@ -90,7 +90,7 @@ void IGK_SysTimePrintln(char* fmt,...)
 	vsprintf((char*)SysTimePrintlnBuf,fmt,ap);
 	va_end(ap);
 	//打印系统时间
-	IGK_Struct_DateTime *dt = &IgkAgvOs.OsTime;
+	IGK_Struct_DateTime *dt = &IgkSystem.OsTime;
 	IGK_SysPrintf("[%d:%d:%d:%d]",dt->Hour,dt->Minute,dt->Second,dt->Millisecond);
 	//打印消息
 	IGK_Printf(USART2,SysTimePrintlnBuf);

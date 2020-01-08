@@ -2,7 +2,7 @@
 #include "os.h"
 
 //爱极客AGV系统结构体
-IgkAgvOsStruct IgkAgvOs;
+IgkSystemStruct IgkSystem;
 
 //毫秒转时间结构体
 void MillisecondToDateTime(u32 millis,IGK_Struct_DateTime *dt)

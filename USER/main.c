@@ -126,9 +126,9 @@ int main(void)
 	//初始化内存池[采用原子内存管理]
 	my_mem_init(SRAMIN);
 	IGK_SysTimePrintln("开启动态内存：%dKByte!",MEM1_MAX_SIZE/1024);	
+//	SEGGER_RTT_printf(0,"初始化ucos完成");
 	//初始化ucos
 	IGK_UCOS_Init();	
-	
 	while(1);
 }
 

@@ -98,7 +98,7 @@ typedef struct {
 	//AGVÈÎÎñ
 	IGK_Struct_Task Task;
 	//PID
-	IGK_Struct_PID PID;	
+	//IGK_Struct_PID PID;	
 	//µç³Ø
 	IGK_Struct_Battery Battery;
 }IgkSystemStruct;

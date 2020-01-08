@@ -9,7 +9,7 @@ void PID_Init(void)
 	*IgkSystem.PID.Error = 0;
 	*IgkSystem.PID.LastError = 0;
 	IgkSystem.PID.PrevError = 0;
-	*IgkSystem.PID.Kp = 5;
+	*IgkSystem.PID.Kp = 50;
 	*IgkSystem.PID.Ki = 30;
 	*IgkSystem.PID.Kd = 0;
 }
@@ -27,17 +27,16 @@ float PosPIDCalc(int NextTarget)
 	u16 Kd = *IgkSystem.PID.Kd;
 	
 	
-//	PID.Error = PID.SetTarget - NextTarget;			//E(n)当前偏差E(n)	
-//	IgkSystem.PID.Error = NextTarget;
-//	*IgkSystem.PID.SumError +=IgkSystem.PID.Error;							//SumError比例
-//	//防止饱和
-//	*IgkSystem.PID.SumError = *IgkSystem.PID.SumError>200?200:*IgkSystem.PID.SumError;
-//	*IgkSystem.PID.SumError = *IgkSystem.PID.SumError<-200?-200:*IgkSystem.PID.SumError;
-//	Error1 = IgkSystem.PID.Error - IgkSystem.PID.LastError;					//[E(n)-E(n-1)]微分
+	*IgkSystem.PID.Error = NextTarget;
+	*IgkSystem.PID.SumError +=*IgkSystem.PID.Error;							//SumError比例
+	//防止饱和
+	*IgkSystem.PID.SumError = *IgkSystem.PID.SumError>200?200:*IgkSystem.PID.SumError;
+	*IgkSystem.PID.SumError = *IgkSystem.PID.SumError<-200?-200:*IgkSystem.PID.SumError;
+	Error1 = IgkSystem.PID.Error - IgkSystem.PID.LastError;					//[E(n)-E(n-1)]微分
 
-//	IgkSystem.PID.LastError = IgkSystem.PID.Error;						//更新偏差值
+	IgkSystem.PID.LastError = IgkSystem.PID.Error;						//更新偏差值
 
-	//Out = Kp*IgkSystem.PID.Error + Ki**IgkSystem.PID.SumError + Kd*Error1;	
+	Out = Kp/10.0**IgkSystem.PID.Error + Ki/1000.0**IgkSystem.PID.SumError + Kd*Error1;	
 	return(Out);
 } 
 

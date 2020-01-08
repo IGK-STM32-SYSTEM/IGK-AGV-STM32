@@ -27,7 +27,7 @@
 #include "function.h"
 #include "includes.h"
 #include "iwdg.h"
-#include "igk_os.h"
+#include "igk_system.h"
 #include "igk_drive.h"
 #include "cdhdata.h"
 //////////////////////////////////////////////////////////////////////////////////	 

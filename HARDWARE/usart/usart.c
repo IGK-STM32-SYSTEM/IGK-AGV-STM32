@@ -1,5 +1,5 @@
 #include "sys.h"
-#include "igk_os.h"
+#include "igk_system.h"
 
 /****************************************************
 方法:通用串口打印字符串

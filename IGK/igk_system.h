@@ -2,8 +2,8 @@
 爱极客网络科技有限公司
 系统方法
 ***********************************************/
-#ifndef __IGK_OS_H
-#define __IGK_OS_H
+#ifndef __IGK_SYSTEM_H
+#define __IGK_SYSTEM_H
 #include "sys.h"
 #include "cdhdata.h"
 typedef unsigned short int u16;

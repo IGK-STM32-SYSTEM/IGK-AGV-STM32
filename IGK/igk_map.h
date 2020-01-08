@@ -4,7 +4,7 @@
 #ifndef __IGK_MAP_H
 #define __IGK_MAP_H
 #include "Modbus_slave.h"
-#include "igk_os.h"
+#include "igk_system.h"
 
 typedef unsigned short int u16;
 typedef unsigned char u8;

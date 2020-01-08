@@ -67,12 +67,19 @@ int main(void)
 	IgkSystem.RFID = &PLC_Data[41];//实时RFID值,和读卡器读到的值同步
 	IgkSystem.AutoSpeed = &PLC_Data[110];//自动模式速度
 	IgkSystem.ManuaSpeed = &PLC_Data[111];//手动模式速度
-	
+	//任务Task
 	IgkSystem.Task.Target = &PLC_Data[40];     //目标标签
 	IgkSystem.Task.Next = &PLC_Data[42];   //下一个位置
 	IgkSystem.Task.Execute = &PLC_Data[43];    //执行
 	IgkSystem.Task.Cancel = &PLC_Data[44];     //取消
 	IgkSystem.Task.SerialNum = &PLC_Data[45];  //任务编号【系统自动增加，可通过接口更新】
+	
+	//电池
+	IgkSystem.Battery.Percent = &PLC_Data[100];  //剩余电量百分比
+	IgkSystem.Battery.Voltage = &PLC_Data[101];   //电压
+	IgkSystem.Battery.Current = &PLC_Data[102];	//电流
+	IgkSystem.Battery.Now = &PLC_Data[103];			//剩余电量
+	IgkSystem.Battery.Total = &PLC_Data[104];		//电池容量
 	
 	//PID
 	IgkSystem.PID.SumError = (s16*)&PLC_Data[201]; 

@@ -61,6 +61,16 @@ typedef struct {
 	u16 *Ki;
 	u16 *Kd;
 }IGK_Struct_PID;
+
+//电池结构体定义
+typedef struct {
+	u16 *Percent;  //剩余电量百分比
+	u16 *Voltage;   //电压
+	u16 *Current;	//电流
+	u16 *Now;			//剩余电量
+	u16 *Total;		//电池容量
+}IGK_Struct_Battery;
+
 //系统结构体,全局通用
 typedef struct {
 	//系统运行时间
@@ -89,6 +99,8 @@ typedef struct {
 	IGK_Struct_Task Task;
 	//PID
 	IGK_Struct_PID PID;	
+	//电池
+	IGK_Struct_Battery Battery;
 }IgkSystemStruct;
 
 

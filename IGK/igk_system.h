@@ -54,9 +54,9 @@ typedef struct {
 typedef struct {
 	s16 *SetTarget;
 	s16 *SumError;
-	s16 *Error;							//Error[n]
-	s16 *LastError;					//Error[n-1]
-	float PrevError;					//Error[n-2]
+	s16 *Error;			//Error[n]
+	s16 *LastError;	//Error[n-1]
+	float PrevError;//Error[n-2]  此处改为U16或s16或指针类型，都会造成内存错误
 	u16 *Kp;
 	u16 *Ki;
 	u16 *Kd;

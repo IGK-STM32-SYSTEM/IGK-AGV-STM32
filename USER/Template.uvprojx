@@ -417,11 +417,6 @@
               <FilePath>..\IGK\igk_map.c</FilePath>
             </File>
             <File>
-              <FileName>igk_os.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\IGK\igk_os.c</FilePath>
-            </File>
-            <File>
               <FileName>igk_stack.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\IGK\igk_stack.c</FilePath>
@@ -445,6 +440,11 @@
               <FileName>igk_ucos.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\IGK\igk_ucos.c</FilePath>
+            </File>
+            <File>
+              <FileName>igk_system.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IGK\igk_system.c</FilePath>
             </File>
           </Files>
         </Group>

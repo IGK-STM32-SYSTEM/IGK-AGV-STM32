@@ -67,6 +67,7 @@ int main(void)
 	IgkSystem.RFID = &PLC_Data[41];//实时RFID值,和读卡器读到的值同步
 	IgkSystem.AutoSpeed = &PLC_Data[110];//自动模式速度
 	IgkSystem.ManuaSpeed = &PLC_Data[111];//手动模式速度
+	
 	//任务Task
 	IgkSystem.Task.Target = &PLC_Data[40];     //目标标签
 	IgkSystem.Task.Next = &PLC_Data[42];   //下一个位置

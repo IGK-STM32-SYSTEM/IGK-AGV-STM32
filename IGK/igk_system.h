@@ -56,7 +56,7 @@ typedef struct {
 	s16 *SumError;
 	s16 *Error;			//Error[n]
 	s16 *LastError;	//Error[n-1]
-	float PrevError;//Error[n-2]  此处改为U16或s16或指针类型，都会造成内存错误
+	s16 *PrevError;//Error[n-2]  此处改为U16或s16或指针类型，都会造成内存错误
 	u16 *Kp;
 	u16 *Ki;
 	u16 *Kd;
@@ -98,7 +98,7 @@ typedef struct {
 	//AGV任务
 	IGK_Struct_Task Task;
 	//PID
-	//IGK_Struct_PID PID;	
+	IGK_Struct_PID PID;	
 	//电池
 	IGK_Struct_Battery Battery;
 }IgkSystemStruct;

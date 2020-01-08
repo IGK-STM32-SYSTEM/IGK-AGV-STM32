@@ -40,15 +40,17 @@ int main(void)
 {
 	delay_init(168);  	//时钟初始化
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//中断分组配置
+	ddd = 0;
+
 	LED_Init();         //LED初始化
-	DMA_adc1_Init();
+//	DMA_adc1_Init();
 	DMA_Uart4_Init();
 	DMA_Uart2_Init();
 	DMA_Uart6_Init();
 	
 	DMA_Uart3_Init();
 	DMA_Uart5_Init();
-	ADC1_Configuration();
+//	ADC1_Configuration();
 	USART1_Configuration(9600);
 	USART4_Configuration(9600);//电池
 	USART6_Configuration(115200);
@@ -58,10 +60,10 @@ int main(void)
 //	TIM4_PWM_Init(1000 - 1, 8 - 1);	//84M/8=10Mhz?????,????1000,??PWM??? 10M/50000=200hz. //500-10   20hz-1000hz
 	CAN1_Mode_Init(CAN_SJW_1tq, CAN_BS2_6tq, CAN_BS1_7tq, 6, CAN_Mode_Normal); //CAN1初始化普通模式,波特率500Kbps
 	CAN2_Mode_Init(CAN_SJW_1tq, CAN_BS2_6tq, CAN_BS1_7tq, 6, CAN_Mode_Normal); //CAN2初始化普通模式,波特率500Kbps
-	TIM2_Int_Init(5 - 1, 84 - 1);			//Tout=((arr+1)*(psc+1))/Ft us.  5us
+//	TIM2_Int_Init(5 - 1, 84 - 1);			//Tout=((arr+1)*(psc+1))/Ft us.  5us
 	IWDG_Init(4, 500);//大概1066ms
 	SPI1_Init();
-  TLC5620_Init();
+//  TLC5620_Init();
 	/*-----------系统指针类型变量指向默认地址---------------*/
 	//
 	IgkSystem.RFID = &PLC_Data[41];//实时RFID值,和读卡器读到的值同步
@@ -107,8 +109,6 @@ int main(void)
 	*IgkSystem.ManuaSpeed = 80;//手动速度;
 		
 	/*------------------------------------------------------*/
-	ddd = 0;
-	PID_Init();
 	
 	IGK_SysTimePrintln("正在初始化...");
 	//初始化Flash

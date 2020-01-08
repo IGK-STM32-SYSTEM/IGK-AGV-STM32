@@ -273,11 +273,32 @@ void UART4_IRQHandler(void)
 	if(USART_GetITStatus(UART4, USART_IT_IDLE) != RESET) 
 	{
 		DMA_Cmd(DMA1_Stream2,DISABLE);
-		rece_index = UART4->SR; 
-		rece_index = UART4->DR; 
-		rece_index = UART_RX_LEN - DMA_GetCurrDataCounter(DMA1_Stream2); 
+		rece_index4 = UART4->SR; 
+		rece_index4 = UART4->DR; 
+		rece_index4 = UART_RX_LEN - DMA_GetCurrDataCounter(DMA1_Stream2); 
 		DMA1_Stream2->NDTR = UART_RX_LEN;
-
+		//解析电量数据
+		if(rece_index4 == 15 && rece4_buf[0] == 0x5A && rece4_buf[1] == 0xA5 && rece4_buf[2] == 0x10 )
+		{
+			u8 add =0;
+			//计算校验和
+			for(int i=0;i<14;i++)
+			 add += rece4_buf[i];
+			//对比
+			if(add == rece4_buf[14])
+			{
+				//解析
+				*IgkSystem.Battery.Percent = rece4_buf[3];//电量
+				*IgkSystem.Battery.Voltage = (rece4_buf[4]<<8)|rece4_buf[5];//电压
+				*IgkSystem.Battery.Current = (rece4_buf[6]<<8)|rece4_buf[7];//电流
+				*IgkSystem.Battery.Total = (rece4_buf[8]<<8)|rece4_buf[9];//额定容量
+				*IgkSystem.Battery.Temperature = (rece4_buf[10]<<8)|rece4_buf[11];//温度
+				*IgkSystem.Battery.Charge = rece4_buf[12];//电流方向【充放电】
+				
+			}
+			//清空数组
+			memset(rece4_buf,0,sizeof(rece4_buf));
+		}
 		DMA_Cmd(DMA1_Stream2, ENABLE);
 	} 
 	if(USART_GetITStatus(UART4, USART_IT_TC)!= RESET)//当发送完成时进入串口4中断，改变485发送接收方向

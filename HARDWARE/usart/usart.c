@@ -55,7 +55,7 @@ void IGK_PrintBuf(USART_TypeDef* USARTx ,char* buf,u8 len)
 	  while(USART_GetFlagStatus(USARTx,USART_FLAG_TC)==RESET);  //等待上次传输完成 
 		USART_SendData(USARTx,(uint8_t)buf[i]); 	 //发送数据到串口 
 	}
-	osdelay_ms(10);
+//	osdelay_ms(10);
 	//为485端口自动切换接收
 	if(USARTx==USART2)
 		PDout(4) = 0;

@@ -3,19 +3,19 @@
 
 u16 AD_Value[30][4];
 double After_filter[4];
-u16 rece_index=0,rece2_index=0,rece6_index=0,rece3_index=0,rece5_index=0;
-u8  sendBuf[UART_RX_LEN];  //定义发送数组，最大允许发送32个字，64个字节
-u8  receBuf[UART_RX_LEN];	//定义接收数组，最大允许接收32个字，64个字节写入
+u16 rece_index4=0,rece2_index=0,rece3_index=0,rece5_index=0,rece6_index=0;
 u8  rece2_buf[UART_RX_LEN];
 u8  send2_buf[UART_RX_LEN];
-u8  rece6_buf[UART6_RX_LEN];
-u8  send6_buf[UART6_RX_LEN];
 u8  rece3_buf[UART3_RX_LEN];
 u8  send3_buf[UART3_RX_LEN];
+u8  send4_buf[UART_RX_LEN];  //定义发送数组，最大允许发送32个字，64个字节
+u8  rece4_buf[UART_RX_LEN];	//定义接收数组，最大允许接收32个字，64个字节写入
 u8  rece5_buf[UART5_RX_LEN];
 u8  send5_buf[UART5_RX_LEN];
-//u8 *ps=sendBuf;
-//u8 *pr=receBuf;
+u8  rece6_buf[UART6_RX_LEN];
+u8  send6_buf[UART6_RX_LEN];
+//u8 *ps=send4_buf;
+//u8 *pr=rece4_buf;
 void DMA_adc1_Init(void)
 {
 	NVIC_InitTypeDef NVIC_InitStructure;
@@ -132,7 +132,7 @@ void DMA_Uart4_Init(void)
 	DMA_DeInit(DMA1_Stream4);
 	DMA_InitStructure.DMA_Channel = DMA_Channel_4;
 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(&UART4->DR);
-	DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)sendBuf;
+	DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)send4_buf;
 	DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
 	DMA_InitStructure.DMA_BufferSize = UART_TX_LEN;
 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
@@ -146,7 +146,7 @@ void DMA_Uart4_Init(void)
 	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;//存储器突发单次传输
 	DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;//外设突发单次传输
 	DMA_Init(DMA1_Stream4, &DMA_InitStructure);
-	DMA_Cmd(DMA1_Stream4, DISABLE);
+	DMA_Cmd(DMA1_Stream4, ENABLE);
 	DMA_ITConfig(DMA1_Stream4, DMA_IT_TC, ENABLE);
 
 	/*--- LUMMOD_UART_Rx_DMA_Channel DMA Config ---*/
@@ -155,7 +155,7 @@ void DMA_Uart4_Init(void)
 	DMA_DeInit(DMA1_Stream2);
 	DMA_InitStructure.DMA_Channel = DMA_Channel_4;
 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(&UART4->DR);
-	DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)receBuf;
+	DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)rece4_buf;
 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory ;
 	DMA_InitStructure.DMA_BufferSize = UART_RX_LEN;
 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;

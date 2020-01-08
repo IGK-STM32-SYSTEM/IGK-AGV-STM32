@@ -8,7 +8,7 @@ void PID_Init(void)
 	*IgkSystem.PID.SumError = 0; 
 	*IgkSystem.PID.Error = 0;
 	*IgkSystem.PID.LastError = 0;
-	IgkSystem.PID.PrevError = 0;
+	*IgkSystem.PID.PrevError = 0;
 	*IgkSystem.PID.Kp = 50;
 	*IgkSystem.PID.Ki = 30;
 	*IgkSystem.PID.Kd = 0;

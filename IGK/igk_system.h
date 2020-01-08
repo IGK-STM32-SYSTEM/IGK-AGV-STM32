@@ -64,11 +64,13 @@ typedef struct {
 
 //电池结构体定义
 typedef struct {
-	u16 *Percent;  //剩余电量百分比
-	u16 *Voltage;   //电压
-	u16 *Current;	//电流
-	u16 *Now;			//剩余电量
-	u16 *Total;		//电池容量
+	u16 *Percent;  //电量百分比
+	u16 *Voltage;   //电压【0.01V】
+	u16 *Current;	//电流【0.01A】
+	u16 *Total;		//电池容量【0.1AH】
+	u16 *Temperature;		//温度【0.1℃】
+	u16 *Charge;		//0：放电 ，1:充电，
+	
 }IGK_Struct_Battery;
 
 //系统结构体,全局通用

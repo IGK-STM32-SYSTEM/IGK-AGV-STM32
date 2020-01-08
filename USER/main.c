@@ -35,7 +35,7 @@ void Task7_task(void *p_arg);//任务函数
 OS_TCB Task8TCB;//任务控制块
 CPU_STK Task8_STK[128];//任务堆栈
 void Task8_task(void *p_arg);//任务函数
-
+double ddd;
 int main(void)
 {
 	delay_init(168);  	//时钟初始化
@@ -50,7 +50,7 @@ int main(void)
 	DMA_Uart5_Init();
 	ADC1_Configuration();
 	USART1_Configuration(9600);
-	USART4_Configuration(115200);
+	USART4_Configuration(9600);//电池
 	USART6_Configuration(115200);
 	USART2_Configuration(115200);//485-2接控制软件
 	USART3_Configuration(115200);//485-3接调试信息打印
@@ -79,10 +79,11 @@ int main(void)
 	IgkSystem.Battery.Percent = &PLC_Data[100];  //剩余电量百分比
 	IgkSystem.Battery.Voltage = &PLC_Data[101];   //电压
 	IgkSystem.Battery.Current = &PLC_Data[102];	//电流
-	IgkSystem.Battery.Now = &PLC_Data[103];			//剩余电量
-	IgkSystem.Battery.Total = &PLC_Data[104];		//电池容量
-	
-	//PID
+	IgkSystem.Battery.Total = &PLC_Data[103];		//电池容量
+	IgkSystem.Battery.Temperature = &PLC_Data[104];//温度
+	IgkSystem.Battery.Charge = &PLC_Data[105];//电流方向【充放电】	//PID	
+
+
 	IgkSystem.PID.SetTarget = (s16*)&PLC_Data[200]; 
 	IgkSystem.PID.SumError = (s16*)&PLC_Data[201]; 
 	IgkSystem.PID.Error = (s16*)&PLC_Data[202]; 
@@ -106,7 +107,7 @@ int main(void)
 	*IgkSystem.ManuaSpeed = 80;//手动速度;
 		
 	/*------------------------------------------------------*/
-
+	ddd = 0;
 	PID_Init();
 	
 	IGK_SysTimePrintln("正在初始化...");
@@ -162,32 +163,53 @@ void Task1_task(void *p_arg)
 	yinling(1);
 	IGK_Speek("系统自检完成");
 			CPU_STK_SIZE free,used;
-
+	//电池
+	send4_buf[0] = 0x5A;
+	send4_buf[1] = 0xA5;
+	send4_buf[2] = 0x10;
+	send4_buf[3] = 0x00;
+	send4_buf[4] = 0x00;
+	send4_buf[5] = 0x00;
+	send4_buf[6] = 0x00;
+	send4_buf[7] = 0x0F;
+	
+//	//容量6AH
+//	send4_buf[0] = 0x5A;
+//	send4_buf[1] = 0xA5;
+//	send4_buf[2] = 0x15;
+//	send4_buf[3] = 0x00;
+//	send4_buf[4] = 0x3C;
+//	send4_buf[5] = 0x00;
+//	send4_buf[6] = 0x00;
+//	send4_buf[7] = 0x50;
+//	Uart4_Start_DMA_Tx(8);
 	while(1)
 	{
+		Uart4_Start_DMA_Tx(8);
+		IGK_SysTimePrintln("电流：%3fA，电压：%3fV",*IgkSystem.Battery.Current*0.01,*IgkSystem.Battery.Voltage*0.01);
 		//计数测试
 //		num++;
 //		IGK_SysTimePrintln("计数：%d",num);
 //		LED1 = ~LED1;
 //		delay(0, 0,0 , 20);
 		//打印任务堆栈使用量
-		OSTaskStkChk (&Task1TCB,&free,&used,&err);
-		IGK_SysTimePrintln("Task1 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		OSTaskStkChk (&Task2TCB,&free,&used,&err);
-		IGK_SysTimePrintln("Task2 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		OSTaskStkChk (&Task3TCB,&free,&used,&err); 	
-		IGK_SysTimePrintln("Task3 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		OSTaskStkChk (&Task4TCB,&free,&used,&err);
-		IGK_SysTimePrintln("Task4 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		OSTaskStkChk (&Task5TCB,&free,&used,&err);
-		IGK_SysTimePrintln("Task5 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		OSTaskStkChk (&Task6TCB,&free,&used,&err);
-		IGK_SysTimePrintln("Task6 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		OSTaskStkChk (&Task7TCB,&free,&used,&err);
-		IGK_SysTimePrintln("Task7 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		OSTaskStkChk (&Task8TCB,&free,&used,&err);	
-		IGK_SysTimePrintln("Task8 used/free:%d/%d  usage:%d",used,free,(used*100)/(used+free));  		
-		osdelay_s(1);
+//		OSTaskStkChk (&Task1TCB,&free,&used,&err);
+//		IGK_SysTimePrintln("Task1 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+//		OSTaskStkChk (&Task2TCB,&free,&used,&err);
+//		IGK_SysTimePrintln("Task2 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+//		OSTaskStkChk (&Task3TCB,&free,&used,&err); 	
+//		IGK_SysTimePrintln("Task3 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+//		OSTaskStkChk (&Task4TCB,&free,&used,&err);
+//		IGK_SysTimePrintln("Task4 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+//		OSTaskStkChk (&Task5TCB,&free,&used,&err);
+//		IGK_SysTimePrintln("Task5 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+//		OSTaskStkChk (&Task6TCB,&free,&used,&err);
+//		IGK_SysTimePrintln("Task6 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+//		OSTaskStkChk (&Task7TCB,&free,&used,&err);
+//		IGK_SysTimePrintln("Task7 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+//		OSTaskStkChk (&Task8TCB,&free,&used,&err);	
+//		IGK_SysTimePrintln("Task8 used/free:%d/%d  usage:%d",used,free,(used*100)/(used+free));  		
+		delay(0,0,2,0);
 	}
 }
 /*【任务2】【自动模式】**************************************************

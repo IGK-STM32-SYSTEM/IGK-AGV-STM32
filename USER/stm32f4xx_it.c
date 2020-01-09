@@ -192,27 +192,161 @@ void  DMA2_Stream7_IRQHandler(void)//串口6发送DMA中断
 }
 void  DMA2_Stream0_IRQHandler(void)//AD DMA中断
 {
+	long  sum = 0;
+	u8 count,i;
+	if(DMA_GetITStatus(DMA2_Stream0,DMA_IT_TCIF0) != RESET)
+	{
+
+	   for(i=0;i<4;i++)
+	   {
+			for ( count=0;count<30;count++)
+			{
+			sum += AD_Value[count][i];
+			}
+			After_filter[i]=sum/30;
+			sum=0;
+	   }
+
+	  DMA_ClearITPendingBit(DMA2_Stream0,DMA_IT_TCIF0);
+	}
 }
 void USART2_IRQHandler(void)             
 {
-
+#if SYSTEM_SUPPORT_OS 	
+	OSIntEnter();    
+#endif
+	if(USART_GetITStatus(USART2, USART_IT_IDLE) != RESET) 
+	{
+		DMA_Cmd(DMA1_Stream5,DISABLE);
+		rece2_index = USART2->SR;
+		rece2_index = USART2->DR; //清除IDLE标志
+		rece2_index = UART_RX_LEN - DMA_GetCurrDataCounter(DMA1_Stream5); 
+		DMA1_Stream5->NDTR = UART_RX_LEN;
+	}
+    if(USART_GetITStatus(USART2, USART_IT_TC)!= RESET)//当发送完成时进入串口2中断，改变485发送接收方向
+	{
+		PDout(4) = 0;//改变485为接收
+		NVIC_ClearPendingIRQ(USART2_IRQn);//清除中断标志
+		USART_ClearITPendingBit(USART2,USART_IT_TC);//清除串口2发送完成标志标志
+	}
+#if SYSTEM_SUPPORT_OS 	
+	OSIntExit();  											 
+#endif
 } 
 void USART3_IRQHandler(void)             
 {
 
-
+#if SYSTEM_SUPPORT_OS 	
+	OSIntEnter();    
+#endif
+	if(USART_GetITStatus(USART3, USART_IT_IDLE) != RESET) 
+	{
+		DMA_Cmd(DMA1_Stream1,DISABLE);
+		rece3_index = USART3->SR;
+		rece3_index = USART3->DR; //清除IDLE标志
+		rece3_index = UART_RX_LEN - DMA_GetCurrDataCounter(DMA1_Stream1); 
+		DMA1_Stream1->NDTR = UART3_RX_LEN;
+		//判断数据长度，防止查出索引
+		if(rece3_index<UART_RX_LEN)
+		{
+			//Modbus解析
+			AnalyzeRecieve();
+			memset(rece3_buf,0,UART3_RX_LEN);
+		}
+		DMA_Cmd(DMA1_Stream1, ENABLE);
+	}
+  if(USART_GetITStatus(USART3, USART_IT_TC)!= RESET)//当发送完成时进入串口4中断，改变485发送接收方向
+	{
+		PAout(15) = 0;//改变485为接收
+		NVIC_ClearPendingIRQ(USART3_IRQn);//清除中断标志
+		USART_ClearITPendingBit(USART3,USART_IT_TC);//清除串口3发送完成标志标志
+	}
+#if SYSTEM_SUPPORT_OS 	
+	OSIntExit();  											 
+#endif
 }
 void UART4_IRQHandler(void)                
 {
-
+#if SYSTEM_SUPPORT_OS 	
+	OSIntEnter();    
+#endif
+	if(USART_GetITStatus(UART4, USART_IT_IDLE) != RESET) 
+	{
+		DMA_Cmd(DMA1_Stream2,DISABLE);
+		rece_index4 = UART4->SR; 
+		rece_index4 = UART4->DR; 
+		rece_index4 = UART_RX_LEN - DMA_GetCurrDataCounter(DMA1_Stream2); 
+		DMA1_Stream2->NDTR = UART_RX_LEN;
+		//解析电量数据
+		if(rece_index4 == 15 && rece4_buf[0] == 0x5A && rece4_buf[1] == 0xA5 && rece4_buf[2] == 0x10 )
+		{
+			u8 add =0;
+			//计算校验和
+			for(int i=0;i<14;i++)
+			 add += rece4_buf[i];
+			//对比
+			if(add == rece4_buf[14])
+			{
+				//解析
+				*IgkSystem.Battery.Percent = rece4_buf[3];//电量
+				*IgkSystem.Battery.Voltage = (rece4_buf[4]<<8)|rece4_buf[5];//电压
+				*IgkSystem.Battery.Current = (rece4_buf[6]<<8)|rece4_buf[7];//电流
+				*IgkSystem.Battery.Total = (rece4_buf[8]<<8)|rece4_buf[9];//额定容量
+				*IgkSystem.Battery.Temperature = (rece4_buf[10]<<8)|rece4_buf[11];//温度
+				*IgkSystem.Battery.Charge = rece4_buf[12];//电流方向【充放电】
+				
+			}
+			//清空数组
+			memset(rece4_buf,0,sizeof(rece4_buf));
+		}
+		DMA_Cmd(DMA1_Stream2, ENABLE);
+	} 
+	if(USART_GetITStatus(UART4, USART_IT_TC)!= RESET)//当发送完成时进入串口4中断，改变485发送接收方向
+	{
+		GPIO_ResetBits(GPIOA,GPIO_Pin_2);//改变485为接收
+		NVIC_ClearPendingIRQ(UART4_IRQn);//清除中断标志
+		USART_ClearITPendingBit(UART4,USART_IT_TC);//清除串口4发送完成标志标志
+	}
+#if SYSTEM_SUPPORT_OS 	
+	OSIntExit();  											 
+#endif
 } 
 void UART5_IRQHandler(void)             
 {
-
+#if SYSTEM_SUPPORT_OS 	
+	OSIntEnter();    
+#endif
+	if(USART_GetITStatus(UART5, USART_IT_IDLE) != RESET) 
+	{
+		DMA_Cmd(DMA1_Stream0,DISABLE);
+		rece5_index = UART5->SR;
+		rece5_index = UART5->DR; //清除IDLE标志
+		rece5_index = UART5_RX_LEN - DMA_GetCurrDataCounter(DMA1_Stream0); 
+		DMA1_Stream1->NDTR = UART5_RX_LEN;
+		
+		DMA_Cmd(DMA1_Stream0, ENABLE);
+	} 
+#if SYSTEM_SUPPORT_OS 	
+	OSIntExit();  											 
+#endif
 }
 void USART6_IRQHandler(void)             
 {
-
+#if SYSTEM_SUPPORT_OS 	
+	OSIntEnter();    
+#endif
+	if(USART_GetITStatus(USART6, USART_IT_IDLE) != RESET) 
+	{
+		DMA_Cmd(DMA2_Stream1,DISABLE);
+		rece6_index = USART6->SR;
+		rece6_index = USART6->DR; //清除IDLE标志
+		rece6_index = UART6_RX_LEN - DMA_GetCurrDataCounter(DMA2_Stream1); 
+		DMA2_Stream1->NDTR = UART6_RX_LEN;
+		DMA_Cmd(DMA2_Stream1, ENABLE);
+	} 
+#if SYSTEM_SUPPORT_OS 	
+	OSIntExit();  											 
+#endif
 } 
  
 /**

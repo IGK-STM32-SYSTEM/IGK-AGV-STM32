@@ -81,12 +81,12 @@ typedef struct {
 	IGK_Struct_YaoGan YaoGan;
 	//当前工作模式
 	enum WorkModeEnum WorkMode;
-//	//手动模式速度
-//	u16 *ManuaSpeed;
-//	//自动模式速度
-//	u16 *AutoSpeed;
-//	//实时RFID值,和读卡器读到的值同步
-//	u16 *RFID;
+	//手动模式速度
+	u16 *ManuaSpeed;
+	//自动模式速度
+	u16 *AutoSpeed;
+	//实时RFID值,和读卡器读到的值同步
+	u16 *RFID;
 	//启停状态
 	enum RunOrStopEnum RunOrStop;
 	//自动运动方向
@@ -98,11 +98,11 @@ typedef struct {
 	//后磁导航
 	Fencha_struct HouCiDaoHang;
 	//AGV任务
-//	IGK_Struct_Task Task;
+	IGK_Struct_Task Task;
 	//PID
-//	IGK_Struct_PID PID;	
+	IGK_Struct_PID PID;	
 	//电池
-//	IGK_Struct_Battery Battery;
+	IGK_Struct_Battery Battery;
 }IgkSystemStruct;
 
 

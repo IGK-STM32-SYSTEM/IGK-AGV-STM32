@@ -147,7 +147,7 @@ void CAN1_RX0_IRQHandler(void)
 	//RFID
 	if(RxMessage.StdId==5)
 	{
-//		*IgkSystem.RFID = (RxMessage.Data[1]<<8)|RxMessage.Data[0];
+		*IgkSystem.RFID = (RxMessage.Data[1]<<8)|RxMessage.Data[0];
 	}
 }
 #endif

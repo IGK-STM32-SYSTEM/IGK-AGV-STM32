@@ -400,53 +400,6 @@
         </Group>
         <Group>
           <GroupName>IGK</GroupName>
-          <Files>
-            <File>
-              <FileName>igk_dfs.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\IGK\igk_dfs.c</FilePath>
-            </File>
-            <File>
-              <FileName>igk_drive.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\IGK\igk_drive.c</FilePath>
-            </File>
-            <File>
-              <FileName>igk_map.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\IGK\igk_map.c</FilePath>
-            </File>
-            <File>
-              <FileName>igk_stack.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\IGK\igk_stack.c</FilePath>
-            </File>
-            <File>
-              <FileName>malloc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\IGK\malloc.c</FilePath>
-            </File>
-            <File>
-              <FileName>igk_speek.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\IGK\igk_speek.c</FilePath>
-            </File>
-            <File>
-              <FileName>igk_def.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\IGK\igk_def.c</FilePath>
-            </File>
-            <File>
-              <FileName>igk_ucos.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\IGK\igk_ucos.c</FilePath>
-            </File>
-            <File>
-              <FileName>igk_system.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\IGK\igk_system.c</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>CORE</GroupName>
@@ -555,86 +508,6 @@
               <FileName>led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\LED\led.c</FilePath>
-            </File>
-            <File>
-              <FileName>adc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\ADC\adc.c</FilePath>
-            </File>
-            <File>
-              <FileName>dma.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\DMA\dma.c</FilePath>
-            </File>
-            <File>
-              <FileName>pwm.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\PWM\pwm.c</FilePath>
-            </File>
-            <File>
-              <FileName>w25qxx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\W25QXX\w25qxx.c</FilePath>
-            </File>
-            <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\SPI\spi.c</FilePath>
-            </File>
-            <File>
-              <FileName>timer2.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\timer2\timer2.c</FilePath>
-            </File>
-            <File>
-              <FileName>can.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\can\can.c</FilePath>
-            </File>
-            <File>
-              <FileName>capcount3.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\capcount3\capcount3.c</FilePath>
-            </File>
-            <File>
-              <FileName>capcount9.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\capcount9\capcount9.c</FilePath>
-            </File>
-            <File>
-              <FileName>cdhdata.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\cdhdata\cdhdata.c</FilePath>
-            </File>
-            <File>
-              <FileName>Modbus_slave.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\Modbus\Modbus_slave.c</FilePath>
-            </File>
-            <File>
-              <FileName>pid.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\PID\pid.c</FilePath>
-            </File>
-            <File>
-              <FileName>tlc5620.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\TLC5620\tlc5620.c</FilePath>
-            </File>
-            <File>
-              <FileName>usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\usart\usart.c</FilePath>
-            </File>
-            <File>
-              <FileName>function.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\Function\function.c</FilePath>
-            </File>
-            <File>
-              <FileName>iwdg.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\IWDG\iwdg.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -855,26 +728,6 @@
               <FileName>os_cfg_app.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\UCOSIII\uCOS_CONFIG\os_cfg_app.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>SEGGER</GroupName>
-          <Files>
-            <File>
-              <FileName>SEGGER_RTT.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\SEGGER\RTT\SEGGER_RTT.c</FilePath>
-            </File>
-            <File>
-              <FileName>SEGGER_RTT_printf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\SEGGER\RTT\SEGGER_RTT_printf.c</FilePath>
-            </File>
-            <File>
-              <FileName>SEGGER_RTT_Syscalls_KEIL.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\SEGGER\Syscalls\SEGGER_RTT_Syscalls_KEIL.c</FilePath>
             </File>
           </Files>
         </Group>

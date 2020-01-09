@@ -40,7 +40,7 @@ int main(void)
 {
 	delay_init(168);  	//时钟初始化
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//中断分组配置
-	ddd = 0;
+//	ddd = 0;
 
 	LED_Init();         //LED初始化
 //	DMA_adc1_Init();
@@ -61,7 +61,7 @@ int main(void)
 	CAN1_Mode_Init(CAN_SJW_1tq, CAN_BS2_6tq, CAN_BS1_7tq, 6, CAN_Mode_Normal); //CAN1初始化普通模式,波特率500Kbps
 	CAN2_Mode_Init(CAN_SJW_1tq, CAN_BS2_6tq, CAN_BS1_7tq, 6, CAN_Mode_Normal); //CAN2初始化普通模式,波特率500Kbps
 //	TIM2_Int_Init(5 - 1, 84 - 1);			//Tout=((arr+1)*(psc+1))/Ft us.  5us
-	IWDG_Init(4, 500);//大概1066ms
+//	IWDG_Init(4, 500);//大概1066ms
 	SPI1_Init();
 //  TLC5620_Init();
 	/*-----------系统指针类型变量指向默认地址---------------*/
@@ -112,11 +112,11 @@ int main(void)
 	
 	IGK_SysTimePrintln("正在初始化...");
 	//初始化Flash
-	W25QXX_Init();			//W25QXX初始化
-	while(W25QXX_ReadID()!=W25Q128)//检测不到W25Q128，LED闪烁
-	{
-		delay_ms(100);
-	}
+//	W25QXX_Init();			//W25QXX初始化
+//	while(W25QXX_ReadID()!=W25Q128)//检测不到W25Q128，LED闪烁
+//	{
+//		delay_ms(100);
+//	}
 	//系统启动，蜂鸣器提示
 	for(u8 i=0;i<4;i++)
 	{
@@ -128,7 +128,7 @@ int main(void)
 	//初始化内存池[采用原子内存管理]
 	my_mem_init(SRAMIN);
 	IGK_SysTimePrintln("开启动态内存：%dKByte!",MEM1_MAX_SIZE/1024);	
-//	SEGGER_RTT_printf(0,"初始化ucos完成");
+	SEGGER_RTT_printf(0,"初始化ucos完成");
 	//初始化ucos
 	IGK_UCOS_Init();	
 	while(1);
@@ -162,7 +162,7 @@ void Task1_task(void *p_arg)
 	osdelay_s(1);
 	yinling(1);
 	IGK_Speek("系统自检完成");
-			CPU_STK_SIZE free,used;
+//	CPU_STK_SIZE free,used;
 	//电池
 	send4_buf[0] = 0x5A;
 	send4_buf[1] = 0xA5;
@@ -190,7 +190,7 @@ void Task1_task(void *p_arg)
 		//计数测试
 //		num++;
 //		IGK_SysTimePrintln("计数：%d",num);
-//		LED1 = ~LED1;
+		LED1 = ~LED1;
 //		delay(0, 0,0 , 20);
 		//打印任务堆栈使用量
 //		OSTaskStkChk (&Task1TCB,&free,&used,&err);

@@ -2,7 +2,7 @@
 #define	__Modbus_slave_H	 
 #include "sys.h"
 //保持寄存器数量
-#define HoldingRegMax 4096
+#define HoldingRegMax 1024
 
 void AnalyzeRecieve(void);                              
 void send_comm(void);

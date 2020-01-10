@@ -3,6 +3,7 @@
 
 typedef unsigned short int u16;
 typedef unsigned char u8;
+typedef signed char s8;
 typedef unsigned int u32;
 
 typedef struct 		
@@ -12,7 +13,7 @@ typedef struct
 	u8 zeroContinue;		//断点是否连续
 	
 	u8 Num;							//有效点（磁导航的亮点）的个数
-	signed char Distance;				//有效点与中心的距离
+	s8 Distance;				//有效点与中心的距离
 	u8 Error;						//异常点（出轨、分叉和一些不在考虑点数范围内的情况）时返回值
 }Fencha_struct;				
 
@@ -28,7 +29,7 @@ u8 CDH_read_datan(u8 CDH_num);//读取磁导航最原始的数据的可用情况
 u8 CDH_read_dataa(u8 CDH_num);//将磁导航的原始数据进行分级处理
 Fencha_struct FindSpace(u16 dst,u8 num,u8 dir);//16位处理检测到磁导航的数据函数
 Fencha_struct FindSpace1(u8 dst,u8 num,u8 dir);//8位处理检测到磁导航的数据函数
-Fencha_struct CdhFind(u8 bitNum,u16 data,u8 NormalNum,u8 dir);//通用处理检测到磁导航的数据函数
+Fencha_struct CdhFind(u8 bitNum,u16 data,u8 dir);//通用处理检测到磁导航的数据函数
 
 		 				    
 #endif

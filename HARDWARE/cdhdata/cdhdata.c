@@ -1,5 +1,7 @@
 #include "cdhdata.h"
 
+u8 NormalNum=4;//正常情况下有效点的个数
+
 
 //孙先生的点数处理函数
 Fencha_struct front_cdh16,back_cdh16,backl_cdh8,backr_cdh8;//定义一个Fencha_struct类型的全局变量
@@ -14,7 +16,6 @@ Fencha_struct findtemp={0,0,0,0,0,0};//孙先生函数中的结构体数组定义
 //dir:分叉方向0：直行，1：左分叉，2：右分叉
 // 左侧;高位，右侧：低位
 //返回值：Fencha_struct结构体
-u8 NormalNum=4;//正常情况下有效点的个数
 Fencha_struct FindSpace(u16 dst,u8 num,u8 dir)
 {
 	u16 i=0,dirr=dir;
@@ -508,7 +509,7 @@ Fencha_struct FindSpace1(u8 dst,u8 num,u8 dir)
 --高低位和左右方向对应关系：左侧对应高位，右侧对应低位
 --磁导航位数默认从最低为（0位）开始计算，多余的高位数据无效
 **********************************************************/
-Fencha_struct CdhFind(u8 bitNum,u16 data,u8 NormalNum,u8 dir)
+Fencha_struct CdhFind(u8 bitNum,u16 data,u8 dir)
 {
 	u16 i=0;
 	u16 datatemp=data;//缓存一份数据

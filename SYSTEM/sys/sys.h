@@ -3,17 +3,16 @@
 #include "stm32f4xx.h" 
 
 //包含所有头文件
+#include "includes.h"
 #include "delay.h"
 #include "usart.h"
 #include "led.h"
-#include "includes.h"
 #include "os_app_hooks.h"
 #include "dma.h"
 #include "adc.h"
 #include "pwm.h"
 #include "led.h"
 #include "pid.h"
-#include "string.h"
 #include "Modbus_slave.h"
 #include "w25qxx.h"	 
 #include "capcount3.h"
@@ -21,33 +20,14 @@
 #include "timer2.h"
 #include "tlc5620.h" 
 #include "can.h"
-#include "CDHdata.h"
+#include "cdhdata.h"
 #include "igk_speek.h"
 #include "spi.h"
-#include "function.h"
-#include "includes.h"
 #include "iwdg.h"
 #include "igk_system.h"
 #include "igk_drive.h"
-#include "cdhdata.h"
 #include "segger_rtt.h"
-
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//ALIENTEK STM32F407开发板
-//系统时钟初始化	
-//正点原子@ALIENTEK
-//技术论坛:www.openedv.com
-//创建日期:2014/5/2
-//版本：V1.0
-//版权所有，盗必究。
-//Copyright(C) 广州市星翼电子科技有限公司 2014-2024
-//All rights reserved
-//********************************************************************************
-//修改说明
-//无
-////////////////////////////////////////////////////////////////////////////////// 
-
+#include "igk_battery.h"
 
 //0,不支持os
 //1,支持os

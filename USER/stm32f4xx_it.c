@@ -280,12 +280,8 @@ void UART4_IRQHandler(void)
 		//解析电量数据
 		if(rece_index4 == 15 && rece4_buf[0] == 0x5A && rece4_buf[1] == 0xA5 && rece4_buf[2] == 0x10 )
 		{
-			u8 add =0;
-			//计算校验和
-			for(int i=0;i<14;i++)
-			 add += rece4_buf[i];
-			//对比
-			if(add == rece4_buf[14])
+			//对比校验和
+			if(IGK_CheckSum(rece4_buf,14) == rece4_buf[14])
 			{
 				//解析
 				*IgkSystem.Battery.Percent = rece4_buf[3];//电量
@@ -293,8 +289,7 @@ void UART4_IRQHandler(void)
 				*IgkSystem.Battery.Current = (rece4_buf[6]<<8)|rece4_buf[7];//电流
 				*IgkSystem.Battery.Total = (rece4_buf[8]<<8)|rece4_buf[9];//额定容量
 				*IgkSystem.Battery.Temperature = (rece4_buf[10]<<8)|rece4_buf[11];//温度
-				*IgkSystem.Battery.Charge = rece4_buf[12];//电流方向【充放电】
-				
+				*IgkSystem.Battery.Charge = (enum EnumCharge)rece4_buf[12];//电流方向【充放电】
 			}
 			//清空数组
 			memset(rece4_buf,0,sizeof(rece4_buf));

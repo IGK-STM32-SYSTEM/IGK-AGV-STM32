@@ -4,7 +4,7 @@
 #include "usart.h"
 
 //节点总数
-#define NodeMaxNum 100
+#define NodeMaxNum 1000
 //最优路径结构体
 typedef struct {
 	u16 NodeList[NodeMaxNum];//最优路径节点列表【目前以节点数最少为最优路径】

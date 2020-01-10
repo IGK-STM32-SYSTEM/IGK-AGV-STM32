@@ -223,7 +223,14 @@ void delay_ms(u16 nms)
 	if(remain)delay_xms(remain);
 } 
 #endif
-			 
+	
+void osdelay(u16 hh,u16 mm,u16 ss,u16 ms)
+{
+	OS_ERR err;
+	OSTimeDlyHMSM(hh,mm,ss,ms,OS_OPT_TIME_HMSM_STRICT,&err); //—” ±nms
+}
+
+
 void osdelay_s(u16 ns)
 {
 	OS_ERR err;

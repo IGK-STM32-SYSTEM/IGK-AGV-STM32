@@ -2,11 +2,6 @@
 u8  USART6_TX_BUF[100];
 u8 CAN1_Sebuf[5]={1,0,1,0,0x55};
 
-void delay(u32 h,u32 m,u32 s,u32 ms)
-{
-	OS_ERR err;
-	OSTimeDlyHMSM(h,m,s,ms,OS_OPT_TIME_HMSM_STRICT,&err);
-}
 
 //将16进制转换为字符
 u8 HexToChar(u8 bChar)

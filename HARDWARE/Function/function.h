@@ -7,6 +7,5 @@ long FloatTohex(float HEX);
 float HexTofloat(long HEX);
 u8 HexToChar(u8 bChar);
 extern u8 CAN1_Sebuf[5];
-extern void delay(u32 h,u32 m,u32 s,u32 ms);
 
 #endif

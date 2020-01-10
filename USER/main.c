@@ -4,6 +4,7 @@
 #include "igk_ucos.h"
 #include "malloc.h"
 
+#if DEF_TRUE
 OS_TCB Task1TCB;//任务控制块
 CPU_STK Task1_STK[256];//任务堆栈
 void Task1_task(void *p_arg);//任务函数
@@ -35,6 +36,9 @@ void Task7_task(void *p_arg);//任务函数
 OS_TCB Task8TCB;//任务控制块
 CPU_STK Task8_STK[128];//任务堆栈
 void Task8_task(void *p_arg);//任务函数
+#endif
+
+
 int main(void)
 {
 	delay_init(168);  	//时钟初始化
@@ -61,53 +65,11 @@ int main(void)
 	IWDG_Init(4, 500);//大概1066ms
 	SPI1_Init();
   TLC5620_Init();
-	/*-----------系统指针类型变量指向默认地址---------------*/
-	//
-	IgkSystem.RFID = &PLC_Data[41];//实时RFID值,和读卡器读到的值同步
-	IgkSystem.AutoSpeed = &PLC_Data[110];//自动模式速度
-	IgkSystem.ManuaSpeed = &PLC_Data[111];//手动模式速度
-	
-	//任务Task
-	IgkSystem.Task.Target = &PLC_Data[40];     //目标标签
-	IgkSystem.Task.Next = &PLC_Data[42];   //下一个位置
-	IgkSystem.Task.Execute = &PLC_Data[43];    //执行
-	IgkSystem.Task.Cancel = &PLC_Data[44];     //取消
-	IgkSystem.Task.SerialNum = &PLC_Data[45];  //任务编号【系统自动增加，可通过接口更新】
-	
-	//电池
-	IgkSystem.Battery.Percent = &PLC_Data[100];  //剩余电量百分比
-	IgkSystem.Battery.Voltage = &PLC_Data[101];   //电压
-	IgkSystem.Battery.Current = &PLC_Data[102];	//电流
-	IgkSystem.Battery.Total = &PLC_Data[103];		//电池容量
-	IgkSystem.Battery.Temperature = &PLC_Data[104];//温度
-	IgkSystem.Battery.Charge = &PLC_Data[105];//电流方向【充放电】	//PID	
 
-
-	IgkSystem.PID.SetTarget = (s16*)&PLC_Data[200]; 
-	IgkSystem.PID.SumError = (s16*)&PLC_Data[201]; 
-	IgkSystem.PID.Error = (s16*)&PLC_Data[202]; 
-	IgkSystem.PID.LastError = (s16*)&PLC_Data[203]; 
-	IgkSystem.PID.Kp = &PLC_Data[205]; 
-	IgkSystem.PID.Ki = &PLC_Data[206]; 
-	IgkSystem.PID.Kd = &PLC_Data[207]; 
-	
-	/*------------设定默认参数-------------------------------*/
-	//初始化时间
-	IgkSystem.OsTime.Hour = 0;
-	IgkSystem.OsTime.Minute = 0;
-	IgkSystem.OsTime.Second = 0;
-	IgkSystem.OsTime.Millisecond = 0;
-	
-	IgkSystem.WorkMode = Enum_LocalAuto;//自动模式
-	IgkSystem.Dir = Enum_QianJin;//前进方向
-	*IgkSystem.RFID = 1;//RFID值
-	IgkSystem.RunOrStop = Enum_Stop;//停止状态
-	*IgkSystem.AutoSpeed = 50;//自动速度;	
-	*IgkSystem.ManuaSpeed = 80;//手动速度;
+	//初始化系统变量
+	Igk_System_Init();
 		
-	/*------------------------------------------------------*/
-	PID_Init();
-	
+	/*------------------------------------------------------*/	
 	IGK_SysTimePrintln("正在初始化...");
 	//初始化Flash
 	W25QXX_Init();			//W25QXX初始化
@@ -126,12 +88,10 @@ int main(void)
 	//初始化内存池[采用原子内存管理]
 	my_mem_init(SRAMIN);
 	IGK_SysTimePrintln("开启动态内存：%dKByte!",MEM1_MAX_SIZE/1024);	
-//	SEGGER_RTT_printf(0,"初始化ucos完成");
 	//初始化ucos
 	IGK_UCOS_Init();	
 	while(1);
 }
-
 
 //开始任务函数,创建任务进程，执行一次后自动退出
 void start_task(void *p_arg)
@@ -147,9 +107,10 @@ void start_task(void *p_arg)
 	IGK_UCOS_Create(10,sizeof(Task7_STK)/4,Task7_STK,&Task7TCB,Task7_task);
 	IGK_UCOS_Create(11,sizeof(Task8_STK)/4,Task8_STK,&Task8TCB,Task8_task);
 	
-
 	IGK_SysTimePrintln("UCOSIII初始化完成,系统进入时间轮片!");
 }
+
+
 
 /*【任务1】【调试专用】*****************************
 ****************************************************/
@@ -160,56 +121,37 @@ void Task1_task(void *p_arg)
 	osdelay_s(1);
 	yinling(1);
 	IGK_Speek("系统自检完成");
-			CPU_STK_SIZE free,used;
-	//电池
-	send4_buf[0] = 0x5A;
-	send4_buf[1] = 0xA5;
-	send4_buf[2] = 0x10;
-	send4_buf[3] = 0x00;
-	send4_buf[4] = 0x00;
-	send4_buf[5] = 0x00;
-	send4_buf[6] = 0x00;
-	send4_buf[7] = 0x0F;
-	
-//	//容量6AH
-//	send4_buf[0] = 0x5A;
-//	send4_buf[1] = 0xA5;
-//	send4_buf[2] = 0x15;
-//	send4_buf[3] = 0x00;
-//	send4_buf[4] = 0x3C;
-//	send4_buf[5] = 0x00;
-//	send4_buf[6] = 0x00;
-//	send4_buf[7] = 0x50;
-//	Uart4_Start_DMA_Tx(8);
+	CPU_STK_SIZE free,used;
+	OSTaskStkChk (&Task1TCB,&free,&used,&err);
+	IGK_SysTimePrintln("Task1 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+	OSTaskStkChk (&Task2TCB,&free,&used,&err);
+	IGK_SysTimePrintln("Task2 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+	OSTaskStkChk (&Task3TCB,&free,&used,&err); 	
+	IGK_SysTimePrintln("Task3 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+	OSTaskStkChk (&Task4TCB,&free,&used,&err);
+	IGK_SysTimePrintln("Task4 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+	OSTaskStkChk (&Task5TCB,&free,&used,&err);
+	IGK_SysTimePrintln("Task5 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+	OSTaskStkChk (&Task6TCB,&free,&used,&err);
+	IGK_SysTimePrintln("Task6 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+	OSTaskStkChk (&Task7TCB,&free,&used,&err);
+	IGK_SysTimePrintln("Task7 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+	OSTaskStkChk (&Task8TCB,&free,&used,&err);	
+	IGK_SysTimePrintln("Task8 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
 	while(1)
 	{
-		Uart4_Start_DMA_Tx(8);
-		IGK_SysTimePrintln("电流：%.3fA，电压：%.3fV",*IgkSystem.Battery.Current*0.01,*IgkSystem.Battery.Voltage*0.01);
+	
+		//IGK_SysTimePrintln("Current:%.3fA,Volate:%.2fV,Percent:%d",*IgkSystem.Battery.Current*0.01,*IgkSystem.Battery.Voltage*0.01,*IgkSystem.Battery.Percent);
 		//计数测试
 //		num++;
 //		IGK_SysTimePrintln("计数：%d",num);
 		LED1 = ~LED1;
 //		delay(0, 0,0 , 20);
 		//打印任务堆栈使用量
-		OSTaskStkChk (&Task1TCB,&free,&used,&err);
-		IGK_SysTimePrintln("Task1 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		OSTaskStkChk (&Task2TCB,&free,&used,&err);
-		IGK_SysTimePrintln("Task2 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		OSTaskStkChk (&Task3TCB,&free,&used,&err); 	
-		IGK_SysTimePrintln("Task3 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		OSTaskStkChk (&Task4TCB,&free,&used,&err);
-		IGK_SysTimePrintln("Task4 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		OSTaskStkChk (&Task5TCB,&free,&used,&err);
-		IGK_SysTimePrintln("Task5 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		OSTaskStkChk (&Task6TCB,&free,&used,&err);
-		IGK_SysTimePrintln("Task6 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		OSTaskStkChk (&Task7TCB,&free,&used,&err);
-		IGK_SysTimePrintln("Task7 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		OSTaskStkChk (&Task8TCB,&free,&used,&err);	
-		IGK_SysTimePrintln("Task8 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
-		delay(0,0,2,0);
+		osdelay_ms(200);
 	}
 }
+
 /*【任务2】【自动模式】**************************************************
 *                    
 ****************************************************/
@@ -310,9 +252,11 @@ void Task2_task(void *p_arg)
 				}
 			}
 		}
-		delay(0, 0, 0, 10);
+		osdelay_ms(10);
 	}
 }
+
+
 /*【任务3】【执行自动任务】**************************************************
 1.监听执行
 2.检查非法
@@ -629,10 +573,11 @@ void Task3_task(void *p_arg)
 			IGK_Speek("到达终点，任务完成");
 			IGK_SysTimePrintln("到达终点，任务完成");
 		}
-		delay(0, 0, 0, 100); //延时10ms
+		osdelay_ms(100);
 	}
 }
-/*【任务4】【空】**************************************************
+
+/*【任务4】【读电池状态】**************************************************
 *                   
 ****************************************************/
 void Task4_task(void *p_arg)
@@ -640,9 +585,12 @@ void Task4_task(void *p_arg)
 	p_arg = p_arg;
 	while(1)
 	{
-		delay(0,0,0,100);
+		//读取电池数据
+		Igk_Battery_Get();
+		osdelay_s(2);
 	}
 }
+
 /*【任务5】【手动、自动切换】**************************************************
 *                   
 ****************************************************/
@@ -653,7 +601,7 @@ void Task5_task(void *p_arg)
 		//监控摇杆按键,切换模式
 		if(IgkSystem.YaoGan.key==Enum_KeyDown)
 		{
-			delay(0, 0, 1, 0);
+			osdelay_s(1);
 			if(IgkSystem.YaoGan.key==Enum_KeyDown)
 			{
 				if(IgkSystem.WorkMode == Enum_LocalManual)
@@ -675,41 +623,42 @@ void Task5_task(void *p_arg)
 			//判断当前动作
 			if(abs(IgkSystem.YaoGan.y)>0)//前进后退
 			{
-				*IgkSystem.ManuaSpeed = abs(IgkSystem.YaoGan.y)*1;
+				*IgkSystem.ManualSpeed = abs(IgkSystem.YaoGan.y)*1;
 				//转向速度
 				s8 speed = IgkSystem.YaoGan.z*0.5;
 				if(IgkSystem.YaoGan.y>0)
 				{
 					if(speed >= 0)
-						DriverQinJinSpeed(*IgkSystem.ManuaSpeed-speed,*IgkSystem.ManuaSpeed);
+						DriverQinJinSpeed(*IgkSystem.ManualSpeed-speed,*IgkSystem.ManualSpeed);
 					else
-						DriverQinJinSpeed(*IgkSystem.ManuaSpeed,*IgkSystem.ManuaSpeed+speed);
+						DriverQinJinSpeed(*IgkSystem.ManualSpeed,*IgkSystem.ManualSpeed+speed);
 				}
 				else
 				if(IgkSystem.YaoGan.y<0)
 				{
 					if(speed >= 0)
-						DriverHouTuiSpeed(*IgkSystem.ManuaSpeed,*IgkSystem.ManuaSpeed-speed);
+						DriverHouTuiSpeed(*IgkSystem.ManualSpeed,*IgkSystem.ManualSpeed-speed);
 					else
-						DriverHouTuiSpeed(*IgkSystem.ManuaSpeed+speed,*IgkSystem.ManuaSpeed);
+						DriverHouTuiSpeed(*IgkSystem.ManualSpeed+speed,*IgkSystem.ManualSpeed);
 				}
 			}
 			else
 			if(abs(IgkSystem.YaoGan.z)>0)//左右旋转
 			{
-				*IgkSystem.ManuaSpeed = abs(IgkSystem.YaoGan.z)*0.8;
+				*IgkSystem.ManualSpeed = abs(IgkSystem.YaoGan.z)*0.8;
 				if(IgkSystem.YaoGan.z<0)
-					DriverZuoXuan(*IgkSystem.ManuaSpeed);
+					DriverZuoXuan(*IgkSystem.ManualSpeed);
 				else
 				if(IgkSystem.YaoGan.z>0)
-					DriverYouXuan(*IgkSystem.ManuaSpeed);
+					DriverYouXuan(*IgkSystem.ManualSpeed);
 			}
 			else // 停止
 				DriverTingZhi();
 		}
-		delay(0, 0, 0, 10);
+		osdelay_ms(10);
 	}
 }
+
 /*【任务6】【IO监控】**************************************************
 *                   
 ****************************************************/
@@ -720,30 +669,31 @@ void Task6_task(void *p_arg)
 		if(IN6 == Enum_KeyDown)
 		{
 			//延时消抖
-			delay(0, 0, 0, 30);
+			osdelay_ms(30);
 			if(IN6 == Enum_KeyDown)
 			{
 				IgkSystem.RunOrStop = Enum_Run;
 				IGK_Speek("启动");
 				//等待按键抬起
-				while(IN6 == Enum_KeyDown){delay(0, 0, 0, 5);}
+				while(IN6 == Enum_KeyDown){osdelay_ms(5);}
 			}
 		}
 		if(IN7 == Enum_KeyDown)
 		{
 			//延时消抖
-			delay(0, 0, 0, 30);
+			osdelay_ms(30);
 			if(IN7 == Enum_KeyDown)
 			{
 				IgkSystem.RunOrStop = Enum_Stop;
 				IGK_Speek("停止");
 				//等待按键抬起
-				while(IN7 == Enum_KeyDown){delay(0, 0, 0, 5);}
+				while(IN7 == Enum_KeyDown){osdelay_ms(5);}
 			}
 		}
-		delay(0, 0, 0, 10); //延时5ms
+		osdelay_ms(10); //延时5ms
 	}
 }
+
 /*【任务7】【Modbus】**************************************************
 *                 
 ****************************************************/
@@ -754,9 +704,16 @@ void Task7_task(void *p_arg)
 	{
 		//响应Modbus读写地图信息
 		ReadWriteMap(p_arg);
-		delay(0,0,0,100);
+		//响应电池配置
+		if(*IgkSystem.BatteryConfig.Save == Enum_True)
+		{
+			Igk_Battery_Save();
+			*IgkSystem.BatteryConfig.Save = Enum_False;
+		}
+		osdelay_ms(100);
 	}
 }
+
 /*【任务8】【喂狗+系统时间更新】**************************************************   
 1.
 2.更新系统运行时间
@@ -768,7 +725,7 @@ void Task8_task(void *p_arg)
 		IWDG_Feed();//喂狗
 		//更新系统运行时间
 		GetSysRunTime(&IgkSystem.OsTime,p_arg);
-		delay(0, 0, 0, 200);
+		osdelay_ms(200);
 	}
 }
 

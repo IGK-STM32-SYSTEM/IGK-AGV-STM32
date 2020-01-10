@@ -446,6 +446,11 @@
               <FileType>1</FileType>
               <FilePath>..\IGK\igk_system.c</FilePath>
             </File>
+            <File>
+              <FileName>igk_battery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IGK\igk_battery.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -625,11 +630,6 @@
               <FileName>usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\usart\usart.c</FilePath>
-            </File>
-            <File>
-              <FileName>function.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\Function\function.c</FilePath>
             </File>
             <File>
               <FileName>iwdg.c</FileName>

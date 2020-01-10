@@ -1,6 +1,6 @@
 #include "igk_ucos.h"
 #define START_TASK_PRIO		3//任务优先级
-#define START_STK_SIZE 		512//任务堆栈大小
+#define START_STK_SIZE 		128//任务堆栈大小
 OS_TCB StartTaskTCB;//任务控制块
 CPU_STK START_TASK_STK[START_STK_SIZE];//任务堆栈
 void start_task(void *p_arg);//任务函数

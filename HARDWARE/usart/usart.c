@@ -50,6 +50,8 @@ void IGK_Printf(USART_TypeDef* USARTx ,char* fmt,...)
 		while(USART_GetFlagStatus(USARTx,USART_FLAG_TC)==RESET);  //等待上次传输完成 
 		USART_SendData(USARTx,(uint8_t)PrintfBuf[j]); 	 //发送数据到串口 
 	}
+	
+	SEGGER_RTT_printf(0,PrintfBuf);
 }
 
 /****************************************************
@@ -115,7 +117,7 @@ void IGK_SysTimePrintln(char* fmt,...)
 	//打印消息
 	IGK_Printf(USART2,SysTimePrintlnBuf);
 	//打印换行
-	IGK_SysPrintf("\r\n\r\n");
+	IGK_SysPrintf("\r\n");
 }
 
 void USART1_Configuration(u32 bound)

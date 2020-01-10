@@ -30,6 +30,28 @@ void Reverse(u16 *p , u16 size)
 		p[size-1-i] = tmp ;  
 	}    
 }
+//判断当前点是否为避让点
+u8 IsAvoid(u16 num)
+{
+	//判断是否为避让点
+	u8 avoid = DEF_FALSE;
+	for(int i=0;i<10;i++)
+	{
+		if(*IgkSystem.Task.Avoid[i] == num)
+		{
+			avoid = DEF_TRUE;
+			i = 10;
+		}
+	}
+	if(avoid == DEF_TRUE)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
 
 //找邻居节点(目前采用的是直接从Flash读取当前点的地图信息)
 PNODE neighbour(int a){
@@ -149,26 +171,44 @@ void FindRoute(u16 start,u16 end){
 					IGK_SysPrintf("%d\r\n",TempPathNodeList[i]);
 				else
 					IGK_SysPrintf("%d-",TempPathNodeList[i]);
-			
-			/*----------------------选择最有路径-------------------------*/
-			
-			//如果是第一条路径
-			if(curPath == 1){
-				//将路径复制到最有路径列表
-				for(int i=0;i < TempPathNodeCount;i++)
-					BestPath.NodeList[i] = TempPathNodeList[i];
-				//复制节点数
-				BestPath.NodeCount = TempPathNodeCount;
+			/*---------------------判断是否包含避让点--------------------*/
+			u8 avoidPath = DEF_FALSE;
+			u8 avoidNode = 0;
+			for(int i=0;i<TempPathNodeCount;i++)
+			{
+				if(IsAvoid(TempPathNodeList[i])==1)
+				{
+					avoidPath = DEF_TRUE;
+					avoidNode = TempPathNodeList[i];
+					i = TempPathNodeCount;
+				}
+			}		
+			if(avoidPath == DEF_TRUE)
+			{
+				curPath --;
+				IGK_SysTimePrintln("无效路径【包含避让点】【%d】！",avoidNode);
 			}
-			//如果不是第一条
-			else{
-				//如果当前路径更优，则更新最优路径信息
-				if(TempPathNodeCount < BestPath.NodeCount){
+			/*----------------------不包含避让点，选择最有路径-------------------------*/
+			else
+			{
+				//如果是第一条路径
+				if(curPath == 1){
 					//将路径复制到最有路径列表
 					for(int i=0;i < TempPathNodeCount;i++)
 						BestPath.NodeList[i] = TempPathNodeList[i];
 					//复制节点数
 					BestPath.NodeCount = TempPathNodeCount;
+				}
+				//如果不是第一条
+				else{
+					//如果当前路径更优，则更新最优路径信息
+					if(TempPathNodeCount < BestPath.NodeCount){
+						//将路径复制到最有路径列表
+						for(int i=0;i < TempPathNodeCount;i++)
+							BestPath.NodeList[i] = TempPathNodeList[i];
+						//复制节点数
+						BestPath.NodeCount = TempPathNodeCount;
+					}
 				}
 			}
 			/*-------------------------弹出栈顶，清除终点标志，准备下一次搜索---------------------------------*/
@@ -182,7 +222,7 @@ void FindRoute(u16 start,u16 end){
 		else{
 			cur_node=stack.PTOP->Element;
 			PNODE d =neighbour(cur_node);
-			//邻居不为空
+			//邻居不为空且不是避让点
 			if(d != NULL){
 				map_next[cur_node] = d->Element;
 				cur_node=d->Element;

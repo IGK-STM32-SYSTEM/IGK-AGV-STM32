@@ -333,8 +333,8 @@ void Task3_task(void *p_arg)
 				//等待标签,起点不用等待
 				if(i!=0)
 				{
+						//等待标签
 						IGK_Speek("等待%d号标签!",nodeId);
-						//osdelay_s(2);
 						while(*IgkSystem.RFID != nodeId )
 						{
 							//如果取消任务
@@ -354,12 +354,51 @@ void Task3_task(void *p_arg)
 							}
 							osdelay_ms(5);
 						}
+						
+						/*判断是否需要做旋转恢复【程序说明：1.1】************************************
+						  如果本站点到上一个站点有路，并且是通过旋转进入，则需要做反向旋转以恢复姿态
+						*****************************************************************************/
+						u8 isRotated = DEF_FALSE;
+						for(int j=0;j<StationMapType;j++)
+						{
+							//能通向上一个点
+							if(mapStruct.Stop[j] == BestPath.NodeList[i-1])
+							{
+								if(mapStruct.Action[j] == Enum_ZuoXuan)
+								{
+									//停车
+									IgkSystem.RunOrStop = Enum_Stop;
+									IGK_Speek("右旋%d度，恢复姿态",mapStruct.Angle[j]);
+									IGK_SysPrintf("右旋[%d]度，恢复姿态-",mapStruct.Angle[j]);
+									osdelay_ms(300);
+									//反向旋转
+									IGK_Rotate_Right(mapStruct.Angle[j]);
+									osdelay_ms(300);
+								}
+								else
+								if(mapStruct.Action[j] == Enum_YouXuan)
+								{
+									//停车
+									IgkSystem.RunOrStop = Enum_Stop;
+									IGK_Speek("左旋%d度，恢复姿态",mapStruct.Angle[j]);
+									IGK_SysPrintf("左旋[%d]度，恢复姿态-",mapStruct.Angle[j]);
+									osdelay_ms(300);
+									//反向旋转
+									IGK_Rotate_Left(mapStruct.Angle[j]);
+									osdelay_ms(300);
+								}
+								break;
+							}
+						}
+						
+					  //如果到达终点,退出循环
 						if(i == BestPath.NodeCount-1)
 						{
-							//到达终点
 							break;
 						}
 				}
+				
+				
 				
 				//TODO:
 				//这里写站点动作,如停车时间，按键启动等
@@ -444,60 +483,14 @@ void Task3_task(void *p_arg)
 							//停车
 							IgkSystem.RunOrStop = Enum_Stop;
 							DriverTingZhi();
-							IGK_Speek("左旋%d度",mapStruct.Angle[j]);
 							//原地旋转
-							osdelay_ms(200);
-							//左旋
-							IgkSystem.Action = Enum_ZuoXuan;
-							//启动
-							IgkSystem.RunOrStop = Enum_Run;
-							//根据方向选择磁导航传感器
-							Fencha_struct * PCiDaoHang;
-							if(IgkSystem.Dir == Enum_QianJin)
-								PCiDaoHang = &IgkSystem.QianCiDaoHang;
-							else
-								PCiDaoHang = &IgkSystem.HouCiDaoHang;
-							//等待离开磁条
-							while(PCiDaoHang->Error==0)
-								osdelay_ms(10);
-							//等待检测到磁条[至少两个点并且居中]
-							while(PCiDaoHang->Num <3)
-								osdelay_ms(10);
-							if(mapStruct.Angle[j]==180)
-							{
-								//等待离开磁条
-								while(PCiDaoHang->Error==0)
-									osdelay_ms(10);
-								//等待检测到磁条[至少两个点并且居中]
-								while(PCiDaoHang->Num <3)
-									osdelay_ms(10);
-							}
-							else
-							if(mapStruct.Angle[j]==270)
-							{
-								//等待离开磁条
-								while(PCiDaoHang->Error==0)
-									osdelay_ms(10);
-								//等待检测到磁条[至少两个点并且居中]
-								while(PCiDaoHang->Num <3)
-									osdelay_ms(10);
-								//等待离开磁条
-								while(PCiDaoHang->Error==0)
-									osdelay_ms(10);
-								//等待检测到磁条[至少两个点并且居中]
-								while(PCiDaoHang->Num <3)
-									osdelay_ms(10);
-							}
-							//停止
-							IgkSystem.RunOrStop = Enum_Stop;
-							DriverTingZhi();
-							osdelay_ms(200);
+							IGK_Speek("左旋%d度",mapStruct.Angle[j]);
+							IGK_SysPrintf("左旋[%d]度-",mapStruct.Angle[j]);
+							osdelay_ms(300);
+							IGK_Rotate_Left(mapStruct.Angle[j]);
+							osdelay_ms(300);
 							//切换直行
 							IgkSystem.Action = Enum_ZhiXing;
-							//切换为运动状态
-							osdelay_ms(200);
-							IgkSystem.RunOrStop = Enum_Run;
-							IGK_SysPrintf("左旋[%d]度-",mapStruct.Angle[j]);
 						}
 						else
 						if(mapStruct.Action[j] == Enum_YouXuan)
@@ -505,61 +498,16 @@ void Task3_task(void *p_arg)
 							//停车
 							IgkSystem.RunOrStop = Enum_Stop;
 							DriverTingZhi();
-							IGK_Speek("右旋%d度",mapStruct.Angle[j]);
 							//原地旋转
-							osdelay_ms(200);
-							//右旋
-							IgkSystem.Action = Enum_YouXuan;
-							//启动
-							IgkSystem.RunOrStop = Enum_Run;
-							//根据方向选择磁导航传感器
-							Fencha_struct * PCiDaoHang;
-							if(IgkSystem.Dir == Enum_QianJin)
-								PCiDaoHang = &IgkSystem.QianCiDaoHang;
-							else
-								PCiDaoHang = &IgkSystem.HouCiDaoHang;
-							//等待离开磁条
-							while(PCiDaoHang->Error==0)
-								osdelay_ms(10);
-							//等待检测到磁条[至少两个点并且居中]
-							while(PCiDaoHang->Num <3)
-								osdelay_ms(10);
-							if(mapStruct.Angle[j]==180)
-							{
-								//等待离开磁条
-								while(PCiDaoHang->Error==0)
-									osdelay_ms(10);
-								//等待检测到磁条[至少两个点并且居中]
-								while(PCiDaoHang->Num <3)
-									osdelay_ms(10);
-							}
-							else
-							if(mapStruct.Angle[j]==270)
-							{
-								//等待离开磁条
-								while(PCiDaoHang->Error==0)
-									osdelay_ms(10);
-								//等待检测到磁条[至少两个点并且居中]
-								while(PCiDaoHang->Num <3)
-									osdelay_ms(10);
-								//等待离开磁条
-								while(PCiDaoHang->Error==0)
-									osdelay_ms(10);
-								//等待检测到磁条[至少两个点并且居中]
-								while(PCiDaoHang->Num <3)
-									osdelay_ms(10);
-							}
-							//停止
-							IgkSystem.RunOrStop = Enum_Stop;
-							DriverTingZhi();
-							osdelay_ms(200);
+							IGK_Speek("右旋%d度",mapStruct.Angle[j]);
+							IGK_SysPrintf("右旋[%d]度-",mapStruct.Angle[j]);
+							osdelay_ms(300);
+							IGK_Rotate_Right(mapStruct.Angle[j]);
+							osdelay_ms(300);
 							//切换直行
 							IgkSystem.Action = Enum_ZhiXing;
-							//切换为运动状态
-							osdelay_ms(200);
-							//原地旋转
-							IGK_SysPrintf("右旋[%d]度-",mapStruct.Angle[j]);
 						}
+						//启动
 						IgkSystem.RunOrStop = Enum_Run;
 						//到达
 						IGK_SysPrintf("[%d]\r\n\r\n",mapStruct.Stop[j]);

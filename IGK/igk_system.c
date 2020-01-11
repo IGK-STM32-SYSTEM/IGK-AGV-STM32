@@ -60,11 +60,13 @@ void Igk_System_Init(void)
 	IgkSystem.OsTime.Millisecond = 0;
 	
 	IgkSystem.WorkMode = Enum_LocalAuto;//自动模式
-	IgkSystem.Dir = Enum_QianJin;//前进方向
-	*IgkSystem.RFID = 1;//RFID值
-	IgkSystem.RunOrStop = Enum_Stop;//停止状态
-	*IgkSystem.AutoSpeed = 50;//自动速度;	
-	*IgkSystem.ManualSpeed = 80;//手动速度;
+	IgkSystem.Dir = Enum_QianJin;       //前进方向
+	IgkSystem.Action = Enum_ZhiXing;    //直行
+	*IgkSystem.RFID = 1;                //RFID值
+	IgkSystem.RunOrStop = Enum_Stop;    //停止状态
+	*IgkSystem.AutoSpeed = 50;          //自动速度;	
+	*IgkSystem.ManualSpeed = 80;        //手动速度;
+	
 }
 
 //计算校验和

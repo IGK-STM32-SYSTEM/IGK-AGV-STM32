@@ -358,10 +358,10 @@ void Task3_task(void *p_arg)
 						/*判断是否需要做旋转恢复【程序说明：1.1】************************************
 						  如果本站点到上一个站点有路，并且是通过旋转进入，则需要做反向旋转以恢复姿态
 						*****************************************************************************/
-						u8 isRotated = DEF_FALSE;
+						//当恢复旋转和下一个动作刚好相反，则忽略该旋转动作
 						for(int j=0;j<StationMapType;j++)
 						{
-							//能通向上一个点
+							//当前点有通向上一个点的路，并且是左旋或者右旋
 							if(mapStruct.Stop[j] == BestPath.NodeList[i-1])
 							{
 								if(mapStruct.Action[j] == Enum_ZuoXuan)
@@ -370,10 +370,10 @@ void Task3_task(void *p_arg)
 									IgkSystem.RunOrStop = Enum_Stop;
 									IGK_Speek("右旋%d度，恢复姿态",mapStruct.Angle[j]);
 									IGK_SysPrintf("右旋[%d]度，恢复姿态-",mapStruct.Angle[j]);
-									osdelay_ms(300);
+									osdelay(0,0,1,0);
 									//反向旋转
 									IGK_Rotate_Right(mapStruct.Angle[j]);
-									osdelay_ms(300);
+									osdelay(0,0,1,500);										
 								}
 								else
 								if(mapStruct.Action[j] == Enum_YouXuan)
@@ -382,10 +382,10 @@ void Task3_task(void *p_arg)
 									IgkSystem.RunOrStop = Enum_Stop;
 									IGK_Speek("左旋%d度，恢复姿态",mapStruct.Angle[j]);
 									IGK_SysPrintf("左旋[%d]度，恢复姿态-",mapStruct.Angle[j]);
-									osdelay_ms(300);
+									osdelay(0,0,1,0);
 									//反向旋转
 									IGK_Rotate_Left(mapStruct.Angle[j]);
-									osdelay_ms(300);
+									osdelay(0,0,1,500);
 								}
 								break;
 							}

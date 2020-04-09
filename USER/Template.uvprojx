@@ -14,16 +14,16 @@
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
-          <Device>STM32F407ZGTx</Device>
+          <Device>STM32F407VG</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.13.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.1.0.8</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
-          <Cpu>IRAM(0x20000000,0x00020000) IRAM2(0x10000000,0x00010000) IROM(0x08000000,0x00100000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
+          <Cpu>IRAM(0x20000000,0x20000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x100000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
-          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0STM32F4xx_1024 -FS08000000 -FL0100000 -FP0($$Device:STM32F407ZGTx$CMSIS\Flash\STM32F4xx_1024.FLM))</FlashDriverDll>
+          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0STM32F4xx_1024 -FS08000000 -FL0100000 -FP0($$Device:STM32F407VG$Flash\STM32F4xx_1024.FLM))</FlashDriverDll>
           <DeviceId>0</DeviceId>
-          <RegisterFile>$$Device:STM32F407ZGTx$Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h</RegisterFile>
+          <RegisterFile>$$Device:STM32F407VG$Device\Include\stm32f4xx.h</RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -33,7 +33,7 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>$$Device:STM32F407ZGTx$CMSIS\SVD\STM32F40x.svd</SFDFile>
+          <SFDFile>$$Device:STM32F407VG$SVD\STM32F40x.svd</SFDFile>
           <bCustSvd>0</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
@@ -184,6 +184,7 @@
             <hadXRAM>0</hadXRAM>
             <uocXRam>0</uocXRam>
             <RvdsVP>2</RvdsVP>
+            <RvdsMve>0</RvdsMve>
             <hadIRAM2>1</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -209,7 +210,7 @@
             <Ra2Chk>0</Ra2Chk>
             <Ra3Chk>0</Ra3Chk>
             <Im1Chk>1</Im1Chk>
-            <Im2Chk>0</Im2Chk>
+            <Im2Chk>1</Im2Chk>
             <OnChipMemories>
               <Ocm1>
                 <Type>0</Type>
@@ -337,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER,__FPU_USED=1,ARM_MATH_CM4,_CC_ARM</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORE;..\SYSTEM\delay;..\SYSTEM\sys;..\FWLIB\STM32F4xx_StdPeriph_Driver\inc;..\USER;..\HARDWARE\LED;..\UCOSIII\uC-CPU;..\UCOSIII\uC-LIB;..\UCOSIII\uCOS-III;..\UCOSIII\UCOS_BSP;..\UCOSIII\uCOS_CONFIG;..\UCOSIII\uCOS-III\Source;..\UCOSIII\uC-CPU\ARM-Cortex-M4\RealView;..\UCOSIII\uC-LIB\Ports\ARM-Cortex-M4\RealView;..\UCOSIII\uCOS-III\Ports\ARM-Cortex-M4\Generic\RealView;..\HARDWARE\ADC;..\HARDWARE\DMA;..\HARDWARE\PWM;..\HARDWARE\SPI;..\HARDWARE\W25QXX;..\HARDWARE\timer2;..\HARDWARE\can;..\HARDWARE\capcount3;..\HARDWARE\capcount9;..\HARDWARE\cdhdata;..\HARDWARE\Modbus;..\HARDWARE\PID;..\HARDWARE\TLC5620;..\HARDWARE\usart;..\HARDWARE\yuyin;..\HARDWARE\Function;..\HARDWARE\IWDG;..\FWLIB\CMSIS\DSP_Lib\Source;..\HARDWARE\route;..\HARDWARE\read_PC;..\HARDWARE\Ethernet;..\HARDWARE\Ethernet\W5500;..\Robot;..\IGK;..\SEGGER\Examples;..\SEGGER\RTT;..\SEGGER\Syscalls</IncludePath>
+              <IncludePath>..\CORE;..\SYSTEM\delay;..\SYSTEM\sys;..\FWLIB\STM32F4xx_StdPeriph_Driver\inc;..\USER;..\HARDWARE\LED;..\UCOSIII\uC-CPU;..\UCOSIII\uC-LIB;..\UCOSIII\uCOS-III;..\UCOSIII\UCOS_BSP;..\UCOSIII\uCOS_CONFIG;..\UCOSIII\uCOS-III\Source;..\UCOSIII\uC-CPU\ARM-Cortex-M4\RealView;..\UCOSIII\uC-LIB\Ports\ARM-Cortex-M4\RealView;..\UCOSIII\uCOS-III\Ports\ARM-Cortex-M4\Generic\RealView;..\HARDWARE\ADC;..\HARDWARE\DMA;..\HARDWARE\PWM;..\HARDWARE\SPI;..\HARDWARE\W25QXX;..\HARDWARE\timer2;..\HARDWARE\can;..\HARDWARE\capcount3;..\HARDWARE\capcount9;..\HARDWARE\cdhdata;..\HARDWARE\Modbus;..\HARDWARE\PID;..\HARDWARE\TLC5620;..\HARDWARE\usart;..\HARDWARE\yuyin;..\HARDWARE\Function;..\HARDWARE\IWDG;..\FWLIB\CMSIS\DSP_Lib\Source;..\HARDWARE\route;..\HARDWARE\read_PC;..\HARDWARE\Ethernet;..\HARDWARE\Ethernet\W5500;..\Robot;..\IGK;..\SEGGER\Examples;..\SEGGER\RTT;..\SEGGER\Syscalls;..\HARDWARE\MOTEC</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -455,11 +456,6 @@
               <FileName>igk_run.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\IGK\igk_run.c</FilePath>
-            </File>
-            <File>
-              <FileName>igk_run.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\IGK\igk_run.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -645,6 +641,11 @@
               <FileName>iwdg.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\IWDG\iwdg.c</FilePath>
+            </File>
+            <File>
+              <FileName>motec.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\MOTEC\motec.c</FilePath>
             </File>
           </Files>
         </Group>

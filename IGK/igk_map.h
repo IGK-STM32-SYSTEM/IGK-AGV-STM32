@@ -5,27 +5,30 @@
 #define __IGK_MAP_H
 #include "Modbus_slave.h"
 #include "igk_system.h"
+#include "malloc.h"
+#include "igk_dfs.h"
 
 typedef unsigned short int u16;
 typedef unsigned char u8;
 
-#define StartAddress 0   //地图起始地址
+#define MapStartAddress 0   //地图起始地址
 #define StationMax NodeMaxNum  //站点最大值
-#define StationMapSpace 17  //站点地图占用空间(单位:16Bit)
+#define StationMapSpace 29  //站点地图占用空间(单位:16Bit)+增加了12个地址用于存储到达目标位置后的旋转角度
 #define StationMapType 12   //站点地图类型(如:左转,左分叉,直行...)
 #define TotalSpace StationMax*StationMapSpace  //占用空间总数(单位:16Bit)
-#define StationStartAddress(N) StationMapSpace*(N-1)//第N个站点起始地址
+#define StationStartAddress(N) MapStartAddress + StationMapSpace*(N)//第N个站点起始地址
 
 //定义指针,指向通信接口寄存器地址
 extern u16 *ApiRegister;
 
 //站点地图结构体
 typedef struct {
-u16 Start[StationMapType];       //起点1-65535
-u16 Stop[StationMapType];        //终点1-65535
+u16 Start[StationMapType];              //起点1-65535
+u16 Stop[StationMapType];               //终点1-65535
 enum EnumDir  Dir[StationMapType];      //方向
 enum EnumAction  Action[StationMapType];//动作
-u16 Angle[StationMapType];       //角度0-360
+u16 Angle[StationMapType];              //角度【0-360】
+int16_t AfterAngle[StationMapType];     //到位后需要旋转的角度【±】【0-360】+：右转，顺时针，-：左转，逆时针
 }StaionMapStruct;
 
 /*******************************************************
@@ -72,10 +75,19 @@ void MapRegToBuf(u16* reg,u16* buf);
 *******************************************************/
 void WriteMap(u16 num);
 /*******************************************************
-* 名称：根据接口寄存器状态,读写地图
+* 名称：响应地图操作
 *******************************************************/
-void ReadWriteMap(void* p_arg);
+void Igk_Map_Response(void);
+/*******************************************************
+* 名称：删除地图
+*******************************************************/
+void DeleteMap(void);
+
 #endif
+
+
+
+
 
 
 

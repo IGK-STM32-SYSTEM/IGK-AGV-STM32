@@ -227,20 +227,20 @@ void delay_ms(u16 nms)
 void osdelay(u16 hh,u16 mm,u16 ss,u16 ms)
 {
 	OS_ERR err;
-	OSTimeDlyHMSM(hh,mm,ss,ms,OS_OPT_TIME_HMSM_STRICT,&err); //延时nms
+	OSTimeDlyHMSM(hh,mm,ss,ms,OS_OPT_TIME_HMSM_NON_STRICT,&err); //延时nms
 }
 
 
 void osdelay_s(u16 ns)
 {
 	OS_ERR err;
-	OSTimeDlyHMSM(0,0,ns,0,OS_OPT_TIME_HMSM_STRICT,&err); //延时nms
+	OSTimeDlyHMSM(0,0,ns,0,OS_OPT_TIME_HMSM_NON_STRICT,&err); //延时nms
 }
 
 void osdelay_ms(u16 nms)
 {
 	OS_ERR err;
-	OSTimeDlyHMSM(0,0,0,nms,OS_OPT_TIME_HMSM_STRICT,&err); //延时nms
+	OSTimeDlyHMSM(0,0,0,nms,OS_OPT_TIME_HMSM_NON_STRICT,&err); //延时nms
 }
 
 

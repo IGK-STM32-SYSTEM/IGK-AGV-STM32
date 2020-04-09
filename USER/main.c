@@ -3,6 +3,7 @@
 #include "igk_map.h"
 #include "igk_ucos.h"
 #include "malloc.h"
+#include "motec.h"
 
 #if DEF_TRUE
 OS_TCB Task1TCB;//任务控制块
@@ -36,6 +37,11 @@ void Task7_task(void *p_arg);//任务函数
 OS_TCB Task8TCB;//任务控制块
 CPU_STK Task8_STK[128];//任务堆栈
 void Task8_task(void *p_arg);//任务函数
+
+OS_TCB Task9TCB;//任务控制块
+CPU_STK Task9_STK[128];//任务堆栈
+void Task9_task(void *p_arg);//任务函数
+
 #endif
 
 
@@ -106,6 +112,7 @@ void start_task(void *p_arg)
 	IGK_UCOS_Create(9,sizeof(Task6_STK)/4,Task6_STK,&Task6TCB,Task6_task);
 	IGK_UCOS_Create(10,sizeof(Task7_STK)/4,Task7_STK,&Task7TCB,Task7_task);
 	IGK_UCOS_Create(11,sizeof(Task8_STK)/4,Task8_STK,&Task8TCB,Task8_task);
+	IGK_UCOS_Create(12,sizeof(Task9_STK)/4,Task9_STK,&Task9TCB,Task9_task);
 	
 	IGK_SysTimePrintln("UCOSIII初始化完成,系统进入时间轮片!");
 }
@@ -138,6 +145,8 @@ void Task1_task(void *p_arg)
 	IGK_SysTimePrintln("Task7 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
 	OSTaskStkChk (&Task8TCB,&free,&used,&err);	
 	IGK_SysTimePrintln("Task8 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
+	OSTaskStkChk (&Task9TCB,&free,&used,&err);	
+	IGK_SysTimePrintln("Task9 used/free:%d/%d  Percent:%d",used,free,(used*100)/(used+free));  		
 	while(1)
 	{
 	
@@ -174,10 +183,10 @@ void Task2_task(void *p_arg)
 					switch(IgkSystem.Action)
 					{
 						case Enum_ZuoXuan://左旋
-							DriverZuoXuan(50);
+							DriverZuoXuan(10);
 							break;
 						case Enum_YouXuan://右旋
-							DriverYouXuan(50);
+							DriverYouXuan(10);
 							break;
 						case Enum_ZuoFenCha://左分叉
 						case Enum_YouFenCha://右分叉
@@ -218,10 +227,10 @@ void Task2_task(void *p_arg)
 					switch(IgkSystem.Action)
 					{
 						case Enum_ZuoXuan://左旋
-							DriverZuoXuan(50);
+							DriverZuoXuan(10);
 							break;
 						case Enum_YouXuan://右旋
-							DriverYouXuan(50);
+							DriverYouXuan(10);
 							break;
 						case Enum_ZuoFenCha://左分叉
 						case Enum_YouFenCha://右分叉
@@ -323,90 +332,117 @@ void Task3_task(void *p_arg)
 			IgkSystem.RunOrStop = Enum_Run;
 			for(int i=0;i < BestPath.NodeCount;i++)
 			{
+                //恢复角度临时变量
+                int16_t RecoveryAngle = 0;
 				u16 nodeId = BestPath.NodeList[i];
-				//读取对应站点的地图
+				//读取上一个站点的地图
+				StaionMapStruct mapStructLast;
+                //读取对应站点的地图
 				StaionMapStruct mapStruct;
+                if(nodeId == 0)
+                    ReadToMapStruct(nodeId,&mapStructLast);
+                else
+                    ReadToMapStruct(nodeId-1,&mapStructLast);
+                
 				ReadToMapStruct(nodeId,&mapStruct);
+                
+                
 				IGK_SysPrintf("标签号:[%d]",nodeId);
 				//下一个位置更新到界面
 				*IgkSystem.Task.Next = nodeId;
 				//等待标签,起点不用等待
 				if(i!=0)
 				{
-						//等待标签
-						IGK_Speek("等待%d号标签!",nodeId);
-						while(*IgkSystem.RFID != nodeId )
-						{
-							//如果取消任务
-							if(*IgkSystem.Task.Cancel == DEF_TRUE)
-							{
-								//停车
-								IgkSystem.RunOrStop = Enum_Stop;
-								//清除取消标记
-								*IgkSystem.Task.Cancel = DEF_FALSE;
-								//更新目标和下一站点位当前
-								*IgkSystem.Task.Next  = *IgkSystem.RFID;
-								*IgkSystem.Task.Target  = *IgkSystem.RFID;
-								IGK_Speek("任务取消成功！");
-								IGK_SysTimePrintln("任务已取消！");
-								//程序退回到等待状态
-								goto GotoStart;
-							}
-							osdelay_ms(5);
-						}
+                    //等待标签
+                    IGK_Speek("等待%d号标签!",nodeId);
+                    while(*IgkSystem.RFID != nodeId )
+                    {
+                        //如果取消任务
+                        if(*IgkSystem.Task.Cancel == DEF_TRUE)
+                        {
+                            //停车
+                            IgkSystem.RunOrStop = Enum_Stop;
+                            //清除取消标记
+                            *IgkSystem.Task.Cancel = DEF_FALSE;
+                            //更新目标和下一站点位当前
+                            *IgkSystem.Task.Next  = *IgkSystem.RFID;
+                            *IgkSystem.Task.Target  = *IgkSystem.RFID;
+                            IGK_Speek("任务取消成功！");
+                            IGK_SysTimePrintln("任务已取消！");
+                            //程序退回到等待状态
+                            goto GotoStart;
+                        }
+                        osdelay_ms(5);
+                    }
 						
-						/*判断是否需要做旋转恢复【程序说明：1.1】************************************
-						  如果本站点到上一个站点有路，并且是通过旋转进入，则需要做反向旋转以恢复姿态
-						*****************************************************************************/
-						//当恢复旋转和下一个动作刚好相反，则忽略该旋转动作
-						for(int j=0;j<StationMapType;j++)
-						{
-							//当前点有通向上一个点的路，并且是左旋或者右旋
-							if(mapStruct.Stop[j] == BestPath.NodeList[i-1])
-							{
-								if(mapStruct.Action[j] == Enum_ZuoXuan)
-								{
-									//停车
-									IgkSystem.RunOrStop = Enum_Stop;
-									IGK_Speek("右旋%d度，恢复姿态",mapStruct.Angle[j]);
-									IGK_SysPrintf("右旋[%d]度，恢复姿态-",mapStruct.Angle[j]);
-									osdelay(0,0,1,0);
-									//反向旋转
-									IGK_Rotate_Right(mapStruct.Angle[j]);
-									osdelay(0,0,1,500);										
-								}
-								else
-								if(mapStruct.Action[j] == Enum_YouXuan)
-								{
-									//停车
-									IgkSystem.RunOrStop = Enum_Stop;
-									IGK_Speek("左旋%d度，恢复姿态",mapStruct.Angle[j]);
-									IGK_SysPrintf("左旋[%d]度，恢复姿态-",mapStruct.Angle[j]);
-									osdelay(0,0,1,0);
-									//反向旋转
-									IGK_Rotate_Left(mapStruct.Angle[j]);
-									osdelay(0,0,1,500);
-								}
-								break;
-							}
-						}
-						
-					  //如果到达终点,退出循环
-						if(i == BestPath.NodeCount-1)
-						{
-							break;
-						}
+                    /*判断是否需要做旋转恢复【程序说明：1.1】************************************
+                      如果是最后一个点，直接恢复姿态
+                    *****************************************************************************/
+                    //判断是否需要旋转
+                    for(int j=0;j<StationMapType;j++)
+                    {
+                        //当前点有通向上一个点的路，并且是左旋或者右旋
+                        if(mapStructLast.Stop[j] == BestPath.NodeList[i])
+                        {
+                            //如果需要旋转
+                            if(mapStructLast.AfterAngle[j]!=0)
+                            {
+                                //到达该站恢复车头方向需要旋转的角度
+                                RecoveryAngle = mapStructLast.AfterAngle[j];
+                            }
+                            break;
+                        }
+                    }
+                    
+                    
+                    //如果到达终点,不用执行后面的程序，直接退出
+                    if(i == BestPath.NodeCount-1)
+                    {
+                        //停车
+                        IgkSystem.RunOrStop = Enum_Stop;
+                        if(RecoveryAngle>0)
+                        {
+                            IGK_Speek("右旋%d度，恢复姿态",RecoveryAngle);
+                            IGK_SysPrintf("右旋[%d]度，恢复姿态-",RecoveryAngle);
+                            osdelay(0,0,1,0);
+                            //旋转
+                            IGK_Rotate_Right(RecoveryAngle);
+                            osdelay(0,0,2,0);		
+                            //切换直行
+                            IgkSystem.Action = Enum_ZhiXing;                             
+                        }
+                        else
+                        if(RecoveryAngle<0)
+                        { 
+                            //改为正数
+                            RecoveryAngle = abs(RecoveryAngle);
+                            IGK_Speek("左旋%d度，恢复姿态",RecoveryAngle);
+                            IGK_SysPrintf("左旋[%d]度，恢复姿态-",RecoveryAngle);
+                            osdelay(0,0,1,0);
+                            //旋转
+                            IGK_Rotate_Left(RecoveryAngle);
+                            osdelay(0,0,2,0);	
+                            //切换直行
+                            IgkSystem.Action = Enum_ZhiXing;                             
+                        }
+                        break;
+                    }
+
+                    //如果是起点或终点，不需要考虑到达站点后的恢复角度和再次出发的旋转角度
+                    if(i==0||i == BestPath.NodeCount-1)
+                    {
+                        //到达该站如果恢复动作需要旋转的角度
+                        RecoveryAngle = 0;
+                    }
 				}
-				
-				
 				
 				//TODO:
 				//这里写站点动作,如停车时间，按键启动等
 				
-
-				//直行站点方向，动作
+				//执行站点方向，动作
 				for(int j=0;j<StationMapType;j++)
 				{
+          //如果当前动作类型可到达目标和下一点相同
 					if(mapStruct.Stop[j] == BestPath.NodeList[i+1])
 					{
 						//方向
@@ -456,9 +492,12 @@ void Task3_task(void *p_arg)
 							}
 						}
 						
+						
 						//动作
 						if(mapStruct.Action[j] == Enum_ZuoFenCha)
 						{
+							//修正角度，避免超过180度,并自动旋转
+							RepairAngle(RecoveryAngle);
 							IgkSystem.Action = Enum_ZuoFenCha;
 							IGK_SysPrintf("左分叉-");
 							IGK_Speek("左分叉");
@@ -466,6 +505,8 @@ void Task3_task(void *p_arg)
 						else
 						if(mapStruct.Action[j] == Enum_YouFenCha)
 						{
+							//修正角度，避免超过180度,并自动旋转
+							RepairAngle(RecoveryAngle);
 							IgkSystem.Action = Enum_YouFenCha;
 							IGK_SysPrintf("右分叉-");
 							IGK_Speek("右分叉");
@@ -473,6 +514,8 @@ void Task3_task(void *p_arg)
 						else
 						if(mapStruct.Action[j] == Enum_ZhiXing)
 						{
+							//修正角度，避免超过180度,并自动旋转
+							RepairAngle(RecoveryAngle);
 							IgkSystem.Action = Enum_ZhiXing;
 							IGK_SysPrintf("直行-");
 							IGK_Speek("直行");
@@ -480,33 +523,20 @@ void Task3_task(void *p_arg)
 						else
 						if(mapStruct.Action[j] == Enum_ZuoXuan)
 						{
-							//停车
-							IgkSystem.RunOrStop = Enum_Stop;
-							DriverTingZhi();
-							//原地旋转
-							IGK_Speek("左旋%d度",mapStruct.Angle[j]);
-							IGK_SysPrintf("左旋[%d]度-",mapStruct.Angle[j]);
-							osdelay_ms(300);
-							IGK_Rotate_Left(mapStruct.Angle[j]);
-							osdelay_ms(300);
-							//切换直行
-							IgkSystem.Action = Enum_ZhiXing;
+							//综合恢复车头方向需要的角度
+							RecoveryAngle -= mapStruct.Angle[j];
+							//修正角度，避免超过180度,并自动旋转
+							RepairAngle(RecoveryAngle);
 						}
 						else
 						if(mapStruct.Action[j] == Enum_YouXuan)
 						{
-							//停车
-							IgkSystem.RunOrStop = Enum_Stop;
-							DriverTingZhi();
-							//原地旋转
-							IGK_Speek("右旋%d度",mapStruct.Angle[j]);
-							IGK_SysPrintf("右旋[%d]度-",mapStruct.Angle[j]);
-							osdelay_ms(300);
-							IGK_Rotate_Right(mapStruct.Angle[j]);
-							osdelay_ms(300);
-							//切换直行
-							IgkSystem.Action = Enum_ZhiXing;
+							//综合恢复车头方向需要的角度
+							RecoveryAngle += mapStruct.Angle[j];
+							//修正角度，避免超过180度,并自动旋转
+							RepairAngle(RecoveryAngle);
 						}
+						
 						//启动
 						IgkSystem.RunOrStop = Enum_Run;
 						//到达
@@ -650,14 +680,10 @@ void Task7_task(void *p_arg)
 	p_arg = p_arg;
 	while(1)
 	{
-		//响应Modbus读写地图信息
-		ReadWriteMap(p_arg);
+		//响应地图操作
+		Igk_Map_Response();
 		//响应电池配置
-		if(*IgkSystem.BatteryConfig.Save == Enum_True)
-		{
-			Igk_Battery_Save();
-			*IgkSystem.BatteryConfig.Save = Enum_False;
-		}
+		Igk_Battery_Response();
 		osdelay_ms(100);
 	}
 }
@@ -678,7 +704,20 @@ void Task8_task(void *p_arg)
 }
 
 
-
+/*【任务9】【电机驱动】**************************************************   
+1.
+2.更新系统运行时间
+****************************************************/
+void Task9_task(void *p_arg)
+{
+	osdelay_s(1);
+    g_motec_init.init_delay_val = 150;
+	while(1)
+	{
+        check_Motec_init();
+		osdelay_ms(200);
+	}
+}
 
 
 

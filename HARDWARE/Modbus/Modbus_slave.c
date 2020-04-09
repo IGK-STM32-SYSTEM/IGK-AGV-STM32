@@ -393,7 +393,7 @@ void Recirve_10()//接收到数据
 	{
 		for(i = 0; i < (length / 2); i++) //将值写入寄存器
 		{
-			PLC_Data[startadd + i] = (ModbusReceBuf[7 + i * 2] << 8) + ModbusReceBuf[8 + i * 2] & 0xff;
+			PLC_Data[startadd + i] = (ModbusReceBuf[7 + i * 2] << 8) | (ModbusReceBuf[8 + i * 2] & 0xff);
 		}
 		ModbusSendBuf[0] = 0x01;          //站号
 		ModbusSendBuf[1] = 0x10;         //功能码

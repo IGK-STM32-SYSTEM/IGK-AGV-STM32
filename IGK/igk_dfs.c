@@ -55,6 +55,8 @@ u8 IsAvoid(u16 num)
 
 //找邻居节点(目前采用的是直接从Flash读取当前点的地图信息)
 PNODE neighbour(int a){
+	if(a==0)
+		return NULL;
 	//删除邻居栈
 	DeleteStack(&neighbourStack);
 	//初始化neighbourStack

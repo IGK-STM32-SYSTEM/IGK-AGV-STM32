@@ -41,7 +41,12 @@ void Igk_System_Init(void)
 	//电池配置
 	IgkSystem.BatteryConfig.Code = &PLC_Data[106];  //功能码
 	IgkSystem.BatteryConfig.Data = &PLC_Data[107];   //Data1在高位，Data2在低位
-	IgkSystem.BatteryConfig.Save = (enum EnumBool*)&PLC_Data[108];		//为1时触发
+	IgkSystem.BatteryConfig.Set = (enum EnumBool*)&PLC_Data[108];		//为1时触发
+	
+	IgkSystem.BatteryConfig.Percent = &PLC_Data[109];//当前电量百分比
+	IgkSystem.BatteryConfig.Total = &PLC_Data[110];//额定容量
+	IgkSystem.BatteryConfig.UnderVoltage = &PLC_Data[111];//欠压值
+	IgkSystem.BatteryConfig.FullVoltage = &PLC_Data[112];//满电电压
 	
 	//PID配置
 	IgkSystem.PID.SetTarget = (s16*)&PLC_Data[200]; 
@@ -116,6 +121,53 @@ void GetSysRunTime(IGK_Struct_DateTime *dt,void *p_arg)
 	//系统节拍是5
 	tick*=5;
 	MillisecondToDateTime(tick,dt);
+}
+
+//修正角度,避免出现无用的旋转【执行任务内部函数】
+void RepairAngle(int16_t angle)
+{
+	if (abs(angle) > 360)
+			angle = angle % 360;
+	
+	if (angle == 270)
+			angle = -90;
+	else
+	if (angle == -270)
+			angle = 90;
+	else
+	if (angle == -180)
+			angle = 180;
+	
+	if(angle!=0)
+	{
+			//停车
+			IgkSystem.RunOrStop = Enum_Stop;
+			DriverTingZhi();
+			//原地旋转
+			if(angle>0)
+			{
+					//改为正数
+					angle = abs(angle);
+					IGK_Speek("右旋%d度",angle);
+					IGK_SysPrintf("右旋[%d]度-",angle);
+					osdelay(0,0,1,0);
+					IGK_Rotate_Right(angle);
+					osdelay(0,0,2,0);
+			}
+			else
+			if(angle<0)
+			{
+					//改为正数
+					angle = abs(angle);
+					IGK_Speek("左旋%d度",angle);
+					IGK_SysPrintf("左旋[%d]度-",angle);
+					osdelay(0,0,1,0);
+					IGK_Rotate_Left(angle);
+					osdelay(0,0,2,0);
+			}    
+			//切换直行
+			IgkSystem.Action = Enum_ZhiXing; 
+	}
 }
 
 

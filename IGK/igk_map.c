@@ -33,12 +33,14 @@ void BufferToMapStruct(u16 num,u16* buffer,StaionMapStruct *mapStruct){
 					mapStruct->Dir[i] = Enum_QianJin;//方向
 					mapStruct->Action[i] = Enum_ZuoXuan;
 					mapStruct->Angle[i] = buffer[13];//旋转角度
+                    mapStruct->AfterAngle[i] = (int16_t)buffer[17];//到达后旋转角度
 				}
 				else
 				//没有设置，目标站点置为0
 				{
 					mapStruct->Stop[i] = 0;
 					mapStruct->Angle[i] = 0;//旋转角度
+                    mapStruct->AfterAngle[i] = 0 ;//旋转角度
 				}
 				break;
 			case 1://前进-左分叉
@@ -47,10 +49,14 @@ void BufferToMapStruct(u16 num,u16* buffer,StaionMapStruct *mapStruct){
 					mapStruct->Dir[i] = Enum_QianJin;//方向
 					mapStruct->Action[i] = Enum_ZuoFenCha;
 					mapStruct->Angle[i] = 0;//旋转角度
+                    mapStruct->AfterAngle[i] = (int16_t)buffer[18];//到达后旋转角度
 				}
 				else
-					//没有设置，目标站点置为0
+                {
+                    //没有设置，目标站点置为0
 					mapStruct->Stop[i] = 0;
+                    mapStruct->AfterAngle[i] = 0 ;//旋转角度
+                }
 				break;
 			case 2://前进-直行
 				if(bit==0){
@@ -58,10 +64,14 @@ void BufferToMapStruct(u16 num,u16* buffer,StaionMapStruct *mapStruct){
 					mapStruct->Dir[i] = Enum_QianJin;//方向
 					mapStruct->Action[i] = Enum_ZhiXing;
 					mapStruct->Angle[i] = 0;//旋转角度
+                    mapStruct->AfterAngle[i] = (int16_t)buffer[19];//到达后旋转角度
 				}
 				else
-					//没有设置，目标站点置为0
+                {
+                    //没有设置，目标站点置为0
 					mapStruct->Stop[i] = 0;
+                    mapStruct->AfterAngle[i] = 0 ;//旋转角度
+                }
 				break;
 			case 3://前进-右分叉
 				if(bit==0){
@@ -69,10 +79,14 @@ void BufferToMapStruct(u16 num,u16* buffer,StaionMapStruct *mapStruct){
 					mapStruct->Dir[i] = Enum_QianJin;//方向
 					mapStruct->Action[i] = Enum_YouFenCha;
 					mapStruct->Angle[i] = 0;//旋转角度
+                    mapStruct->AfterAngle[i] = (int16_t)buffer[20];//到达后旋转角度
 				}
 				else
-					//没有设置，目标站点置为0
+                {
+                    //没有设置，目标站点置为0
 					mapStruct->Stop[i] = 0;
+                    mapStruct->AfterAngle[i] = 0 ;//旋转角度
+                }
 				break;
 			case 4://前进-右旋
 				if(bit==0){
@@ -80,12 +94,14 @@ void BufferToMapStruct(u16 num,u16* buffer,StaionMapStruct *mapStruct){
 					mapStruct->Dir[i] = Enum_QianJin;//方向
 					mapStruct->Action[i] = Enum_YouXuan;
 					mapStruct->Angle[i] = buffer[14];//旋转角度
+                    mapStruct->AfterAngle[i] = (int16_t)buffer[21];//到达后旋转角度
 				}
 				else
 				//没有设置，目标站点置为0
 				{
 					mapStruct->Stop[i] = 0;
 					mapStruct->Angle[i] = 0;//旋转角度
+                    mapStruct->AfterAngle[i] = 0 ;//旋转角度
 				}
 				break;
 			case 5://平移-左移
@@ -94,10 +110,14 @@ void BufferToMapStruct(u16 num,u16* buffer,StaionMapStruct *mapStruct){
 					mapStruct->Dir[i] = Enum_PingYi;//方向
 					mapStruct->Action[i] = Enum_ZuoYi;
 					mapStruct->Angle[i] = 0;//旋转角度
+                    mapStruct->AfterAngle[i] = (int16_t)buffer[22];//到达后旋转角度
 				}
 				else
+                {
 					//没有设置，目标站点置为0
 					mapStruct->Stop[i] = 0;
+                    mapStruct->AfterAngle[i] = 0 ;//旋转角度
+                }
 				break;
 			case 6://平移-右移
 				if(bit==0){
@@ -105,10 +125,14 @@ void BufferToMapStruct(u16 num,u16* buffer,StaionMapStruct *mapStruct){
 					mapStruct->Dir[i] = Enum_PingYi;//方向
 					mapStruct->Action[i] = Enum_YouYi;
 					mapStruct->Angle[i] = 0;//旋转角度
+                    mapStruct->AfterAngle[i] = (int16_t)buffer[23];//到达后旋转角度
 				}
 				else
-					//没有设置，目标站点置为0
+                {
+                    //没有设置，目标站点置为0
 					mapStruct->Stop[i] = 0;
+                    mapStruct->AfterAngle[i] = 0 ;//旋转角度
+                }
 				break;
 			case 7://后退-左旋
 				if(bit==0){
@@ -116,12 +140,14 @@ void BufferToMapStruct(u16 num,u16* buffer,StaionMapStruct *mapStruct){
 					mapStruct->Dir[i] = Enum_HouTui;//方向
 					mapStruct->Action[i] = Enum_ZuoXuan;
 					mapStruct->Angle[i] = buffer[15];//旋转角度
+                    mapStruct->AfterAngle[i] = (int16_t)buffer[24];//到达后旋转角度
 				}
 				else
 				//没有设置，目标站点置为0
 				{
 					mapStruct->Stop[i] = 0;
 					mapStruct->Angle[i] = 0;//旋转角度
+                    mapStruct->AfterAngle[i] = 0 ;//旋转角度
 				}
 				break;
 			case 8://后退-左分叉
@@ -130,10 +156,14 @@ void BufferToMapStruct(u16 num,u16* buffer,StaionMapStruct *mapStruct){
 					mapStruct->Dir[i] = Enum_HouTui;//方向
 					mapStruct->Action[i] = Enum_ZuoFenCha;
 					mapStruct->Angle[i] = 0;//旋转角度
+                    mapStruct->AfterAngle[i] = (int16_t)buffer[25];//到达后旋转角度
 				}
 				else
-					//没有设置，目标站点置为0
+                {
+                    //没有设置，目标站点置为0
 					mapStruct->Stop[i] = 0;
+                    mapStruct->AfterAngle[i] = 0 ;//旋转角度
+                }
 				break;
 			case 9://后退-直行
 				if(bit==0){
@@ -141,12 +171,14 @@ void BufferToMapStruct(u16 num,u16* buffer,StaionMapStruct *mapStruct){
 					mapStruct->Dir[i] = Enum_HouTui;//方向
 					mapStruct->Action[i] = Enum_ZhiXing;
 					mapStruct->Angle[i] = 0;//旋转角度
+                    mapStruct->AfterAngle[i] = (int16_t)buffer[26];//到达后旋转角度
 				}
 				else
 				//没有设置，目标站点置为0
 				{
 					mapStruct->Stop[i] = 0;
 					mapStruct->Angle[i] = 0;//旋转角度
+                    mapStruct->AfterAngle[i] = 0 ;//旋转角度
 				}
 				break;
 			case 10://后退-右分叉
@@ -155,10 +187,14 @@ void BufferToMapStruct(u16 num,u16* buffer,StaionMapStruct *mapStruct){
 					mapStruct->Dir[i] = Enum_HouTui;//方向
 					mapStruct->Action[i] = Enum_YouFenCha;
 					mapStruct->Angle[i] = 0;//旋转角度
+                    mapStruct->AfterAngle[i] = (int16_t)buffer[27];//到达后旋转角度
 				}
 				else
-					//没有设置，目标站点置为0
+                {
+                    //没有设置，目标站点置为0
 					mapStruct->Stop[i] = 0;
+                    mapStruct->AfterAngle[i] = 0 ;//旋转角度
+                }
 				break;
 			case 11://后退-右旋
 				if(bit==0){
@@ -166,12 +202,14 @@ void BufferToMapStruct(u16 num,u16* buffer,StaionMapStruct *mapStruct){
 					mapStruct->Dir[i] = Enum_HouTui;//方向
 					mapStruct->Action[i] = Enum_YouXuan;
 					mapStruct->Angle[i] = buffer[16];//旋转角度
+                    mapStruct->AfterAngle[i] = (int16_t)buffer[28];//到达后旋转角度
 				}
 				else
 				//没有设置，目标站点置为0
 				{
 					mapStruct->Stop[i] = 0;
 					mapStruct->Angle[i] = 0;//旋转角度
+                    mapStruct->AfterAngle[i] = 0 ;//旋转角度
 				}
 				break;
 			default:break;
@@ -204,19 +242,20 @@ void MapSturctToReg(StaionMapStruct *map,u16 *reg){
 	for(u8 i=0;i<StationMapType;i++)
 	{
 		reg[i+1] = map->Stop[i];
-			if(map->Dir[i]==Enum_QianJin && map->Action[i]==Enum_ZuoXuan)
-				reg[13] = map->Angle[i];
-			else
-			if(map->Dir[i]==Enum_QianJin && map->Action[i]==Enum_YouXuan)
-				reg[14] = map->Angle[i];
-			else
-			if(map->Dir[i]==Enum_HouTui && map->Action[i]==Enum_ZuoXuan)
-				reg[15] = map->Angle[i];
-			else
-			if(map->Dir[i]==Enum_HouTui && map->Action[i]==Enum_YouXuan)
-				reg[16] = map->Angle[i];
-			else
-				continue;
+        reg[17+i] = (u16)(map->AfterAngle[i]);
+        if(map->Dir[i]==Enum_QianJin && map->Action[i]==Enum_ZuoXuan)
+            reg[13] = map->Angle[i];
+        else
+        if(map->Dir[i]==Enum_QianJin && map->Action[i]==Enum_YouXuan)
+            reg[14] = map->Angle[i];
+        else
+        if(map->Dir[i]==Enum_HouTui && map->Action[i]==Enum_ZuoXuan)
+            reg[15] = map->Angle[i];
+        else
+        if(map->Dir[i]==Enum_HouTui && map->Action[i]==Enum_YouXuan)
+            reg[16] = map->Angle[i];
+        else
+            continue;
 	}
 }
 /*******************************************************
@@ -255,6 +294,8 @@ void MapRegToBuf(u16* reg,u16* buf){
 			igk_SetBit(buf[0],i);
 		else
 			igk_ClearBit(buf[0],i);
+        //取到位后的旋转角度
+        buf[17+i] = reg[17+i];
 		//取角度
 		if((i+1)==1)
 			buf[13] = reg[13];
@@ -283,9 +324,9 @@ void WriteMap(u16 num){
 	W25QXX_Write_16(Buf,StationStartAddress(num),StationMapSpace);
 }
 /*******************************************************
-* 名称：根据接口寄存器状态,读写地图
+* 名称：响应地图操作
 *******************************************************/
-void ReadWriteMap(void* p_arg)
+void Igk_Map_Response()
 {
 	//当前位置
 	u16 nowNum = ApiRegister[30];
@@ -301,4 +342,59 @@ void ReadWriteMap(void* p_arg)
 		ApiRegister[32] = 0;
 		IGK_SysTimePrintln("读取%d号标签地图!",nowNum);
 	}
+	//删除地图
+	if(ApiRegister[36] == 1){
+		DeleteMap();
+		ApiRegister[36] = 0;
+		IGK_SysTimePrintln("执行删除地图完成!");
+	}
 }
+
+/*******************************************************
+* 名称：删除地图
+*******************************************************/
+void DeleteMap()
+{
+	u16 OneNum = 60;//单次清除站点数
+	//定义指针，并且申请一个具有100个站点地图信息的空间 29*60*2=3480(字节)
+    u16* p = (u16*)mymalloc(SRAMIN,sizeof(u16)*StationMapSpace*OneNum); 
+	u8 percent = my_mem_perused(SRAMIN);
+	//置默认数据
+	for(int i=0;i<100;i++)
+	{
+		p[i*StationMapSpace] = 0xFFFF;
+		for(int j=1;j<StationMapSpace;j++)
+		{
+			p[i*StationMapSpace+j] = 0; 
+		}
+	}
+	//需要删除次数
+	u16 count = StationMax / OneNum;
+	//余数
+	u16 yu = StationMax % OneNum;
+	//写入整数部分
+	for(int i=0;i<count;i++)
+	{
+		W25QXX_Write_16(p,StationStartAddress(i*OneNum),StationMapSpace*OneNum);
+		//适当延时，避免看门狗触发
+		osdelay_ms(10);
+	}
+	//写入余数部分
+	if(yu!=0)
+	{
+		W25QXX_Write_16(p,StationStartAddress(count*OneNum),StationMapSpace*yu);
+	}
+  
+	//释放内存
+	myfree(SRAMIN,p);  
+	//防止产生野指针  
+	p = NULL; 
+	//语音提示  
+	IGK_Speek("地图已清除！");
+}
+
+
+
+
+
+

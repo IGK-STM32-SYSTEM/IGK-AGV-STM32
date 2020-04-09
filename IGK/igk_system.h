@@ -101,7 +101,11 @@ typedef struct {
 typedef struct {
 	u16 *Code;	//功能码
 	u16 *Data;  //Data1在高位，Data2在低位
-	enum EnumBool *Save;		//为1时触发
+	enum EnumBool *Set;		//为1时触发
+	u16 *Percent;//当前电量百分比
+	u16 *Total;//额定容量
+	u16 *UnderVoltage;//欠压值
+	u16 *FullVoltage;//满电电压
 }IGK_Struct_BatteryConfig;
 
 //系统结构体,全局通用
@@ -133,6 +137,8 @@ void GetSysRunTime(IGK_Struct_DateTime *dt,void *p_arg);
 void Igk_System_Init(void);
 //计算校验和
 u8 IGK_CheckSum(u8 *buf,u16 len);
+//修正角度,避免出现无用的旋转【执行任务内部函数】
+void RepairAngle(int16_t angle);
 #endif
 
 
